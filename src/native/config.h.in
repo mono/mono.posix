@@ -1,0 +1,85 @@
+#if !defined (__MPH_CONFIG_H)
+#define __MPH_CONFIG_H
+
+// headers
+#cmakedefine HAVE_UNISTD_H 1
+#cmakedefine HAVE_CHECKLIST_H 1
+#cmakedefine HAVE_FSTAB_H 1
+#cmakedefine HAVE_SYS_VFSTAB_H 1
+#cmakedefine HAVE_SYS_PARAM_H 1
+#cmakedefine HAVE_NETINET_IN_H 1
+#cmakedefine HAVE_SYS_TIME_H 1
+#cmakedefine HAVE_SYS_POLL_H 1
+#cmakedefine HAVE_SYS_WAIT_H 1
+#cmakedefine HAVE_SYS_STATVFS_H 1
+#cmakedefine HAVE_SYS_XATTR_H 1
+#cmakedefine HAVE_SYS_MMAN_H 1
+#cmakedefine HAVE_SYS_SOCKET_H 1
+#cmakedefine HAVE_SYS_UIO_H 1
+#cmakedefine HAVE_POLL_H 1
+#cmakedefine HAVE_GRP_H 1
+#cmakedefine HAVE_SYSLOG_H 1
+#cmakedefine HAVE_DIRENT_H 1
+#cmakedefine HAVE_UTIME_H 1
+#cmakedefine HAVE_SYS_STAT_H 1
+#cmakedefine HAVE_STDINT_H 1
+#cmakedefine HAVE_STDIO_H 1
+#cmakedefine HAVE_LINUX_NETLINK_H 1
+#cmakedefine HAVE_LINUX_RTNETLINK_H 1
+#cmakedefine HAVE_LINUX_SERIAL_H 1
+#cmakedefine HAVE_SYS_SENDFILE_H 1
+
+// Types
+#cmakedefine HAVE_BLKCNT_T 1
+#cmakedefine HAVE_BLKSIZE_T 1
+#cmakedefine HAVE_SUSECONDS_T 1
+
+// structures
+#cmakedefine HAVE_STRUCT_DIRENT_D_OFF 1
+#cmakedefine HAVE_STRUCT_DIRENT_D_RECLEN 1
+#cmakedefine HAVE_STRUCT_DIRENT_D_TYPE 1
+#cmakedefine HAVE_STRUCT_CMSGHDR 1
+#cmakedefine HAVE_STRUCT_FLOCK 1
+#cmakedefine HAVE_STRUCT_LINGER 1
+#cmakedefine HAVE_STRUCT_POLLFD 1
+#cmakedefine HAVE_STRUCT_SOCKADDR_IN 1
+#cmakedefine HAVE_STRUCT_SOCKADDR_IN6 1
+#cmakedefine HAVE_STRUCT_TIMESPEC 1
+#cmakedefine HAVE_STRUCT_TIMEVAL 1
+#cmakedefine HAVE_STRUCT_TIMEZONE 1
+#cmakedefine HAVE_STRUCT_UTIMBUF 1
+#cmakedefine HAVE_STRUCT_PASSWD_PW_GECOS 1
+
+// functions
+#cmakedefine HAVE_SEEKDIR 1
+#cmakedefine HAVE_TELLDIR 1
+#cmakedefine HAVE_STRERROR_R 1
+#cmakedefine HAVE_POSIX_FADVISE 1
+#cmakedefine HAVE_POSIX_FALLOCATE 1
+#cmakedefine HAVE_GETGRNAM_R 1
+#cmakedefine HAVE_GETGRGID_R 1
+#cmakedefine HAVE_GETGRENT 1
+#cmakedefine HAVE_SETGRENT 1
+#cmakedefine HAVE_FGETGRENT 1
+#cmakedefine HAVE_SETGROUPS 1
+#cmakedefine HAVE_GETPWNAM_R 1
+#cmakedefine HAVE_GETPWUID_R 1
+#cmakedefine HAVE_GETPWENT 1
+#cmakedefine HAVE_FGETPWENT 1
+#cmakedefine HAVE_SETPWENT 1
+#cmakedefine HAVE_ENDPWENT 1
+#cmakedefine HAVE_PSIGNAL 1
+#cmakedefine HAVE_SIGNAL 1
+#cmakedefine HAVE_VSNPRINTF 1
+#cmakedefine HAVE_MLOCK 1
+#cmakedefine HAVE_MUNLOCK 1
+#cmakedefine HAVE_MREMAP 1
+#cmakedefine HAVE_MINCORE 1
+#cmakedefine HAVE_POSIX_MADVISE 1
+#cmakedefine HAVE_REMAP_FILE_PAGES 1
+#cmakedefine HAVE_SENDFILE 1
+
+// Other
+#cmakedefine HAVE_LARGE_FILE_SUPPORT 1
+
+#endif // __MPH_CONFIG_H
