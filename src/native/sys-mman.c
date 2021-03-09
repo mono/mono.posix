@@ -31,7 +31,6 @@
 #include <sys/mman.h>
 #include <errno.h>
 
-#include "mono/utils/mono-compiler.h"
 #include "map.h"
 #include "mph.h"
 
@@ -123,7 +122,7 @@ Mono_Posix_Syscall_mremap (void *old_address, mph_size_t old_size,
 	if (Mono_Posix_FromMremapFlags (flags, &_flags) == -1)
 		return MAP_FAILED;
 
-#if defined(linux)
+#if defined(linux) || defined (__linux__) || defined (__linux)
 	return mremap (old_address, (size_t) old_size, (size_t) new_size,
 			(unsigned long) _flags);
 #elif defined(__NetBSD__)

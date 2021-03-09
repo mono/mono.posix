@@ -4,7 +4,7 @@ Please note that this repository is a work in progress - it MAY happen that hist
 to be rewritten.  Until this notice is removed, please do not rely on the repository history
 being set in stone.
 
-STATUS: **NOT BUILDING**
+STATUS: **BUILDING, BUT NOT LINKING**
 
 # Mono.Posix standalone repository
 
@@ -19,8 +19,14 @@ The `src/native` directory here corresponds to `support/` in the Mono repository
 
 # TODO
 
+  - [ ] Replace Mono atomic calls with compiler intrinsics (or
+        standard library calls)
+  - [ ] Replace glib functions with something else (e.g. `g_error`)
+  - [ ] Test build on macOS
+  - [ ] Test build on {Free,Open,Net}BSD
+  - [ ] Test build on Windows
   - [ ] Create CMake toolchain files for various target systems (`iOS`,
-        `watchOS`, `tvOS`)
+        `watchOS`, `tvOS`, `WASM`)
   - [ ] Migrate to standard types (e.g. `uint32_t`) instead of the glib
         ones
   - [ ] Migrate to C++ (no stdlib linking, just compiler + select
@@ -28,5 +34,5 @@ The `src/native` directory here corresponds to `support/` in the Mono repository
   - [ ] Migrate to `<limits>` instead of the glib macros
   - [ ] Review what POSIX APIs are missing
   - [ ] Add OS-specific calls (in namespace per OS)
-  - [ ] Replace glib functions with something else (e.g. `g_error`)
-  
+  - [ ] Migrate managed build to a dotnet SDK project (netstandard and
+        netcore)

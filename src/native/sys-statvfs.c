@@ -33,8 +33,6 @@
 #include <unistd.h>     /* for pathconf */
 #endif /* def HAVE_GETFSSTAT */
 
-#include "mono/utils/mono-compiler.h"
-
 G_BEGIN_DECLS
 
 #ifdef HAVE_SYS_STATVFS_H

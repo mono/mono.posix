@@ -27,8 +27,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <pthread.h>
-#include <mono/utils/atomic.h>
-#include <mono/metadata/appdomain.h>
+//#include <mono/utils/atomic.h>
 #endif
 
 G_BEGIN_DECLS

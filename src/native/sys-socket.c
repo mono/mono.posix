@@ -6,7 +6,11 @@
  *
  * Copyright (C) 2015 Steffen Kiess
  */
+#if defined (HAVE_CONFIG_H)
+#include <config.h>
+#endif
 
+#include <alloca.h>
 #include <sys/socket.h>
 #include <sys/time.h>
 #include <netinet/in.h>
