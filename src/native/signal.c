@@ -113,12 +113,12 @@ int Mono_Posix_FromRealTimeSignum (int offset, int *r)
 // Atomicity rules: Fields of signal_info read or written by the signal handler
 // (see UnixSignal.cs) should be read and written using atomic functions.
 // (For simplicity, we're protecting some things we don't strictly need to.)
-#define mph_int_get(p)     __atomic_fetch_add ((p), (int32_t)0, __ATOMIC_ACQ_REL)
-#define mph_int_inc(p)     __atomic_add_fetch ((p), 1, __ATOMIC_ACQ_REL)
-#define mph_int_dec_test(p)     (__atomic_sub_fetch ((p), 1, __ATOMIC_ACQ_REL) == 0)
-#define mph_int_set(p,n) __atomic_store_n ((p), (n), __ATOMIC_RELEASE)
+#define mph_int_get(ptr)     __atomic_fetch_add ((ptr), (int32_t)0, __ATOMIC_ACQ_REL)
+#define mph_int_inc(ptr)     __atomic_add_fetch ((ptr), 1, __ATOMIC_ACQ_REL)
+#define mph_int_dec_test(ptr)     (__atomic_sub_fetch ((ptr), 1, __ATOMIC_ACQ_REL) == 0)
+#define mph_int_set(ptr,val) __atomic_store_n ((ptr), (val), __ATOMIC_RELEASE)
 // Pointer, original, new
-#define mph_int_test_and_set(p,o,n) (o == __atomic_compare_exchange_n ((p), (n), (o), 0, __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST))
+#define mph_int_test_and_set(ptr,expected,desired) (expected == __atomic_compare_exchange_n ((ptr), (expected), (desired), 0, __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST))
 
 #if HAVE_PSIGNAL
 
