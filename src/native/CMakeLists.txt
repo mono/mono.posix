@@ -212,6 +212,7 @@ set(MPH_SOURCES
   x-struct-str.c
   )
 
+# Args shared between the C and C++ compilers
 set(LOCAL_COMPILER_ARGS
   -fvisibility=hidden
   -fstack-protector-strong
@@ -234,8 +235,13 @@ set(LOCAL_COMPILER_ARGS
   -Wpedantic
   -Wsuggest-final-types
   -Wsuggest-final-methods
+  )
+
+set(LOCAL_CXX_COMPILER_ARGS
   -Wsuggest-override
   )
+
+set(LOCAL_C_COMPILER_ARGS "")
 
 set(LOCAL_LINKER_ARGS
   -rdynamic
@@ -272,7 +278,7 @@ endif()
 # Compiler and linker flag checks
 #
 set(_CHECKED_FLAGS "")
-foreach(flag ${LOCAL_COMPILER_ARGS})
+foreach(flag ${LOCAL_COMPILER_ARGS} LOCAL_C_COMPILER_ARGS)
   c_compiler_has_flag(${flag})
   if(COMPILER_FLAG_FOUND)
     list(APPEND _CHECKED_FLAGS "${flag}")
@@ -281,7 +287,7 @@ endforeach()
 set(MPH_C_FLAGS "${_CHECKED_FLAGS}")
 
 set(_CHECKED_FLAGS "")
-foreach(flag ${LOCAL_COMPILER_ARGS})
+foreach(flag ${LOCAL_COMPILER_ARGS} ${LOCAL_CXX_COMPILER_ARGS})
   cxx_compiler_has_flag(${flag})
   if(COMPILER_FLAG_FOUND)
     list(APPEND _CHECKED_FLAGS "${flag}")

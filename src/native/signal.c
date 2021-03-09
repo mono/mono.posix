@@ -113,12 +113,12 @@ int Mono_Posix_FromRealTimeSignum (int offset, int *r)
 // Atomicity rules: Fields of signal_info read or written by the signal handler
 // (see UnixSignal.cs) should be read and written using atomic functions.
 // (For simplicity, we're protecting some things we don't strictly need to.)
-#define mph_int_get(ptr)     __atomic_fetch_add ((ptr), (int32_t)0, __ATOMIC_ACQ_REL)
-#define mph_int_inc(ptr)     __atomic_add_fetch ((ptr), 1, __ATOMIC_ACQ_REL)
-#define mph_int_dec_test(ptr)     (__atomic_sub_fetch ((ptr), 1, __ATOMIC_ACQ_REL) == 0)
-#define mph_int_set(ptr,val) __atomic_store_n ((ptr), (val), __ATOMIC_RELEASE)
+#define mph_int_get(ptr)     __atomic_fetch_add ((ptr), (int32_t)0, __ATOMIC_SEQ_CST)
+#define mph_int_inc(ptr)     __atomic_add_fetch ((ptr), 1, __ATOMIC_SEQ_CST)
+#define mph_int_dec_test(ptr)     (__atomic_sub_fetch ((ptr), 1, __ATOMIC_SEQ_CST) == 0)
+#define mph_int_set(ptr,val) __atomic_store_n ((ptr), (val), __ATOMIC_SEQ_CST)
 // Pointer, original, new
-#define mph_int_test_and_set(ptr,expected,desired) (expected == __atomic_compare_exchange_n ((ptr), (expected), (desired), 0, __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST))
+#define mph_int_test_and_set(ptr,expected,desired) (*(expected) == __atomic_compare_exchange_n ((ptr), (expected), (desired), 0, __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST))
 
 #if HAVE_PSIGNAL
 
@@ -196,7 +196,7 @@ acquire_pipelock_teardown (int *lock)
 	while (1) {
 		int lockvalue = mph_int_get (lock);
 		lockvalue_draining = lockvalue | PIPELOCK_TEARDOWN_BIT;
-		if (mph_int_test_and_set (lock, lockvalue, lockvalue_draining))
+		if (mph_int_test_and_set (lock, &lockvalue, lockvalue_draining))
 			break;
 	}
 	// Now wait for all handlers to complete.
@@ -216,7 +216,7 @@ release_pipelock_teardown (int *lock)
 		int lockvalue = mph_int_get (lock);
 		int lockvalue_new = lockvalue & ~PIPELOCK_TEARDOWN_BIT;
 		// Technically this can't fail, because we hold both the pipelock and the mutex, but
-		if (mph_int_test_and_set (lock, lockvalue, lockvalue_new))
+		if (mph_int_test_and_set (lock, &lockvalue, lockvalue_new))
 			return;
 	}
 }
@@ -230,7 +230,7 @@ acquire_pipelock_handler (int *lock)
 		if (lockvalue & PIPELOCK_TEARDOWN_BIT) // Final lock is being torn down
 			return 0;
 		int lockvalue_new = PIPELOCK_INCR_COUNT (lockvalue, 1);
-		if (mph_int_test_and_set (lock, lockvalue, lockvalue_new))
+		if (mph_int_test_and_set (lock, &lockvalue, lockvalue_new))
 			return 1;
 	}
 }
@@ -241,7 +241,7 @@ release_pipelock_handler (int *lock)
 	while (1) {
 		int lockvalue = mph_int_get (lock);
 		int lockvalue_new = PIPELOCK_INCR_COUNT (lockvalue, -1);
-		if (mph_int_test_and_set (lock, lockvalue, lockvalue_new))
+		if (mph_int_test_and_set (lock, &lockvalue, lockvalue_new))
 			return;
 	}
 }

@@ -134,7 +134,7 @@ gint32
 Mono_Posix_Syscall_strerror_r (int errnum, char *buf, mph_size_t n)
 {
 	mph_return_if_size_t_overflow (n);
-	return strerror_r (errnum, buf, (size_t) n);
+	return GPOINTER_TO_INT (strerror_r (errnum, buf, (size_t) n));
 }
 
 #endif /* def STRERROR_R_CHAR_P */

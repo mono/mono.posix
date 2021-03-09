@@ -231,7 +231,7 @@ typedef gint64 suseconds_t;
 #define mph_return_val_if_off_t_overflow(var, ret) \
 	_mph_return_val_if_cb_(var, ret, mph_have_off_t_overflow)
 
-#define mph_return_if_off_t_overflow(var) mph_return_val_if_size_t_overflow(var, -1)
+#define mph_return_if_off_t_overflow(var) mph_return_val_if_long_overflow(var, -1)
 
 #define mph_return_if_time_t_overflow(var) mph_return_if_long_overflow(var)
 

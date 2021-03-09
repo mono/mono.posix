@@ -96,7 +96,23 @@ Mono_Posix_Syscall_readdir_r (void *dirp, struct Mono_Posix_Syscall__Dirent *ent
 	struct dirent *_entry = malloc (sizeof (struct dirent) + MPH_PATH_MAX + 1);
 	int r;
 
+	// TODO: mark the managed API as deprecated
+	// readdir_r is deprecated, but we still want to support it, so hush the warning
+#if defined (__clang__)
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+#elif defined (__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
+
 	r = readdir_r (dirp, _entry, (struct dirent**) result);
+
+#if defined (__clang__)
+#pragma clang diagnostic pop
+#elif defined (__GNUC__)
+#pragma GCC diagnostic pop
+#endif
 
 	if (r == 0 && *result != NULL) {
 		copy_dirent (entry, _entry);
