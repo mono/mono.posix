@@ -10,7 +10,7 @@
 
 G_BEGIN_DECLS
 
-MPH_INTERNAL struct iovec*
+struct iovec*
 _mph_from_iovec_array (struct Mono_Posix_Iovec *iov, gint32 iovcnt);
 
 G_END_DECLS

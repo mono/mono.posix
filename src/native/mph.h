@@ -83,10 +83,12 @@ int fsetpos(FILE*, const fpos_t*);
 #define MPH_ON_BSD
 #endif
 
-#ifdef HAVE_VISIBILITY_HIDDEN
-#define MPH_INTERNAL __attribute__((visibility("hidden")))
-#else
-#define MPH_INTERNAL
+#if defined (_MSC_VER)
+#define MPH_API __declspec(dllexport)
+#elif defined (__clang__) || defined (__GNUC__) // def _MSC_VER
+#define MPH_API __attribute__ ((__visibility__ ("default")))
+#else // def __clang__ || def __GNUC__
+#define MPH_API
 #endif
 
 #if !defined(EOVERFLOW)
@@ -275,7 +277,7 @@ enum {
 
 #define MPH_STRING_OFFSET(type,member,kind) ((offsetof(type,member) << 1) | kind)
 
-MPH_INTERNAL char* 
+char*
 _mph_copy_structure_strings (
 	void *to,         const mph_string_offset_t *to_offsets, 
 	const void *from, const mph_string_offset_t *from_offsets, 
