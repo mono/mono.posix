@@ -494,7 +494,7 @@ check_struct_has_member("struct stat" st_atim "sys/stat.h" HAVE_STRUCT_STAT_ST_A
 check_struct_has_member("struct stat" st_ctim "sys/stat.h" HAVE_STRUCT_STAT_ST_CTIM)
 check_struct_has_member("struct stat" st_mtim "sys/stat.h" HAVE_STRUCT_STAT_ST_MTIM)
 check_struct_has_member("struct timespec" tv_sec "time.h" HAVE_STRUCT_TIMESPEC)
-check_struct_has_member("struct timeval" tv_sec "time.h" HAVE_STRUCT_TIMEVAL)
+check_struct_has_member("struct timeval" tv_sec "time.h;sys/time.h" HAVE_STRUCT_TIMEVAL)
 check_struct_has_member("struct timezone" tz_minuteswest "sys/time.h" HAVE_STRUCT_TIMEZONE)
 check_struct_has_member("struct utimbuf" actime "utime.h" HAVE_STRUCT_UTIMBUF)
 
