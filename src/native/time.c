@@ -7,7 +7,10 @@
  * Copyright (C) 2004 Jonathan Pryor
  */
 
-#define _SVID_SOURCE
+#if defined (HAVE_CONFIG_H)
+#include <config.h>
+#endif
+
 #include <time.h>
 #include <errno.h>
 

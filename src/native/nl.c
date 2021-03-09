@@ -15,6 +15,7 @@
 
 #if defined(HAVE_LINUX_NETLINK_H) && defined(HAVE_LINUX_RTNETLINK_H)
 
+#include <string.h>
 #include <errno.h>
 #include <unistd.h>
 #include <fcntl.h>

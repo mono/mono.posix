@@ -9,7 +9,7 @@
 
 #include <config.h>
 
-#ifndef __OpenBSD__
+#if !defined (__OpenBSD__) && !defined (_XOPEN_SOURCE)
 #define _XOPEN_SOURCE 600
 #endif
 

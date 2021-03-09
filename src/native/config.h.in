@@ -40,6 +40,8 @@
 // Types
 #cmakedefine HAVE_BLKCNT_T 1
 #cmakedefine HAVE_BLKSIZE_T 1
+#cmakedefine HAVE_SIG_T 1
+#cmakedefine HAVE_SIGHANDLER_T 1
 #cmakedefine HAVE_SUSECONDS_T 1
 
 // structures

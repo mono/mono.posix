@@ -262,12 +262,12 @@ Mono_Posix_ToSockaddr (void* source, gint64 size, struct Mono_Posix__SockaddrHea
 {
 	struct Mono_Posix__SockaddrDynamic* destination_dyn;
 
-	if (!destination)
+	if (!destination || size < 0)
 		return 0;
 
 	switch (destination->type) {
 	case Mono_Posix_SockaddrType_Sockaddr:
-		if (size < offsetof (struct sockaddr, sa_family) + sizeof (sa_family_t)) {
+		if ((size_t)size < offsetof (struct sockaddr, sa_family) + sizeof (sa_family_t)) {
 			errno = ENOBUFS;
 			return -1;
 		}
@@ -284,7 +284,7 @@ Mono_Posix_ToSockaddr (void* source, gint64 size, struct Mono_Posix__SockaddrHea
 
 	case Mono_Posix_SockaddrType_SockaddrUn:
 		destination_dyn = ((struct Mono_Posix__SockaddrDynamic*) destination);
-		if (size - offsetof (struct sockaddr_un, sun_path) > destination_dyn->len) {
+		if (destination_dyn->len < 0 || (size_t)size - offsetof (struct sockaddr_un, sun_path) > (size_t)destination_dyn->len) {
 			errno = ENOBUFS;
 			return -1;
 		}
@@ -632,6 +632,7 @@ Mono_Posix_Syscall_CMSG_NXTHDR (unsigned char* msg_control, gint64 msg_controlle
 gint64
 Mono_Posix_Syscall_CMSG_DATA (unsigned char* msg_control, gint64 msg_controllen, gint64 cmsg)
 {
+	(void)msg_controllen;
 	return to_offset (msg_control, CMSG_DATA (from_offset (msg_control, cmsg)));
 }
 #endif

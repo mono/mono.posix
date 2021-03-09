@@ -102,9 +102,19 @@ endif()
 # Set flags for symbol check to work properly
 #
 if(IS_LINUX)
+  #
+  # _XOPEN_SOURCE=700 enables:
+  #
+  #  POSIX.1, POSIX.2, and XPG4
+  #  SUSv2 (UNIX 98)
+  #  SUSv3 (UNIX 03; i.e., the POSIX.1-2001 base specification plus the XSI extension) and C99 definitions
+  #  SUSv4 (i.e., the POSIX.1-2008 base specification plus the XSI extension)
+  #
+  #  on Linux, see the feature_test_macros(7) manpage for more information
+  #
   set(HOST_MACROS
     _GNU_SOURCE
-    _XOPEN_SOURCE
+    _XOPEN_SOURCE=700
     _BSD_SOURCE # deprecated on newer systems
     _DEFAULT_SOURCE
     _POSIX_C_SOURCE
@@ -410,6 +420,8 @@ check_include_files("utime.h" HAVE_UTIME_H)
 mph_check_type_exists(blkcnt_t BLKCNT_T "sys/stat.h")
 mph_check_type_exists(blksize_t BLKSIZE_T "sys/stat.h")
 mph_check_type_exists(off_t OFF_T "sys/types.h;limits.h")
+mph_check_type_exists(sig_t SIG_T "signal.h")
+mph_check_type_exists(sighandler_t SIGHANDLER_T "signal.h")
 mph_check_type_exists(suseconds_t SUSECONDS_T "sys/time.h")
 
 if(HAVE_OFF_T AND ${OFF_T} GREATER_EQUAL 8)

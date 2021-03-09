@@ -15,6 +15,7 @@
 #endif
 
 #include <assert.h>
+#include <stdbool.h>
 #include <signal.h>
 
 #include "map.h"
@@ -46,19 +47,19 @@ static int count_handlers (int signum);
 void*
 Mono_Posix_Stdlib_SIG_DFL (void)
 {
-	return SIG_DFL;
+	return (void*)SIG_DFL;
 }
 
 void*
 Mono_Posix_Stdlib_SIG_ERR (void)
 {
-	return SIG_ERR;
+	return (void*)SIG_ERR;
 }
 
 void*
 Mono_Posix_Stdlib_SIG_IGN (void)
 {
-	return SIG_IGN;
+	return (void*)SIG_IGN;
 }
 
 void
@@ -118,7 +119,7 @@ int Mono_Posix_FromRealTimeSignum (int offset, int *r)
 #define mph_int_dec_test(ptr)     (__atomic_sub_fetch ((ptr), 1, __ATOMIC_SEQ_CST) == 0)
 #define mph_int_set(ptr,val) __atomic_store_n ((ptr), (val), __ATOMIC_SEQ_CST)
 // Pointer, original, new
-#define mph_int_test_and_set(ptr,expected,desired) (*(expected) == __atomic_compare_exchange_n ((ptr), (expected), (desired), 0, __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST))
+#define mph_int_test_and_set(ptr,expected,desired) (*(expected) == __atomic_compare_exchange_n ((ptr), (expected), (desired), false, __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST))
 
 #if HAVE_PSIGNAL
 
@@ -193,14 +194,14 @@ acquire_pipelock_teardown (int *lock)
 {
 	int lockvalue_draining;
 	// First mark that a teardown is occurring, so handlers will stop entering the lock.
-	while (1) {
+	while (true) {
 		int lockvalue = mph_int_get (lock);
 		lockvalue_draining = lockvalue | PIPELOCK_TEARDOWN_BIT;
 		if (mph_int_test_and_set (lock, &lockvalue, lockvalue_draining))
 			break;
 	}
 	// Now wait for all handlers to complete.
-	while (1) {
+	while (true) {
 		if (0 == PIPELOCK_GET_COUNT (lockvalue_draining))
 			break; // We now hold the lock.
 		// Handler is still running, spin until it completes.
@@ -212,7 +213,7 @@ acquire_pipelock_teardown (int *lock)
 static void
 release_pipelock_teardown (int *lock)
 {
-	while (1) {
+	while (true) {
 		int lockvalue = mph_int_get (lock);
 		int lockvalue_new = lockvalue & ~PIPELOCK_TEARDOWN_BIT;
 		// Technically this can't fail, because we hold both the pipelock and the mutex, but
@@ -225,7 +226,7 @@ release_pipelock_teardown (int *lock)
 static int
 acquire_pipelock_handler (int *lock)
 {
-	while (1) {
+	while (true) {
 		int lockvalue = mph_int_get (lock);
 		if (lockvalue & PIPELOCK_TEARDOWN_BIT) // Final lock is being torn down
 			return 0;
@@ -238,7 +239,7 @@ acquire_pipelock_handler (int *lock)
 static void
 release_pipelock_handler (int *lock)
 {
-	while (1) {
+	while (true) {
 		int lockvalue = mph_int_get (lock);
 		int lockvalue_new = PIPELOCK_INCR_COUNT (lockvalue, -1);
 		if (mph_int_test_and_set (lock, &lockvalue, lockvalue_new))
@@ -295,7 +296,7 @@ Mono_Unix_UnixSignal_install (int sig)
 	int i;
 	signal_info* h = NULL;        // signals[] slot to install to
 	int have_handler = 0;         // Candidates for signal_info handler fields
-	void* handler = NULL;
+	mph_sig_t handler = NULL;
 
 	if (acquire_mutex (&signals_mutex) == -1)
 		return NULL;
@@ -464,7 +465,7 @@ teardown_pipes (signal_info** signals, int count)
 
 // Given pipes set up, wait for a byte to arrive on one of them
 static int
-wait_for_any (signal_info** signals, int count, int *currfd, struct pollfd* fd_structs, int timeout, Mono_Posix_RuntimeIsShuttingDown shutting_down)
+wait_for_any (signal_info** signals, int count, struct pollfd* fd_structs, int timeout, Mono_Posix_RuntimeIsShuttingDown shutting_down)
 {
 	int r, idx;
 	// Poll until one of this signal_info's pipes is ready to read.
@@ -520,7 +521,7 @@ Mono_Unix_UnixSignal_WaitAny (void** _signals, int count, int timeout /* millise
 	release_mutex (&signals_mutex);
 
 	if (r == 0) {
-		r = wait_for_any (signals, count, &currfd, &fd_structs[0], timeout, shutting_down);
+		r = wait_for_any (signals, count, &fd_structs[0], timeout, shutting_down);
 	}
 
 	if (acquire_mutex (&signals_mutex) == -1)

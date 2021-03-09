@@ -30,9 +30,9 @@ _mph_copy_structure_strings (
 	const void *from, const mph_string_offset_t *from_offsets, 
 	size_t num_strings)
 {
-	int i;
-	size_t buflen;
-	int len[MAX_OFFSETS];
+	size_t i;
+	ssize_t buflen;
+	ssize_t len[MAX_OFFSETS];
 	char *buf, *cur = NULL;
 
 	assert (num_strings < MAX_OFFSETS);
@@ -45,7 +45,7 @@ _mph_copy_structure_strings (
 	for (i = 0; i < num_strings; ++i) {
 		const char* s = str_at(from, from_offsets[i]);
 		len [i] = s ? strlen (s) : 0;
-		if (len[i] < INT_MAX - buflen)
+		if (len[i] < SSIZE_MAX - buflen)
 			buflen += len[i];
 		else
 			len[i] = -1;

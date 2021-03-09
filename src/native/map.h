@@ -10,6 +10,14 @@
 #ifndef INC_Mono_Posix_map_H
 #define INC_Mono_Posix_map_H
 
+#if defined (HAVE_CONFIG_H)
+#include <config.h>
+#endif
+
+#if defined (HAVE_SIGHANDLER_T) || defined (HAVE_SIG_T)
+#include <signal.h>
+#endif
+
 #include <glib.h>
 
 G_BEGIN_DECLS
@@ -2196,6 +2204,14 @@ struct Mono_Posix__SockaddrHeader {
 	int sa_family;
 };
 
+#if defined (HAVE_SIGHANDLER_T)
+typedef sighandler_t mph_sig_t;
+#elif defined (HAVE_SIG_T)
+typedef sighandler_t mph_sig_t;
+#else
+typedef void* mph_sig_t;
+#endif
+
 struct Mono_Unix_UnixSignal_SignalInfo {
 	int   signum;
 	int   count;
@@ -2204,7 +2220,7 @@ struct Mono_Unix_UnixSignal_SignalInfo {
 	int   pipecnt;
 	int   pipelock;
 	int   have_handler;
-	void* handler;
+	mph_sig_t handler;
 };
 
 
