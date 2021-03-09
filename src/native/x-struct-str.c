@@ -1,7 +1,11 @@
 /*
  * A helper routine to copy the strings between differing structures.
  */
+#if defined (HAVE_CONFIG_H)
+#include <config.h>
+#endif
 
+#include <assert.h>
 #include <stdlib.h>
 #include <string.h>
 #include <limits.h>
@@ -31,7 +35,7 @@ _mph_copy_structure_strings (
 	int len[MAX_OFFSETS];
 	char *buf, *cur = NULL;
 
-	g_assert (num_strings < MAX_OFFSETS);
+	assert (num_strings < MAX_OFFSETS);
 
 	for (i = 0; i < num_strings; ++i) {
 		lstr_at (to, to_offsets[i]) = NULL;

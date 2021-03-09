@@ -10,6 +10,11 @@
  * Copyright (C) 2008 Novell, Inc.
  */
 
+#if defined (HAVE_CONFIG_H)
+#include <config.h>
+#endif
+
+#include <assert.h>
 #include <signal.h>
 
 #include "map.h"
@@ -27,7 +32,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <pthread.h>
-//#include <mono/utils/atomic.h>
 #endif
 
 G_BEGIN_DECLS
@@ -109,26 +113,12 @@ int Mono_Posix_FromRealTimeSignum (int offset, int *r)
 // Atomicity rules: Fields of signal_info read or written by the signal handler
 // (see UnixSignal.cs) should be read and written using atomic functions.
 // (For simplicity, we're protecting some things we don't strictly need to.)
-
-// Because we are in MonoPosixHelper, we are banned from linking mono.
-// We can still use atomic.h because that's all inline functions--
-// unless WAPI_NO_ATOMIC_ASM is defined, in which case atomic.h calls linked functions.
-#ifndef WAPI_NO_ATOMIC_ASM
-	#define mph_int_get(p)     mono_atomic_fetch_add_i32 ((p), 0)
-	#define mph_int_inc(p)     mono_atomic_inc_i32 ((p))
-	#define mph_int_dec_test(p)     (mono_atomic_dec_i32 ((p)) == 0)
-	#define mph_int_set(p,n) mono_atomic_xchg_i32 ((p), (n))
-	// Pointer, original, new
-	#define mph_int_test_and_set(p,o,n) (o == mono_atomic_cas_i32 ((p), (n), (o)))
-#elif GLIB_CHECK_VERSION(2,4,0)
-	#define mph_int_get(p) g_atomic_int_get ((p))
- 	#define mph_int_inc(p) do {g_atomic_int_inc ((p));} while (0)
-	#define mph_int_dec_test(p) g_atomic_int_dec_and_test ((p))
-	#define mph_int_set(p,n) g_atomic_int_set ((p),(n))
-	#define mph_int_test_and_set(p,o,n) g_atomic_int_compare_and_exchange ((p), (o), (n))
-#else
-	#error "GLIB 2.4 required because building without ASM atomics"
-#endif
+#define mph_int_get(p)     __atomic_fetch_add ((p), (int32_t)0, __ATOMIC_ACQ_REL)
+#define mph_int_inc(p)     __atomic_add_fetch ((p), 1, __ATOMIC_ACQ_REL)
+#define mph_int_dec_test(p)     (__atomic_sub_fetch ((p), 1, __ATOMIC_ACQ_REL) == 0)
+#define mph_int_set(p,n) __atomic_store_n ((p), (n), __ATOMIC_RELEASE)
+// Pointer, original, new
+#define mph_int_test_and_set(p,o,n) (o == __atomic_compare_exchange_n ((p), (n), (o), 0, __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST))
 
 #if HAVE_PSIGNAL
 
@@ -353,7 +343,7 @@ Mono_Unix_UnixSignal_install (int sig)
 	if (h) {
 		// If we reached here without have_handler, this means that default_handler
 		// was set as the signal handler before the first UnixSignal object was installed.
-		g_assert (have_handler);
+		assert (have_handler);
 
 		// Overwrite the tenative handler we set a moment ago with a known-usable one
 		h->handler = handler;

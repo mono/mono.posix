@@ -19,7 +19,7 @@ The `src/native` directory here corresponds to `support/` in the Mono repository
 
 # TODO
 
-  - [ ] Replace Mono atomic calls with compiler intrinsics (or
+  - [x] Replace Mono atomic calls with compiler intrinsics (or
         standard library calls)
   - [ ] Replace glib functions with something else (e.g. `g_error`)
   - [ ] Test build on macOS
