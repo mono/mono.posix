@@ -14,6 +14,7 @@
 #include "sys-uio.h"
 
 #include <sys/uio.h>
+#include <stdlib.h>
 
 #include "map.h"
 #include "mph.h"

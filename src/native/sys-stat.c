@@ -18,6 +18,7 @@
 #endif
 #include <fcntl.h>
 #include <errno.h>
+#include <string.h>
 
 #include "mph.h" /* Don't remove or move after map.h! Works around issues with Android SDK unified headers */
 #include "map.h"
