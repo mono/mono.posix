@@ -2207,7 +2207,7 @@ struct Mono_Posix__SockaddrHeader {
 #if defined (HAVE_SIGHANDLER_T)
 typedef sighandler_t mph_sig_t;
 #elif defined (HAVE_SIG_T)
-typedef sighandler_t mph_sig_t;
+typedef sig_t mph_sig_t;
 #else
 typedef void* mph_sig_t;
 #endif
