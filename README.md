@@ -4,7 +4,16 @@ Please note that this repository is a work in progress - it MAY happen that hist
 to be rewritten.  Until this notice is removed, please do not rely on the repository history
 being set in stone.
 
-STATUS: **BUILDING, BUT NOT LINKING**
+Native code status:
+
+  * Linux: **building and linking** (gcc 10.2.1, clang 11.0.1)
+  * macOS: **building and linking** (Xcode 12.4, x86_64) and arm64
+  * Windows: **not tested yet**
+  * BSD: **not tested yet**
+
+Managed code status:
+
+  **not started**
 
 # Mono.Posix standalone repository
 
@@ -22,7 +31,7 @@ The `src/native` directory here corresponds to `support/` in the Mono repository
   - [x] Replace Mono atomic calls with compiler intrinsics (or
         standard library calls)
   - [ ] Replace glib functions with something else (e.g. `g_error`)
-  - [ ] Test build on macOS
+  - [x] Test build on macOS
   - [ ] Test build on {Free,Open,Net}BSD
   - [ ] Test build on Windows
   - [ ] Create CMake toolchain files for various target systems (`iOS`,
