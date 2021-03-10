@@ -39,7 +39,7 @@ The `src/native` directory here corresponds to `support/` in the Mono repository
         `watchOS`, `tvOS`, `WASM`)
   - [x] Migrate to standard types (e.g. `uint32_t`) instead of the glib
         ones
-  - [ ] Migrate to C++ (no stdlib linking, just compiler + select
+  - [x] Migrate to C++ (no stdlib linking, just compiler + selected
         header files)
   - [ ] Migrate to `<limits>` instead of the glib macros
   - [ ] Review what POSIX APIs are missing

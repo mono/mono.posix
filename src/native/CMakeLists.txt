@@ -33,7 +33,7 @@ set(CMAKE_BUILD_RPATH "${CMAKE_BINARY_DIR}/lib")
 
 set(CMAKE_SKIP_INSTALL_RPATH TRUE)
 
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
@@ -190,36 +190,36 @@ macro(mph_check_type_exists _type _variable _includes)
 endmacro()
 
 set(MPH_SOURCES
-  dirent.c
-  errno.c
-  fcntl.c
-  fstab.c
-  grp.c
-  macros.c
-  map.c
-  nl.c
-  old-map.c
-  pwd.c
-  serial.c
-  signal.c
-  stdio.c
-  stdlib.c
-  string.c
-  syslog.c
-  sys-mman.c
-  sys-sendfile.c
-  sys-socket.c
-  sys-stat.c
-  sys-statvfs.c
-  sys-time.c
-  sys-uio.c
-  sys-utsname.c
-  sys-wait.c
-  sys-xattr.c
-  time.c
-  unistd.c
-  utime.c
-  x-struct-str.c
+  dirent.cc
+  errno.cc
+  fcntl.cc
+  fstab.cc
+  grp.cc
+  macros.cc
+  map.cc
+  nl.cc
+  old-map.cc
+  pwd.cc
+  serial.cc
+  signal.cc
+  stdio.cc
+  stdlib.cc
+  string.cc
+  syslog.cc
+  sys-mman.cc
+  sys-sendfile.cc
+  sys-socket.cc
+  sys-stat.cc
+  sys-statvfs.cc
+  sys-time.cc
+  sys-uio.cc
+  sys-utsname.cc
+  sys-wait.cc
+  sys-xattr.cc
+  time.cc
+  unistd.cc
+  utime.cc
+  x-struct-str.cc
   )
 
 # Args shared between the C and C++ compilers
@@ -246,14 +246,17 @@ set(LOCAL_COMPILER_ARGS
   -Wsuggest-final-types
   -Wsuggest-final-methods
   -Wint-to-pointer-cast
-  -Wint-conversion
   )
 
 set(LOCAL_CXX_COMPILER_ARGS
   -Wsuggest-override
+  -fno-exceptions
+  -fno-rtti
   )
 
-set(LOCAL_C_COMPILER_ARGS "")
+set(LOCAL_C_COMPILER_ARGS
+  -Wint-conversion
+  )
 
 set(LOCAL_LINKER_ARGS
   -rdynamic
