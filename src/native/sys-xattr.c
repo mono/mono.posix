@@ -111,7 +111,7 @@ static struct BsdNamespaceInfo bsd_extattr_namespaces[] = {
 	{"system"       , EXTATTR_NAMESPACE_SYSTEM}
 };
 
-static int bsd_check_flags (gint32 flags)
+static int bsd_check_flags (int32_t flags)
 {
 	// BSD doesn't support flags, but always provides the same behaviour as
 	// XATTR_AUTO. So we enforce that here.
@@ -333,10 +333,10 @@ bsd_flistxattr (int fd, void *list, mph_size_t size)
 // THE PROVIDED API
 //
 
-gint32
-Mono_Posix_Syscall_setxattr (const char *path, const char *name, unsigned char *value, mph_size_t size, gint32 flags)
+int32_t
+Mono_Posix_Syscall_setxattr (const char *path, const char *name, unsigned char *value, mph_size_t size, int32_t flags)
 {
-	gint32 ret;
+	int32_t ret;
 	mph_return_if_size_t_overflow (size);
 
 #ifdef EA_UNIX
@@ -367,10 +367,10 @@ Mono_Posix_Syscall_setxattr (const char *path, const char *name, unsigned char *
 }
 
 #if !__APPLE__
-gint32
-Mono_Posix_Syscall_lsetxattr (const char *path, const char *name, unsigned char *value, mph_size_t size, gint32 flags)
+int32_t
+Mono_Posix_Syscall_lsetxattr (const char *path, const char *name, unsigned char *value, mph_size_t size, int32_t flags)
 {
-	gint32 ret;
+	int32_t ret;
 	mph_return_if_size_t_overflow (size);
 
 #ifdef EA_UNIX
@@ -397,10 +397,10 @@ Mono_Posix_Syscall_lsetxattr (const char *path, const char *name, unsigned char 
 }
 #endif /* !__APPLE__ */
 
-gint32
-Mono_Posix_Syscall_fsetxattr (int fd, const char *name, unsigned char *value, mph_size_t size, gint32 flags)
+int32_t
+Mono_Posix_Syscall_fsetxattr (int fd, const char *name, unsigned char *value, mph_size_t size, int32_t flags)
 {
-	gint32 ret;
+	int32_t ret;
 	mph_return_if_size_t_overflow (size);
 
 #ifdef EA_UNIX
@@ -552,10 +552,10 @@ Mono_Posix_Syscall_flistxattr (int fd, unsigned char *list, mph_size_t size)
 #endif /* EA_UNIX */
 }
 
-gint32
+int32_t
 Mono_Posix_Syscall_removexattr (const char *path, const char *name)
 {
-	gint32 ret;
+	int32_t ret;
 
 #ifdef EA_UNIX
 #if __APPLE__
@@ -578,10 +578,10 @@ Mono_Posix_Syscall_removexattr (const char *path, const char *name)
 }
 
 #if !__APPLE__
-gint32
+int32_t
 Mono_Posix_Syscall_lremovexattr (const char *path, const char *name)
 {
-	gint32 ret;
+	int32_t ret;
 
 #ifdef EA_UNIX
 	ret = lremovexattr (path, name);
@@ -600,10 +600,10 @@ Mono_Posix_Syscall_lremovexattr (const char *path, const char *name)
 }
 #endif /* !__APPLE__ */
 
-gint32
+int32_t
 Mono_Posix_Syscall_fremovexattr (int fd, const char *name)
 {
-	gint32 ret;
+	int32_t ret;
 
 #ifdef EA_UNIX
 #if __APPLE__

@@ -17,38 +17,38 @@
 
 G_BEGIN_DECLS
 
-gint32
-Mono_Posix_Syscall_WIFEXITED (gint32 status)
+int32_t
+Mono_Posix_Syscall_WIFEXITED (int32_t status)
 {
 	return WIFEXITED (status);
 }
 
-gint32
-Mono_Posix_Syscall_WEXITSTATUS (gint32 status)
+int32_t
+Mono_Posix_Syscall_WEXITSTATUS (int32_t status)
 {
 	return WEXITSTATUS (status);
 }
 
-gint32
-Mono_Posix_Syscall_WIFSIGNALED (gint32 status)
+int32_t
+Mono_Posix_Syscall_WIFSIGNALED (int32_t status)
 {
 	return WIFSIGNALED (status);
 }
 
-gint32
-Mono_Posix_Syscall_WTERMSIG (gint32 status)
+int32_t
+Mono_Posix_Syscall_WTERMSIG (int32_t status)
 {
 	return WTERMSIG (status);
 }
 
-gint32
-Mono_Posix_Syscall_WIFSTOPPED (gint32 status)
+int32_t
+Mono_Posix_Syscall_WIFSTOPPED (int32_t status)
 {
 	return WIFSTOPPED (status);
 }
 
-gint32
-Mono_Posix_Syscall_WSTOPSIG (gint32 status)
+int32_t
+Mono_Posix_Syscall_WSTOPSIG (int32_t status)
 {
 	return WSTOPSIG (status);
 }

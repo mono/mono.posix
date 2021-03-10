@@ -112,9 +112,9 @@ Mono_Posix_Syscall_munlock (void *start, mph_size_t len)
 #ifdef HAVE_MREMAP
 void*
 Mono_Posix_Syscall_mremap (void *old_address, mph_size_t old_size, 
-		mph_size_t new_size, guint64 flags)
+		mph_size_t new_size, uint64_t flags)
 {
-	guint64 _flags;
+	uint64_t _flags;
 
 	mph_return_val_if_size_t_overflow (old_size, MAP_FAILED);
 	mph_return_val_if_size_t_overflow (new_size, MAP_FAILED);
@@ -152,8 +152,8 @@ Mono_Posix_Syscall_mincore (void *start, mph_size_t length, unsigned char *vec)
 }
 
 #ifdef HAVE_POSIX_MADVISE
-gint32
-Mono_Posix_Syscall_posix_madvise (void *addr, mph_size_t len, gint32 advice)
+int32_t
+Mono_Posix_Syscall_posix_madvise (void *addr, mph_size_t len, int32_t advice)
 {
 	mph_return_if_size_t_overflow (len);
 
@@ -189,7 +189,7 @@ enum Mono_Posix_MremapFlags {
 };
 
 // Mono_Posix_FromMremapFlags() and Mono_Posix_ToMremapFlags() are not in map.c because NetBSD needs special treatment for MREMAP_MAYMOVE
-int Mono_Posix_FromMremapFlags (guint64 x, guint64 *r)
+int Mono_Posix_FromMremapFlags (uint64_t x, uint64_t *r)
 {
 	*r = 0;
 #ifndef __NetBSD__
@@ -208,7 +208,7 @@ int Mono_Posix_FromMremapFlags (guint64 x, guint64 *r)
 	return 0;
 }
 
-int Mono_Posix_ToMremapFlags (guint64 x, guint64 *r)
+int Mono_Posix_ToMremapFlags (uint64_t x, uint64_t *r)
 {
 	*r = 0;
 #ifndef __NetBSD__

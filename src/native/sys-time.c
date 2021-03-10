@@ -19,7 +19,7 @@
 
 G_BEGIN_DECLS
 
-gint32
+int32_t
 Mono_Posix_Syscall_gettimeofday (
 	struct Mono_Posix_Timeval *tv,
 	void *tz)
@@ -45,7 +45,7 @@ Mono_Posix_Syscall_gettimeofday (
 	return r;
 }
 
-gint32
+int32_t
 Mono_Posix_Syscall_settimeofday (
 	struct Mono_Posix_Timeval *tv,
 	struct Mono_Posix_Timezone *tz)
@@ -91,7 +91,7 @@ copy_utimes (struct timeval* to, struct Mono_Posix_Timeval *from)
 	return NULL;
 }
 
-gint32
+int32_t
 Mono_Posix_Syscall_utimes(const char *filename, struct Mono_Posix_Timeval *tv)
 {
 	struct timeval _tv[2];
@@ -103,7 +103,7 @@ Mono_Posix_Syscall_utimes(const char *filename, struct Mono_Posix_Timeval *tv)
 }
 
 #ifdef HAVE_LUTIMES
-gint32
+int32_t
 Mono_Posix_Syscall_lutimes(const char *filename, struct Mono_Posix_Timeval *tv)
 {
 	struct timeval _tv[2];
@@ -116,7 +116,7 @@ Mono_Posix_Syscall_lutimes(const char *filename, struct Mono_Posix_Timeval *tv)
 #endif /* def HAVE_LUTIMES */
 
 #if HAVE_FUTIMES
-gint32
+int32_t
 Mono_Posix_Syscall_futimes(int fd, struct Mono_Posix_Timeval *tv)
 {
 	struct timeval _tv[2];

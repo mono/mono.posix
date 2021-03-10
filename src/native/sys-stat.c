@@ -114,7 +114,7 @@ Mono_Posix_ToStat (void *_from, struct Mono_Posix_Stat *to)
 	return 0;
 }
 
-gint32
+int32_t
 Mono_Posix_Syscall_stat (const char *file_name, struct Mono_Posix_Stat *buf)
 {
 	int r;
@@ -130,7 +130,7 @@ Mono_Posix_Syscall_stat (const char *file_name, struct Mono_Posix_Stat *buf)
 	return r;
 }
 
-gint32
+int32_t
 Mono_Posix_Syscall_fstat (int filedes, struct Mono_Posix_Stat *buf)
 {
 	int r;
@@ -147,7 +147,7 @@ Mono_Posix_Syscall_fstat (int filedes, struct Mono_Posix_Stat *buf)
 }
 
 #ifndef HOST_WIN32
-gint32
+int32_t
 Mono_Posix_Syscall_lstat (const char *file_name, struct Mono_Posix_Stat *buf)
 {
 	int r;
@@ -165,8 +165,8 @@ Mono_Posix_Syscall_lstat (const char *file_name, struct Mono_Posix_Stat *buf)
 #endif
 
 #ifdef HAVE_FSTATAT
-gint32
-Mono_Posix_Syscall_fstatat (gint32 dirfd, const char *file_name, struct Mono_Posix_Stat *buf, gint32 flags)
+int32_t
+Mono_Posix_Syscall_fstatat (int32_t dirfd, const char *file_name, struct Mono_Posix_Stat *buf, int32_t flags)
 {
 	int r;
 	struct stat _buf;
@@ -186,8 +186,8 @@ Mono_Posix_Syscall_fstatat (gint32 dirfd, const char *file_name, struct Mono_Pos
 #endif
 
 #ifndef HOST_WIN32
-gint32
-Mono_Posix_Syscall_mknod (const char *pathname, guint32 mode, mph_dev_t dev)
+int32_t
+Mono_Posix_Syscall_mknod (const char *pathname, uint32_t mode, mph_dev_t dev)
 {
 	if (Mono_Posix_FromFilePermissions (mode, &mode) == -1)
 		return -1;
@@ -196,8 +196,8 @@ Mono_Posix_Syscall_mknod (const char *pathname, guint32 mode, mph_dev_t dev)
 #endif
 
 #ifdef HAVE_MKNODAT
-gint32
-Mono_Posix_Syscall_mknodat (int dirfd, const char *pathname, guint32 mode, mph_dev_t dev)
+int32_t
+Mono_Posix_Syscall_mknodat (int dirfd, const char *pathname, uint32_t mode, mph_dev_t dev)
 {
 	if (Mono_Posix_FromFilePermissions (mode, &mode) == -1)
 		return -1;
@@ -207,7 +207,7 @@ Mono_Posix_Syscall_mknodat (int dirfd, const char *pathname, guint32 mode, mph_d
 
 G_END_DECLS
 
-gint64
+int64_t
 Mono_Posix_Syscall_get_utime_now ()
 {
 #ifdef UTIME_NOW
@@ -217,7 +217,7 @@ Mono_Posix_Syscall_get_utime_now ()
 #endif
 }
 
-gint64
+int64_t
 Mono_Posix_Syscall_get_utime_omit ()
 {
 #ifdef UTIME_OMIT
@@ -244,7 +244,7 @@ copy_utimens (struct timespec* to, struct Mono_Posix_Timespec *from)
 #endif
 
 #ifdef HAVE_FUTIMENS
-gint32
+int32_t
 Mono_Posix_Syscall_futimens(int fd, struct Mono_Posix_Timespec *tv)
 {
 	struct timespec _tv[2];
@@ -257,7 +257,7 @@ Mono_Posix_Syscall_futimens(int fd, struct Mono_Posix_Timespec *tv)
 #endif /* def HAVE_FUTIMENS */
 
 #ifdef HAVE_UTIMENSAT
-gint32
+int32_t
 Mono_Posix_Syscall_utimensat(int dirfd, const char *pathname, struct Mono_Posix_Timespec *tv, int flags)
 {
 	struct timespec _tv[2];

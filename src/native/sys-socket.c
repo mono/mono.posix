@@ -88,7 +88,7 @@ Mono_Posix_Syscall_socketpair (int domain, int type, int protocol, int* socket1,
 }
 
 int
-Mono_Posix_Syscall_getsockopt (int socket, int level, int option_name, void* option_value, gint64* option_len)
+Mono_Posix_Syscall_getsockopt (int socket, int level, int option_name, void* option_value, int64_t* option_len)
 {
 	socklen_t len;
 	int r;
@@ -149,7 +149,7 @@ Mono_Posix_Syscall_getsockopt_linger (int socket, int level, int option_name, st
 }
 
 int
-Mono_Posix_Syscall_setsockopt (int socket, int level, int option_name, void* option_value, gint64 option_len)
+Mono_Posix_Syscall_setsockopt (int socket, int level, int option_name, void* option_value, int64_t option_len)
 {
 	mph_return_if_socklen_t_overflow (option_len);
 
@@ -206,7 +206,7 @@ get_addrlen (struct Mono_Posix__SockaddrHeader* address, socklen_t* addrlen)
 }
 
 int
-Mono_Posix_Sockaddr_GetNativeSize (struct Mono_Posix__SockaddrHeader* address, gint64* size)
+Mono_Posix_Sockaddr_GetNativeSize (struct Mono_Posix__SockaddrHeader* address, int64_t* size)
 {
 	socklen_t value = 0;
 	int r;
@@ -258,7 +258,7 @@ Mono_Posix_FromSockaddr (struct Mono_Posix__SockaddrHeader* source, void* destin
 }
 
 int
-Mono_Posix_ToSockaddr (void* source, gint64 size, struct Mono_Posix__SockaddrHeader* destination)
+Mono_Posix_ToSockaddr (void* source, int64_t size, struct Mono_Posix__SockaddrHeader* destination)
 {
 	struct Mono_Posix__SockaddrDynamic* destination_dyn;
 
@@ -327,7 +327,7 @@ Mono_Posix_ToSockaddr (void* source, gint64 size, struct Mono_Posix__SockaddrHea
 #define ALLOC_SOCKADDR                                                  \
     socklen_t addrlen;                                                  \
     struct sockaddr* addr;                                              \
-    gboolean need_free = 0;                                             \
+    bool need_free = 0;                                             \
                                                                         \
     if (get_addrlen (address, &addrlen) != 0)                           \
         return -1;                                                      \
@@ -464,24 +464,24 @@ Mono_Posix_Syscall_getsockname (int socket, struct Mono_Posix__SockaddrHeader* a
 	return r;
 }
 
-gint64
-Mono_Posix_Syscall_recv (int socket, void* message, guint64 length, int flags)
+int64_t
+Mono_Posix_Syscall_recv (int socket, void* message, uint64_t length, int flags)
 {
 	mph_return_if_size_t_overflow (length);
 
 	return recv (socket, message, length, flags);
 }
 
-gint64
-Mono_Posix_Syscall_send (int socket, void* message, guint64 length, int flags)
+int64_t
+Mono_Posix_Syscall_send (int socket, void* message, uint64_t length, int flags)
 {
 	mph_return_if_size_t_overflow (length);
 
 	return send (socket, message, length, flags);
 }
 
-gint64
-Mono_Posix_Syscall_recvfrom (int socket, void* buffer, guint64 length, int flags, struct Mono_Posix__SockaddrHeader* address)
+int64_t
+Mono_Posix_Syscall_recvfrom (int socket, void* buffer, uint64_t length, int flags, struct Mono_Posix__SockaddrHeader* address)
 {
 	int r;
 
@@ -500,8 +500,8 @@ Mono_Posix_Syscall_recvfrom (int socket, void* buffer, guint64 length, int flags
 	return r;
 }
 
-gint64
-Mono_Posix_Syscall_sendto (int socket, void* message, guint64 length, int flags, struct Mono_Posix__SockaddrHeader* address)
+int64_t
+Mono_Posix_Syscall_sendto (int socket, void* message, uint64_t length, int flags, struct Mono_Posix__SockaddrHeader* address)
 {
 	int r;
 
@@ -522,7 +522,7 @@ Mono_Posix_Syscall_sendto (int socket, void* message, guint64 length, int flags,
 	return r;
 }
 
-gint64
+int64_t
 Mono_Posix_Syscall_recvmsg (int socket, struct Mono_Posix_Syscall__Msghdr* message, struct Mono_Posix__SockaddrHeader* address, int flags)
 {
 	struct msghdr hdr;
@@ -555,7 +555,7 @@ Mono_Posix_Syscall_recvmsg (int socket, struct Mono_Posix_Syscall__Msghdr* messa
 	return r;
 }
 
-gint64
+int64_t
 Mono_Posix_Syscall_sendmsg (int socket, struct Mono_Posix_Syscall__Msghdr* message, struct Mono_Posix__SockaddrHeader* address, int flags)
 {
 	struct msghdr hdr;
@@ -587,19 +587,19 @@ Mono_Posix_Syscall_sendmsg (int socket, struct Mono_Posix_Syscall__Msghdr* messa
 	return r;
 }
 
-static void make_msghdr (struct msghdr* hdr, unsigned char* msg_control, gint64 msg_controllen)
+static void make_msghdr (struct msghdr* hdr, unsigned char* msg_control, int64_t msg_controllen)
 {
 	memset (hdr, 0, sizeof (struct msghdr));
 	hdr->msg_control = msg_control;
 	hdr->msg_controllen = msg_controllen;
 }
-static struct cmsghdr* from_offset (unsigned char* msg_control, gint64 offset)
+static struct cmsghdr* from_offset (unsigned char* msg_control, int64_t offset)
 {
 	if (offset == -1)
 		return NULL;
 	return (struct cmsghdr*) (msg_control + offset);
 }
-static gint64 to_offset (unsigned char* msg_control, void* hdr)
+static int64_t to_offset (unsigned char* msg_control, void* hdr)
 {
 	if (!hdr)
 		return -1;
@@ -607,8 +607,8 @@ static gint64 to_offset (unsigned char* msg_control, void* hdr)
 }
 
 #ifdef CMSG_FIRSTHDR
-gint64
-Mono_Posix_Syscall_CMSG_FIRSTHDR (unsigned char* msg_control, gint64 msg_controllen)
+int64_t
+Mono_Posix_Syscall_CMSG_FIRSTHDR (unsigned char* msg_control, int64_t msg_controllen)
 {
 	struct msghdr hdr;
 
@@ -618,8 +618,8 @@ Mono_Posix_Syscall_CMSG_FIRSTHDR (unsigned char* msg_control, gint64 msg_control
 #endif
 
 #ifdef CMSG_NXTHDR
-gint64
-Mono_Posix_Syscall_CMSG_NXTHDR (unsigned char* msg_control, gint64 msg_controllen, gint64 cmsg)
+int64_t
+Mono_Posix_Syscall_CMSG_NXTHDR (unsigned char* msg_control, int64_t msg_controllen, int64_t cmsg)
 {
 	struct msghdr hdr;
 
@@ -629,8 +629,8 @@ Mono_Posix_Syscall_CMSG_NXTHDR (unsigned char* msg_control, gint64 msg_controlle
 #endif
 
 #ifdef CMSG_DATA
-gint64
-Mono_Posix_Syscall_CMSG_DATA (unsigned char* msg_control, gint64 msg_controllen, gint64 cmsg)
+int64_t
+Mono_Posix_Syscall_CMSG_DATA (unsigned char* msg_control, int64_t msg_controllen, int64_t cmsg)
 {
 	(void)msg_controllen;
 	return to_offset (msg_control, CMSG_DATA (from_offset (msg_control, cmsg)));
@@ -638,24 +638,24 @@ Mono_Posix_Syscall_CMSG_DATA (unsigned char* msg_control, gint64 msg_controllen,
 #endif
 
 #ifdef CMSG_ALIGN
-guint64
-Mono_Posix_Syscall_CMSG_ALIGN (guint64 length)
+uint64_t
+Mono_Posix_Syscall_CMSG_ALIGN (uint64_t length)
 {
 	return CMSG_ALIGN (length);
 }
 #endif
 
 #ifdef CMSG_SPACE
-guint64
-Mono_Posix_Syscall_CMSG_SPACE (guint64 length)
+uint64_t
+Mono_Posix_Syscall_CMSG_SPACE (uint64_t length)
 {
 	return CMSG_SPACE (length);
 }
 #endif
 
 #ifdef CMSG_LEN
-guint64
-Mono_Posix_Syscall_CMSG_LEN (guint64 length)
+uint64_t
+Mono_Posix_Syscall_CMSG_LEN (uint64_t length)
 {
 	return CMSG_LEN (length);
 }

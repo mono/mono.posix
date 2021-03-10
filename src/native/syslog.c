@@ -47,10 +47,10 @@ Mono_Posix_Syscall_syslog (int priority, const char* message)
 #endif
 
 /* vararg version of syslog(3). */
-gint32
+int32_t
 Mono_Posix_Syscall_syslog2 (int priority, const char *format, ...);
 
-gint32
+int32_t
 Mono_Posix_Syscall_syslog2 (int priority, const char *format, ...)
 {
 	va_list ap;

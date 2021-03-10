@@ -98,7 +98,7 @@ copy_group (struct Mono_Posix_Syscall__Group *to, struct group *from)
 	return 0;
 }
 
-gint32
+int32_t
 Mono_Posix_Syscall_getgrnam (const char *name, struct Mono_Posix_Syscall__Group *gbuf)
 {
 	struct group *_gbuf;
@@ -120,7 +120,7 @@ Mono_Posix_Syscall_getgrnam (const char *name, struct Mono_Posix_Syscall__Group 
 	return 0;
 }
 
-gint32
+int32_t
 Mono_Posix_Syscall_getgrgid (mph_gid_t gid, struct Mono_Posix_Syscall__Group *gbuf)
 {
 	struct group *_gbuf;
@@ -143,7 +143,7 @@ Mono_Posix_Syscall_getgrgid (mph_gid_t gid, struct Mono_Posix_Syscall__Group *gb
 }
 
 #ifdef HAVE_GETGRNAM_R
-gint32
+int32_t
 Mono_Posix_Syscall_getgrnam_r (const char *name, 
 	struct Mono_Posix_Syscall__Group *gbuf,
 	void **gbufp)
@@ -186,7 +186,7 @@ Mono_Posix_Syscall_getgrnam_r (const char *name,
 #endif /* ndef HAVE_GETGRNAM_R */
 
 #ifdef HAVE_GETGRGID_R
-gint32
+int32_t
 Mono_Posix_Syscall_getgrgid_r (mph_gid_t gid,
 	struct Mono_Posix_Syscall__Group *gbuf,
 	void **gbufp)
@@ -229,7 +229,7 @@ Mono_Posix_Syscall_getgrgid_r (mph_gid_t gid,
 #endif /* ndef HAVE_GETGRGID_R */
 
 #if HAVE_GETGRENT
-gint32
+int32_t
 Mono_Posix_Syscall_getgrent (struct Mono_Posix_Syscall__Group *grbuf)
 {
 	struct group *gr;
@@ -253,7 +253,7 @@ Mono_Posix_Syscall_getgrent (struct Mono_Posix_Syscall__Group *grbuf)
 #endif  /* def HAVE_GETGRENT */
 
 #ifdef HAVE_FGETGRENT
-gint32
+int32_t
 Mono_Posix_Syscall_fgetgrent (void *stream, struct Mono_Posix_Syscall__Group *grbuf)
 {
 	struct group *gr;
@@ -277,7 +277,7 @@ Mono_Posix_Syscall_fgetgrent (void *stream, struct Mono_Posix_Syscall__Group *gr
 #endif /* ndef HAVE_FGETGRENT */
 
 #if HAVE_SETGROUPS
-gint32
+int32_t
 Mono_Posix_Syscall_setgroups (mph_size_t size, mph_gid_t *list)
 {
 	mph_return_if_size_t_overflow (size);

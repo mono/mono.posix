@@ -50,12 +50,12 @@ int helper_Mono_Posix_Stat(const char *filename, int dereference,
 	int *uid,
 	int *gid,
 	int *rdev,
-	gint64 *size,
-	gint64 *blksize,
-	gint64 *blocks,
-	gint64 *atime,
-	gint64 *mtime,
-	gint64 *ctime
+	int64_t *size,
+	int64_t *blksize,
+	int64_t *blocks,
+	int64_t *atime,
+	int64_t *mtime,
+	int64_t *ctime
 	) {
 	int ret;
 	struct stat buf;

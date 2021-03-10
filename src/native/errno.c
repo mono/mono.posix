@@ -75,7 +75,7 @@ static const char mph_unknown[] = "Unknown error ";
  *
  * Then pray that this actually works...
  */
-gint32
+int32_t
 Mono_Posix_Syscall_strerror_r (int errnum, char *buf, mph_size_t n)
 {
 	char *r;
@@ -130,7 +130,7 @@ Mono_Posix_Syscall_strerror_r (int errnum, char *buf, mph_size_t n)
 
 #else /* !def STRERROR_R_CHAR_P */
 
-gint32
+int32_t
 Mono_Posix_Syscall_strerror_r (int errnum, char *buf, mph_size_t n)
 {
 	mph_return_if_size_t_overflow (n);

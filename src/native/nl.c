@@ -164,7 +164,7 @@ value_to_name (value2name_t *tbl, int value)
 }
 #endif /* NL_DEBUG */
 
-gpointer
+void*
 CreateNLSocket (void)
 {
 	int sock;
@@ -197,7 +197,7 @@ CreateNLSocket (void)
 }
 
 int
-ReadEvents (gpointer sock, gpointer buffer, gint32 count, gint32 size)
+ReadEvents (void* sock, void* buffer, int32_t count, int32_t size)
 {
 	struct nlmsghdr *nlp;
 	struct rtmsg *rtp;
@@ -227,10 +227,10 @@ ReadEvents (gpointer sock, gpointer buffer, gint32 count, gint32 size)
 		int scope;
 #endif
 		int rtm_type;
-		gboolean have_dst;
-		gboolean have_src;
-		gboolean have_pref_src;
-		gboolean have_gw;
+		bool have_dst;
+		bool have_src;
+		bool have_pref_src;
+		bool have_gw;
 		char dst [ADDR_BYTE_LENGTH];
 		char src [ADDR_BYTE_LENGTH];
 		char pref_src [ADDR_BYTE_LENGTH];
@@ -360,26 +360,26 @@ ReadEvents (gpointer sock, gpointer buffer, gint32 count, gint32 size)
 	return result;
 }
 
-gpointer
-CloseNLSocket (gpointer sock)
+void*
+CloseNLSocket (void* sock)
 {
 	return GINT_TO_POINTER (close (GPOINTER_TO_INT (sock)));
 }
 #else
 int
-ReadEvents (gpointer sock, gpointer buffer, gint32 count, gint32 size)
+ReadEvents (void* sock, void* buffer, int32_t count, int32_t size)
 {
 	return 0;
 }
 
-gpointer
+void*
 CreateNLSocket (void)
 {
 	return GINT_TO_POINTER (-1);
 }
 
-gpointer
-CloseNLSocket (gpointer sock)
+void*
+CloseNLSocket (void* sock)
 {
 	return GINT_TO_POINTER (-1);
 }

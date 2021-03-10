@@ -21,25 +21,25 @@ Mono_Unix_VersionString ()
 	return (void *) "MonoProject-2015-12-1";
 }
 
-gint32
+int32_t
 Mono_Posix_Stdlib_EXIT_FAILURE (void)
 {
 	return EXIT_FAILURE;
 }
 
-gint32
+int32_t
 Mono_Posix_Stdlib_EXIT_SUCCESS (void)
 {
 	return EXIT_SUCCESS;
 }
 
-gint32
+int32_t
 Mono_Posix_Stdlib_MB_CUR_MAX (void)
 {
 	return MB_CUR_MAX;
 }
 
-gint32
+int32_t
 Mono_Posix_Stdlib_RAND_MAX (void)
 {
 	return RAND_MAX;

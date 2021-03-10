@@ -245,6 +245,8 @@ set(LOCAL_COMPILER_ARGS
   -Wpedantic
   -Wsuggest-final-types
   -Wsuggest-final-methods
+  -Wint-to-pointer-cast
+  -Wint-conversion
   )
 
 set(LOCAL_CXX_COMPILER_ARGS

@@ -22,10 +22,10 @@
 G_BEGIN_DECLS
 
 struct iovec*
-_mph_from_iovec_array (struct Mono_Posix_Iovec *iov, gint32 iovcnt)
+_mph_from_iovec_array (struct Mono_Posix_Iovec *iov, int32_t iovcnt)
 {
 	struct iovec* v;
-	gint32 i;
+	int32_t i;
 
 	if (iovcnt < 0) {
 		errno = EINVAL;
@@ -48,11 +48,11 @@ _mph_from_iovec_array (struct Mono_Posix_Iovec *iov, gint32 iovcnt)
 }
 
 #ifdef HAVE_READV
-gint64
-Mono_Posix_Syscall_readv (int dirfd, struct Mono_Posix_Iovec *iov, gint32 iovcnt)
+int64_t
+Mono_Posix_Syscall_readv (int dirfd, struct Mono_Posix_Iovec *iov, int32_t iovcnt)
 {
 	struct iovec* v;
-	gint64 res;
+	int64_t res;
 
 	v = _mph_from_iovec_array (iov, iovcnt);
 	if (!v) {
@@ -66,11 +66,11 @@ Mono_Posix_Syscall_readv (int dirfd, struct Mono_Posix_Iovec *iov, gint32 iovcnt
 #endif /* def HAVE_READV */
 
 #ifdef HAVE_WRITEV
-gint64
-Mono_Posix_Syscall_writev (int dirfd, struct Mono_Posix_Iovec *iov, gint32 iovcnt)
+int64_t
+Mono_Posix_Syscall_writev (int dirfd, struct Mono_Posix_Iovec *iov, int32_t iovcnt)
 {
 	struct iovec* v;
-	gint64 res;
+	int64_t res;
 
 	v = _mph_from_iovec_array (iov, iovcnt);
 	if (!v) {
@@ -84,11 +84,11 @@ Mono_Posix_Syscall_writev (int dirfd, struct Mono_Posix_Iovec *iov, gint32 iovcn
 #endif /* def HAVE_WRITEV */
 
 #ifdef HAVE_PREADV
-gint64
-Mono_Posix_Syscall_preadv (int dirfd, struct Mono_Posix_Iovec *iov, gint32 iovcnt, gint64 off)
+int64_t
+Mono_Posix_Syscall_preadv (int dirfd, struct Mono_Posix_Iovec *iov, int32_t iovcnt, int64_t off)
 {
 	struct iovec* v;
-	gint64 res;
+	int64_t res;
 
 	mph_return_if_off_t_overflow (off);
 
@@ -104,11 +104,11 @@ Mono_Posix_Syscall_preadv (int dirfd, struct Mono_Posix_Iovec *iov, gint32 iovcn
 #endif /* def HAVE_PREADV */
 
 #ifdef HAVE_PWRITEV
-gint64
-Mono_Posix_Syscall_pwritev (int dirfd, struct Mono_Posix_Iovec *iov, gint32 iovcnt, gint64 off)
+int64_t
+Mono_Posix_Syscall_pwritev (int dirfd, struct Mono_Posix_Iovec *iov, int32_t iovcnt, int64_t off)
 {
 	struct iovec* v;
-	gint64 res;
+	int64_t res;
 
 	mph_return_if_off_t_overflow (off);
 

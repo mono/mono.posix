@@ -15,7 +15,7 @@
 
 G_BEGIN_DECLS
 
-gint32
+int32_t
 Mono_Posix_Syscall_utime (const char *filename, struct Mono_Posix_Utimbuf *buf, 
 		int use_buf)
 {

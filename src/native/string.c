@@ -14,7 +14,7 @@
 
 G_BEGIN_DECLS
 
-guint64
+uint64_t
 Mono_Posix_Stdlib_strlen (void* p)
 {
 	return strlen ((const char*) p);

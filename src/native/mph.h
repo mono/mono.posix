@@ -84,11 +84,17 @@ int fsetpos(FILE*, const fpos_t*);
 #endif
 
 #if defined (_MSC_VER)
-#define MPH_API __declspec(dllexport)
+#define MPH_API_EXPORT __declspec(dllexport)
 #elif defined (__clang__) || defined (__GNUC__) // def _MSC_VER
-#define MPH_API __attribute__ ((__visibility__ ("default")))
+#define MPH_API_EXPORT __attribute__ ((__visibility__ ("default")))
 #else // def __clang__ || def __GNUC__
-#define MPH_API
+#define MPH_API_EXPORT
+#endif
+
+#if defined (__cplusplus)
+#define MPH_API MPH_API_EXPORT extern "C"
+#else
+#define MPH_API MPH_API_EXPORT
 #endif
 
 #if !defined(EOVERFLOW)
@@ -141,21 +147,21 @@ int fsetpos(FILE*, const fpos_t*);
 
 #endif /* ndef HOST_WIN32 */
 
-typedef    gint64 mph_blkcnt_t;
-typedef    gint64 mph_blksize_t;
-typedef   guint64 mph_dev_t;
-typedef   guint64 mph_ino_t;
-typedef   guint64 mph_nlink_t;
-typedef    gint64 mph_off_t;
-typedef   guint64 mph_size_t;
-typedef    gint64 mph_ssize_t;
-typedef    gint32 mph_pid_t;
-typedef   guint32 mph_gid_t;
-typedef   guint32 mph_uid_t;
-typedef    gint64 mph_time_t;
-typedef    gint64 mph_clock_t;
-typedef   guint64 mph_fsblkcnt_t;
-typedef   guint64 mph_fsfilcnt_t;
+typedef    int64_t mph_blkcnt_t;
+typedef    int64_t mph_blksize_t;
+typedef   uint64_t mph_dev_t;
+typedef   uint64_t mph_ino_t;
+typedef   uint64_t mph_nlink_t;
+typedef    int64_t mph_off_t;
+typedef   uint64_t mph_size_t;
+typedef    int64_t mph_ssize_t;
+typedef    int32_t mph_pid_t;
+typedef   uint32_t mph_gid_t;
+typedef   uint32_t mph_uid_t;
+typedef    int64_t mph_time_t;
+typedef    int64_t mph_clock_t;
+typedef   uint64_t mph_fsblkcnt_t;
+typedef   uint64_t mph_fsfilcnt_t;
 
 /* Some versions of OS X don't define these typedefs, needed by map.c */
 #ifndef HAVE_BLKCNT_T
@@ -167,7 +173,7 @@ typedef mph_blksize_t blksize_t;
 #endif
 
 #ifndef HAVE_SUSECONDS_T
-typedef gint64 suseconds_t;
+typedef int64_t suseconds_t;
 #endif
 
 #ifdef HAVE_LARGE_FILE_SUPPORT

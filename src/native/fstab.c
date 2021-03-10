@@ -261,7 +261,7 @@ Mono_Posix_Syscall_endfsent (void)
 	return 0;
 }
 
-gint32
+int32_t
 Mono_Posix_Syscall_getfsent (struct Mono_Posix_Syscall__Fstab *fsbuf)
 {
 	mph_fstab *fs;
@@ -282,7 +282,7 @@ Mono_Posix_Syscall_getfsent (struct Mono_Posix_Syscall__Fstab *fsbuf)
 	return 0;
 }
 
-gint32
+int32_t
 Mono_Posix_Syscall_getfsfile (const char *mount_point, 
 		struct Mono_Posix_Syscall__Fstab *fsbuf)
 {
@@ -304,7 +304,7 @@ Mono_Posix_Syscall_getfsfile (const char *mount_point,
 	return 0;
 }
 
-gint32
+int32_t
 Mono_Posix_Syscall_getfsspec (const char *special_file, 
 		struct Mono_Posix_Syscall__Fstab *fsbuf)
 {
@@ -326,7 +326,7 @@ Mono_Posix_Syscall_getfsspec (const char *special_file,
 	return 0;
 }
 
-gint32
+int32_t
 Mono_Posix_Syscall_setfsent (void)
 {
 	return setfsent ();

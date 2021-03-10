@@ -159,49 +159,49 @@
 
 /* returns TRUE if @type is an unsigned type */
 #define _cnm_integral_type_is_unsigned(type) \
-    (sizeof(type) == sizeof(gint8)           \
+    (sizeof(type) == sizeof(int8_t)           \
       ? (((type)-1) > CNM_MAXINT8)             \
-      : sizeof(type) == sizeof(gint16)       \
+      : sizeof(type) == sizeof(int16_t)       \
         ? (((type)-1) > CNM_MAXINT16)          \
         : sizeof(type) == sizeof(gint32)     \
           ? (((type)-1) > CNM_MAXINT32)        \
-          : sizeof(type) == sizeof(gint64)   \
+          : sizeof(type) == sizeof(int64_t)   \
             ? (((type)-1) > CNM_MAXINT64)      \
             : (g_assert_not_reached (), 0))
 
-/* returns the minimum value of @type as a gint64 */
+/* returns the minimum value of @type as a int64_t */
 #define _cnm_integral_type_min(type)          \
     (_cnm_integral_type_is_unsigned (type)    \
       ? 0                                     \
-      : sizeof(type) == sizeof(gint8)         \
+      : sizeof(type) == sizeof(int8_t)         \
         ? CNM_MININT8                           \
-        : sizeof(type) == sizeof(gint16)      \
+        : sizeof(type) == sizeof(int16_t)      \
           ? CNM_MININT16                        \
           : sizeof(type) == sizeof(gint32)    \
             ? CNM_MININT32                      \
-            : sizeof(type) == sizeof(gint64)  \
+            : sizeof(type) == sizeof(int64_t)  \
               ? CNM_MININT64                    \
               : (g_assert_not_reached (), 0))
 
-/* returns the maximum value of @type as a guint64 */
+/* returns the maximum value of @type as a uint64_t */
 #define _cnm_integral_type_max(type)            \
     (_cnm_integral_type_is_unsigned (type)      \
-      ? sizeof(type) == sizeof(gint8)           \
+      ? sizeof(type) == sizeof(int8_t)           \
         ? CNM_MAXUINT8                            \
-        : sizeof(type) == sizeof(gint16)        \
+        : sizeof(type) == sizeof(int16_t)        \
           ? CNM_MAXUINT16                         \
           : sizeof(type) == sizeof(gint32)      \
             ? CNM_MAXUINT32                       \
-            : sizeof(type) == sizeof(gint64)    \
+            : sizeof(type) == sizeof(int64_t)    \
               ? CNM_MAXUINT64                     \
               : (g_assert_not_reached (), 0)    \
-      : sizeof(type) == sizeof(gint8)           \
+      : sizeof(type) == sizeof(int8_t)           \
           ? CNM_MAXINT8                           \
-          : sizeof(type) == sizeof(gint16)      \
+          : sizeof(type) == sizeof(int16_t)      \
             ? CNM_MAXINT16                        \
             : sizeof(type) == sizeof(gint32)    \
               ? CNM_MAXINT32                      \
-              : sizeof(type) == sizeof(gint64)  \
+              : sizeof(type) == sizeof(int64_t)  \
                 ? CNM_MAXINT64                    \
                 : (g_assert_not_reached (), 0))
 
@@ -210,17 +210,17 @@
   printf ("# %s -> %s: uns=%i; min=%llx; max=%llx; value=%llx; lt=%i; l0=%i; gt=%i; e=%i\n", \
     #from, #to_t,                                                        \
     (int) _cnm_integral_type_is_unsigned (to_t),                         \
-    (gint64) (_cnm_integral_type_min (to_t)),                            \
-    (gint64) (_cnm_integral_type_max (to_t)),                            \
-    (gint64) (from),                                                     \
-    (((gint64) _cnm_integral_type_min (to_t)) <= (gint64) from),         \
+    (int64_t) (_cnm_integral_type_min (to_t)),                            \
+    (int64_t) (_cnm_integral_type_max (to_t)),                            \
+    (int64_t) (from),                                                     \
+    (((int64_t) _cnm_integral_type_min (to_t)) <= (int64_t) from),         \
     (from < 0),                                                          \
-    (((guint64) from) <= (guint64) _cnm_integral_type_max (to_t)),       \
+    (((uint64_t) from) <= (uint64_t) _cnm_integral_type_max (to_t)),       \
     !((int) _cnm_integral_type_is_unsigned (to_t)                        \
       ? ((0 <= from) &&                                                  \
-         ((guint64) from <= (guint64) _cnm_integral_type_max (to_t)))    \
-      : ((gint64) _cnm_integral_type_min(to_t) <= (gint64) from &&       \
-         (guint64) from <= (guint64) _cnm_integral_type_max (to_t)))     \
+         ((uint64_t) from <= (uint64_t) _cnm_integral_type_max (to_t)))    \
+      : ((int64_t) _cnm_integral_type_min(to_t) <= (int64_t) from &&       \
+         (uint64_t) from <= (uint64_t) _cnm_integral_type_max (to_t)))     \
   )
 #else /* ndef _CNM_DUMP */
 #define _cnm_dump(to_t, from) do {} while (0)
@@ -229,10 +229,10 @@
 #ifdef DEBUG
 #define _cnm_return_val_if_overflow(to_t,from,val)  G_STMT_START {   \
     int     uns = _cnm_integral_type_is_unsigned (to_t);             \
-    gint64  min = (gint64)  _cnm_integral_type_min (to_t);           \
-    guint64 max = (guint64) _cnm_integral_type_max (to_t);           \
-    gint64  sf  = (gint64)  from;                                    \
-    guint64 uf  = (guint64) from;                                    \
+    int64_t  min = (int64_t)  _cnm_integral_type_min (to_t);           \
+    uint64_t max = (uint64_t) _cnm_integral_type_max (to_t);           \
+    int64_t  sf  = (int64_t)  from;                                    \
+    uint64_t uf  = (uint64_t) from;                                    \
     if (!(uns ? ((0 <= from) && (uf <= max))                         \
               : (min <= sf && (from < 0 || uf <= max)))) {           \
       _cnm_dump(to_t, from);                                         \
@@ -372,7 +372,7 @@ int Mono_Posix_ToAtFlags (int x, int *r)
 int
 Mono_Posix_FromCmsghdr (struct Mono_Posix_Cmsghdr *from, struct cmsghdr *to)
 {
-	_cnm_return_val_if_overflow (gint64, from->cmsg_len, -1);
+	_cnm_return_val_if_overflow (int64_t, from->cmsg_len, -1);
 
 	memset (to, 0, sizeof(*to));
 
@@ -393,7 +393,7 @@ Mono_Posix_FromCmsghdr (struct Mono_Posix_Cmsghdr *from, struct cmsghdr *to)
 int
 Mono_Posix_ToCmsghdr (struct cmsghdr *from, struct Mono_Posix_Cmsghdr *to)
 {
-	_cnm_return_val_if_overflow (gint64, from->cmsg_len, -1);
+	_cnm_return_val_if_overflow (int64_t, from->cmsg_len, -1);
 
 	memset (to, 0, sizeof(*to));
 
@@ -3161,8 +3161,8 @@ Mono_Posix_FromFlock (struct Mono_Posix_Flock *from, struct flock *to)
 int
 Mono_Posix_ToFlock (struct flock *from, struct Mono_Posix_Flock *to)
 {
-	_cnm_return_val_if_overflow (gint64, from->l_start, -1);
-	_cnm_return_val_if_overflow (gint64, from->l_len, -1);
+	_cnm_return_val_if_overflow (int64_t, from->l_start, -1);
+	_cnm_return_val_if_overflow (int64_t, from->l_len, -1);
 	_cnm_return_val_if_overflow (int, from->l_pid, -1);
 
 	memset (to, 0, sizeof(*to));
@@ -3186,7 +3186,7 @@ Mono_Posix_ToFlock (struct flock *from, struct Mono_Posix_Flock *to)
 int
 Mono_Posix_FromIovec (struct Mono_Posix_Iovec *from, struct iovec *to)
 {
-	_cnm_return_val_if_overflow (guint64, from->iov_len, -1);
+	_cnm_return_val_if_overflow (uint64_t, from->iov_len, -1);
 
 	memset (to, 0, sizeof(*to));
 
@@ -3202,7 +3202,7 @@ Mono_Posix_FromIovec (struct Mono_Posix_Iovec *from, struct iovec *to)
 int
 Mono_Posix_ToIovec (struct iovec *from, struct Mono_Posix_Iovec *to)
 {
-	_cnm_return_val_if_overflow (guint64, from->iov_len, -1);
+	_cnm_return_val_if_overflow (uint64_t, from->iov_len, -1);
 
 	memset (to, 0, sizeof(*to));
 
@@ -3990,7 +3990,7 @@ int Mono_Posix_ToMmapProts (int x, int *r)
 	return 0;
 }
 
-int Mono_Posix_FromMountFlags (guint64 x, guint64 *r)
+int Mono_Posix_FromMountFlags (uint64_t x, uint64_t *r)
 {
 	*r = 0;
 	if ((x & Mono_Posix_MountFlags_ST_APPEND) == Mono_Posix_MountFlags_ST_APPEND)
@@ -4076,7 +4076,7 @@ int Mono_Posix_FromMountFlags (guint64 x, guint64 *r)
 	return 0;
 }
 
-int Mono_Posix_ToMountFlags (guint64 x, guint64 *r)
+int Mono_Posix_ToMountFlags (uint64_t x, uint64_t *r)
 {
 	*r = 0;
 	if (x == 0)
@@ -8043,7 +8043,7 @@ int
 Mono_Posix_FromTimespec (struct Mono_Posix_Timespec *from, struct timespec *to)
 {
 	_cnm_return_val_if_overflow (time_t, from->tv_sec, -1);
-	_cnm_return_val_if_overflow (gint64, from->tv_nsec, -1);
+	_cnm_return_val_if_overflow (int64_t, from->tv_nsec, -1);
 
 	memset (to, 0, sizeof(*to));
 
@@ -8059,8 +8059,8 @@ Mono_Posix_FromTimespec (struct Mono_Posix_Timespec *from, struct timespec *to)
 int
 Mono_Posix_ToTimespec (struct timespec *from, struct Mono_Posix_Timespec *to)
 {
-	_cnm_return_val_if_overflow (gint64, from->tv_sec, -1);
-	_cnm_return_val_if_overflow (gint64, from->tv_nsec, -1);
+	_cnm_return_val_if_overflow (int64_t, from->tv_sec, -1);
+	_cnm_return_val_if_overflow (int64_t, from->tv_nsec, -1);
 
 	memset (to, 0, sizeof(*to));
 
@@ -8093,8 +8093,8 @@ Mono_Posix_FromTimeval (struct Mono_Posix_Timeval *from, struct timeval *to)
 int
 Mono_Posix_ToTimeval (struct timeval *from, struct Mono_Posix_Timeval *to)
 {
-	_cnm_return_val_if_overflow (gint64, from->tv_sec, -1);
-	_cnm_return_val_if_overflow (gint64, from->tv_usec, -1);
+	_cnm_return_val_if_overflow (int64_t, from->tv_sec, -1);
+	_cnm_return_val_if_overflow (int64_t, from->tv_usec, -1);
 
 	memset (to, 0, sizeof(*to));
 
@@ -9487,8 +9487,8 @@ Mono_Posix_FromUtimbuf (struct Mono_Posix_Utimbuf *from, struct utimbuf *to)
 int
 Mono_Posix_ToUtimbuf (struct utimbuf *from, struct Mono_Posix_Utimbuf *to)
 {
-	_cnm_return_val_if_overflow (gint64, from->actime, -1);
-	_cnm_return_val_if_overflow (gint64, from->modtime, -1);
+	_cnm_return_val_if_overflow (int64_t, from->actime, -1);
+	_cnm_return_val_if_overflow (int64_t, from->modtime, -1);
 
 	memset (to, 0, sizeof(*to));
 

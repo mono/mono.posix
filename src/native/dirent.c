@@ -30,7 +30,7 @@
 G_BEGIN_DECLS
 
 #if HAVE_SEEKDIR
-gint32
+int32_t
 Mono_Posix_Syscall_seekdir (void *dir, mph_off_t offset)
 {
 	mph_return_if_off_t_overflow (offset);
@@ -68,7 +68,7 @@ copy_dirent (struct Mono_Posix_Syscall__Dirent *to, struct dirent *from)
 #endif
 }
 
-gint32
+int32_t
 Mono_Posix_Syscall_readdir (void *dirp, struct Mono_Posix_Syscall__Dirent *entry)
 {
 	struct dirent *d;
@@ -90,7 +90,7 @@ Mono_Posix_Syscall_readdir (void *dirp, struct Mono_Posix_Syscall__Dirent *entry
 	return 0;
 }
 
-gint32
+int32_t
 Mono_Posix_Syscall_readdir_r (void *dirp, struct Mono_Posix_Syscall__Dirent *entry, void **result)
 {
 	struct dirent *_entry = malloc (sizeof (struct dirent) + MPH_PATH_MAX + 1);

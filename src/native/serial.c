@@ -88,17 +88,17 @@ typedef enum {
 
 int              open_serial (char *devfile);
 int              close_serial (int unix_fd);
-guint32          read_serial (int fd, guchar *buffer, int offset, int count);
-int              write_serial (int fd, guchar *buffer, int offset, int count, int timeout);
-int              discard_buffer (int fd, gboolean input);
-gint32           get_bytes_in_buffer (int fd, gboolean input);
-gboolean         is_baud_rate_legal (int baud_rate);
-int              setup_baud_rate (int baud_rate, gboolean *custom_baud_rate);
-gboolean         set_attributes (int fd, int baud_rate, MonoParity parity, int dataBits, MonoStopBits stopBits, MonoHandshake handshake);
-MonoSerialSignal get_signals (int fd, gint32 *error);
-gint32           set_signal (int fd, MonoSerialSignal signal, gboolean value);
+uint32_t          read_serial (int fd, uint8_t *buffer, int offset, int count);
+int              write_serial (int fd, uint8_t *buffer, int offset, int count, int timeout);
+int              discard_buffer (int fd, bool input);
+int32_t           get_bytes_in_buffer (int fd, bool input);
+bool         is_baud_rate_legal (int baud_rate);
+int              setup_baud_rate (int baud_rate, bool *custom_baud_rate);
+bool         set_attributes (int fd, int baud_rate, MonoParity parity, int dataBits, MonoStopBits stopBits, MonoHandshake handshake);
+MonoSerialSignal get_signals (int fd, int32_t *error);
+int32_t           set_signal (int fd, MonoSerialSignal signal, bool value);
 int              breakprop (int fd);
-gboolean         poll_serial (int fd, gint32 *error, int timeout);
+bool         poll_serial (int fd, int32_t *error, int timeout);
 void            *list_serial_devices (void);
 
 int
@@ -117,21 +117,21 @@ close_serial (int unix_fd)
 	return close (unix_fd);
 }
 
-guint32
-read_serial (int fd, guchar *buffer, int offset, int count)
+uint32_t
+read_serial (int fd, uint8_t *buffer, int offset, int count)
 {
-	guint32 n;
+	uint32_t n;
  
 	n = read (fd, buffer + offset, count);
 
-	return (guint32) n;
+	return (uint32_t) n;
 }
 
 int
-write_serial (int fd, guchar *buffer, int offset, int count, int timeout)
+write_serial (int fd, uint8_t *buffer, int offset, int count, int timeout)
 {
 	struct pollfd pinfo;
-	guint32 n;
+	uint32_t n;
 
 	pinfo.fd = fd;
 	pinfo.events = POLLOUT;
@@ -167,20 +167,20 @@ write_serial (int fd, guchar *buffer, int offset, int count, int timeout)
 }
 
 int
-discard_buffer (int fd, gboolean input)
+discard_buffer (int fd, bool input)
 {
 	return tcflush(fd, input ? TCIFLUSH : TCOFLUSH);
 }
 
-gint32
-get_bytes_in_buffer (int fd, gboolean input)
+int32_t
+get_bytes_in_buffer (int fd, bool input)
 {
 #if defined(__HAIKU__)
 	/* FIXME: Haiku doesn't support TIOCOUTQ nor FIONREAD on fds */
 	return -1;
 #define TIOCOUTQ 0
 #endif
-	gint32 retval;
+	int32_t retval;
 
 	if (ioctl (fd, input ? FIONREAD : TIOCOUTQ, &retval) == -1) {
 		return -1;
@@ -189,15 +189,15 @@ get_bytes_in_buffer (int fd, gboolean input)
 	return retval;
 }
 
-gboolean
+bool
 is_baud_rate_legal (int baud_rate)
 {
-	gboolean ignore = FALSE;
+	bool ignore = FALSE;
 	return setup_baud_rate (baud_rate, &ignore) != -1;
 }
 
 int
-setup_baud_rate (int baud_rate, gboolean *custom_baud_rate)
+setup_baud_rate (int baud_rate, bool *custom_baud_rate)
 {
 	switch (baud_rate)
 	{
@@ -290,11 +290,11 @@ setup_baud_rate (int baud_rate, gboolean *custom_baud_rate)
 	return baud_rate;
 }
 
-gboolean
+bool
 set_attributes (int fd, int baud_rate, MonoParity parity, int dataBits, MonoStopBits stopBits, MonoHandshake handshake)
 {
 	struct termios newtio;
-	gboolean custom_baud_rate = FALSE;
+	bool custom_baud_rate = FALSE;
 
 	if (tcgetattr (fd, &newtio) == -1)
 		return FALSE;
@@ -447,7 +447,7 @@ set_attributes (int fd, int baud_rate, MonoParity parity, int dataBits, MonoStop
 }
 
 
-static gint32
+static int32_t
 get_signal_code (MonoSerialSignal signal)
 {
 	switch (signal) {
@@ -489,7 +489,7 @@ get_mono_signal_codes (int signals)
 }
 
 MonoSerialSignal
-get_signals (int fd, gint32 *error)
+get_signals (int fd, int32_t *error)
 {
 	int signals;
 
@@ -503,8 +503,8 @@ get_signals (int fd, gint32 *error)
 	return get_mono_signal_codes (signals);
 }
 
-gint32
-set_signal (int fd, MonoSerialSignal signal, gboolean value)
+int32_t
+set_signal (int fd, MonoSerialSignal signal, bool value)
 {
 	int signals, expected, activated;
 
@@ -539,8 +539,8 @@ breakprop (int fd)
 	return tcsendbreak (fd, 0);
 }
 
-gboolean
-poll_serial (int fd, gint32 *error, int timeout)
+bool
+poll_serial (int fd, int32_t *error, int timeout)
 {
 	struct pollfd pinfo;
 	

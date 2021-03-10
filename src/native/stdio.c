@@ -16,7 +16,7 @@
 
 G_BEGIN_DECLS
 
-gint32
+int32_t
 Mono_Posix_Syscall_L_ctermid (void)
 {
 #ifndef HOST_WIN32
@@ -26,7 +26,7 @@ Mono_Posix_Syscall_L_ctermid (void)
 #endif
 }
 
-gint32
+int32_t
 Mono_Posix_Syscall_L_cuserid (void)
 {
 #if defined(__APPLE__) || defined (__OpenBSD__) || defined (HOST_WIN32)
@@ -69,13 +69,13 @@ Mono_Posix_Stdlib_fwrite (unsigned char *ptr, mph_size_t size, mph_size_t nmemb,
 }
 
 #ifdef HAVE_VSNPRINTF
-gint32
+int32_t
 Mono_Posix_Stdlib_snprintf (char *s, mph_size_t n, char *format, ...);
-gint32
+int32_t
 Mono_Posix_Stdlib_snprintf (char *s, mph_size_t n, char *format, ...)
 {
 	va_list ap;
-	gint32 r;
+	int32_t r;
 	mph_return_if_size_t_overflow (n);
 
 	va_start (ap, format);
@@ -86,49 +86,49 @@ Mono_Posix_Stdlib_snprintf (char *s, mph_size_t n, char *format, ...)
 }
 #endif /* def HAVE_VSNPRINTF */
 
-gint32
+int32_t
 Mono_Posix_Stdlib__IOFBF (void)
 {
 	return _IOFBF;
 }
 
-gint32
+int32_t
 Mono_Posix_Stdlib__IOLBF (void)
 {
 	return _IOLBF;
 }
 
-gint32
+int32_t
 Mono_Posix_Stdlib__IONBF (void)
 {
 	return _IONBF;
 }
 
-gint32
+int32_t
 Mono_Posix_Stdlib_BUFSIZ (void)
 {
 	return BUFSIZ;
 }
 
-gint32
+int32_t
 Mono_Posix_Stdlib_EOF (void)
 {
 	return EOF;
 }
 
-gint32
+int32_t
 Mono_Posix_Stdlib_FOPEN_MAX (void)
 {
 	return FOPEN_MAX;
 }
 
-gint32
+int32_t
 Mono_Posix_Stdlib_FILENAME_MAX (void)
 {
 	return FILENAME_MAX;
 }
 
-gint32
+int32_t
 Mono_Posix_Stdlib_L_tmpnam (void)
 {
 	return L_tmpnam;
@@ -152,7 +152,7 @@ Mono_Posix_Stdlib_stderr (void)
 	return stderr;
 }
 
-gint32
+int32_t
 Mono_Posix_Stdlib_TMP_MAX (void)
 {
 	return TMP_MAX;
@@ -164,7 +164,7 @@ Mono_Posix_Stdlib_tmpfile (void)
 	return tmpfile ();
 }
 
-gint32
+int32_t
 Mono_Posix_Stdlib_setvbuf (void* stream, void *buf, int mode, mph_size_t size)
 {
 	mph_return_if_size_t_overflow (size);
@@ -190,57 +190,57 @@ Mono_Posix_Stdlib_freopen (const char* path, const char* mode, void *stream)
 	return freopen (path, mode, stream);
 }
 
-gint32
+int32_t
 Mono_Posix_Stdlib_fprintf (void* stream, const char* format, const char* message)
 {
 	return fprintf (stream, format, message);
 }
 
-gint32
+int32_t
 Mono_Posix_Stdlib_fgetc (void* stream)
 {
 	return fgetc (stream);
 }
 
 void*
-Mono_Posix_Stdlib_fgets (char* str, gint32 size, void* stream)
+Mono_Posix_Stdlib_fgets (char* str, int32_t size, void* stream)
 {
 	return fgets (str, size, stream);
 }
 
-gint32
-Mono_Posix_Stdlib_fputc (gint32 c, void* stream)
+int32_t
+Mono_Posix_Stdlib_fputc (int32_t c, void* stream)
 {
 	return fputc (c, stream);
 }
 
-gint32
+int32_t
 Mono_Posix_Stdlib_fputs (const char* s, void* stream)
 {
 	return fputs (s, stream);
 }
 
-gint32
+int32_t
 Mono_Posix_Stdlib_fclose (void* stream)
 {
 	return fclose (stream);
 }
 
-gint32
+int32_t
 Mono_Posix_Stdlib_fflush (void* stream)
 {
 	return fflush (stream);
 }
 
-gint32
-Mono_Posix_Stdlib_fseek (void* stream, gint64 offset, int origin)
+int32_t
+Mono_Posix_Stdlib_fseek (void* stream, int64_t offset, int origin)
 {
 	mph_return_if_long_overflow (offset);
 
 	return fseek (stream, offset, origin);
 }
 
-gint64
+int64_t
 Mono_Posix_Stdlib_ftell (void* stream)
 {
 	return ftell (stream);
@@ -253,13 +253,13 @@ Mono_Posix_Stdlib_CreateFilePosition (void)
 	return pos;
 }
 
-gint32
+int32_t
 Mono_Posix_Stdlib_fgetpos (void* stream, void *pos)
 {
 	return fgetpos (stream, (fpos_t*) pos);
 }
 
-gint32
+int32_t
 Mono_Posix_Stdlib_fsetpos (void* stream, void *pos)
 {
 	return fsetpos (stream, (fpos_t*) pos);
@@ -283,19 +283,19 @@ Mono_Posix_Stdlib_clearerr (void* stream)
 	return 0;
 }
 
-gint32
-Mono_Posix_Stdlib_ungetc (gint32 c, void* stream)
+int32_t
+Mono_Posix_Stdlib_ungetc (int32_t c, void* stream)
 {
 	return ungetc (c, stream);
 }
 
-gint32
+int32_t
 Mono_Posix_Stdlib_feof (void* stream)
 {
 	return feof (((FILE*) stream));
 }
 
-gint32
+int32_t
 Mono_Posix_Stdlib_ferror (void* stream)
 {
 	return ferror (((FILE*) stream));
@@ -312,7 +312,7 @@ Mono_Posix_Stdlib_perror (const char* s, int err)
 #define MPH_FPOS_LENGTH (sizeof(fpos_t)*2)
 
 int
-Mono_Posix_Stdlib_DumpFilePosition (char *dest, void *pos, gint32 len)
+Mono_Posix_Stdlib_DumpFilePosition (char *dest, void *pos, int32_t len)
 {
 	char *destp;
 	unsigned char *posp, *pose;

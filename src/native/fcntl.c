@@ -28,35 +28,35 @@
 G_BEGIN_DECLS
 
 #ifndef HOST_WIN32
-gint32
-Mono_Posix_Syscall_fcntl (gint32 fd, gint32 cmd)
+int32_t
+Mono_Posix_Syscall_fcntl (int32_t fd, int32_t cmd)
 {
 	if (Mono_Posix_FromFcntlCommand (cmd, &cmd) == -1)
 		return -1;
 	return fcntl (fd, cmd);
 }
 
-gint32
-Mono_Posix_Syscall_fcntl_arg_int (gint32 fd, gint32 cmd, int arg)
+int32_t
+Mono_Posix_Syscall_fcntl_arg_int (int32_t fd, int32_t cmd, int arg)
 {
 	if (Mono_Posix_FromFcntlCommand (cmd, &cmd) == -1)
 		return -1;
 	return fcntl (fd, cmd, arg);
 }
 
-gint32
-Mono_Posix_Syscall_fcntl_arg_ptr (gint32 fd, gint32 cmd, void *arg)
+int32_t
+Mono_Posix_Syscall_fcntl_arg_ptr (int32_t fd, int32_t cmd, void *arg)
 {
 	if (Mono_Posix_FromFcntlCommand (cmd, &cmd) == -1)
 		return -1;
 	return fcntl (fd, cmd, arg);
 }
 
-gint32
-Mono_Posix_Syscall_fcntl_arg (gint32 fd, gint32 cmd, gint64 arg)
+int32_t
+Mono_Posix_Syscall_fcntl_arg (int32_t fd, int32_t cmd, int64_t arg)
 {
 	long _arg;
-	gint32 _cmd;
+	int32_t _cmd;
 
 	mph_return_if_long_overflow (arg);
 
@@ -77,8 +77,8 @@ Mono_Posix_Syscall_fcntl_arg (gint32 fd, gint32 cmd, gint64 arg)
 	return fcntl (fd, cmd, _arg);
 }
 
-gint32
-Mono_Posix_Syscall_fcntl_lock (gint32 fd, gint32 cmd, struct Mono_Posix_Flock *lock)
+int32_t
+Mono_Posix_Syscall_fcntl_lock (int32_t fd, int32_t cmd, struct Mono_Posix_Flock *lock)
 {
 	struct flock _lock;
 	int r;
@@ -103,8 +103,8 @@ Mono_Posix_Syscall_fcntl_lock (gint32 fd, gint32 cmd, struct Mono_Posix_Flock *l
 }
 #endif
 
-gint32
-Mono_Posix_Syscall_open (const char *pathname, gint32 flags)
+int32_t
+Mono_Posix_Syscall_open (const char *pathname, int32_t flags)
 {
 	if (Mono_Posix_FromOpenFlags (flags, &flags) == -1)
 		return -1;
@@ -112,8 +112,8 @@ Mono_Posix_Syscall_open (const char *pathname, gint32 flags)
 	return open (pathname, flags);
 }
 
-gint32
-Mono_Posix_Syscall_open_mode (const char *pathname, gint32 flags, guint32 mode)
+int32_t
+Mono_Posix_Syscall_open_mode (const char *pathname, int32_t flags, uint32_t mode)
 {
 	if (Mono_Posix_FromOpenFlags (flags, &flags) == -1)
 		return -1;
@@ -123,7 +123,7 @@ Mono_Posix_Syscall_open_mode (const char *pathname, gint32 flags, guint32 mode)
 	return open (pathname, flags, mode);
 }
 
-gint32
+int32_t
 Mono_Posix_Syscall_get_at_fdcwd ()
 {
 #ifdef AT_FDCWD
@@ -133,8 +133,8 @@ Mono_Posix_Syscall_get_at_fdcwd ()
 #endif
 }
 
-gint32
-Mono_Posix_Syscall_creat (const char *pathname, guint32 mode)
+int32_t
+Mono_Posix_Syscall_creat (const char *pathname, uint32_t mode)
 {
 	if (Mono_Posix_FromFilePermissions (mode, &mode) == -1)
 		return -1;
@@ -143,9 +143,9 @@ Mono_Posix_Syscall_creat (const char *pathname, guint32 mode)
 }
 
 #ifdef HAVE_POSIX_FADVISE
-gint32
-Mono_Posix_Syscall_posix_fadvise (gint32 fd, mph_off_t offset, mph_off_t len, 
-	gint32 advice)
+int32_t
+Mono_Posix_Syscall_posix_fadvise (int32_t fd, mph_off_t offset, mph_off_t len,
+	int32_t advice)
 {
 	mph_return_if_off_t_overflow (offset);
 	mph_return_if_off_t_overflow (len);
@@ -158,8 +158,8 @@ Mono_Posix_Syscall_posix_fadvise (gint32 fd, mph_off_t offset, mph_off_t len,
 #endif /* ndef HAVE_POSIX_FADVISE */
 
 #ifdef HAVE_POSIX_FALLOCATE
-gint32
-Mono_Posix_Syscall_posix_fallocate (gint32 fd, mph_off_t offset, mph_size_t len)
+int32_t
+Mono_Posix_Syscall_posix_fallocate (int32_t fd, mph_off_t offset, mph_size_t len)
 {
 	mph_return_if_off_t_overflow (offset);
 	mph_return_if_size_t_overflow (len);

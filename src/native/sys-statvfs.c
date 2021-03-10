@@ -70,7 +70,7 @@ int
 Mono_Posix_FromStatvfs (struct Mono_Posix_Statvfs *from, void *_to)
 {
 	struct statvfs *to = _to;
-	guint64 flag;
+	uint64_t flag;
 
 	to->f_bsize   = from->f_bsize;
 	to->f_frsize  = from->f_frsize;
@@ -100,7 +100,7 @@ Mono_Posix_FromStatvfs (struct Mono_Posix_Statvfs *from, void *_to)
  */
 
 #ifdef HAVE_STATVFS
-gint32
+int32_t
 Mono_Posix_Syscall_statvfs (const char *path, struct Mono_Posix_Statvfs *buf)
 {
 	struct statvfs s;
@@ -119,8 +119,8 @@ Mono_Posix_Syscall_statvfs (const char *path, struct Mono_Posix_Statvfs *buf)
 #endif /* ndef HAVA_STATVFS */
 
 #ifdef HAVE_FSTATVFS
-gint32
-Mono_Posix_Syscall_fstatvfs (gint32 fd, struct Mono_Posix_Statvfs *buf)
+int32_t
+Mono_Posix_Syscall_fstatvfs (int32_t fd, struct Mono_Posix_Statvfs *buf)
 {
 	struct statvfs s;
 	int r;
@@ -176,7 +176,7 @@ int
 Mono_Posix_FromStatvfs (struct Mono_Posix_Statvfs *from, void *_to)
 {
 	struct statfs *to = _to;
-	guint64 flag;
+	uint64_t flag;
 
 	to->f_bsize   = from->f_bsize;
 	to->f_blocks  = from->f_blocks;
@@ -212,7 +212,7 @@ set_fnamemax (int fd, struct Mono_Posix_Statvfs *buf)
 #endif /* (def HAVE_STATFS || def HAVE_FSTATFS) && !def HAVE_STATVFS */
 
 #if !defined (HAVE_STATVFS) && defined (HAVE_STATFS) && (!defined(ANDROID_UNIFIED_HEADERS) || __ANDROID_API__ >= 19)
-gint32
+int32_t
 Mono_Posix_Syscall_statvfs (const char *path, struct Mono_Posix_Statvfs *buf)
 {
 	struct statfs s;
@@ -233,8 +233,8 @@ Mono_Posix_Syscall_statvfs (const char *path, struct Mono_Posix_Statvfs *buf)
 #endif /* !def HAVE_STATVFS && def HAVE_STATFS */
 
 #if !defined (HAVE_STATVFS) && defined (HAVE_STATFS) && (!defined(ANDROID_UNIFIED_HEADERS) || __ANDROID_API__ >= 19)
-gint32
-Mono_Posix_Syscall_fstatvfs (gint32 fd, struct Mono_Posix_Statvfs *buf)
+int32_t
+Mono_Posix_Syscall_fstatvfs (int32_t fd, struct Mono_Posix_Statvfs *buf)
 {
 	struct statfs s;
 	int r;
