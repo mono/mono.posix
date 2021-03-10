@@ -37,7 +37,7 @@ The `src/native` directory here corresponds to `support/` in the Mono repository
   - [ ] Test build on Windows
   - [ ] Create CMake toolchain files for various target systems (`iOS`,
         `watchOS`, `tvOS`, `WASM`)
-  - [ ] Migrate to standard types (e.g. `uint32_t`) instead of the glib
+  - [x] Migrate to standard types (e.g. `uint32_t`) instead of the glib
         ones
   - [ ] Migrate to C++ (no stdlib linking, just compiler + select
         header files)
