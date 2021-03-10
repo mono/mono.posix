@@ -208,7 +208,7 @@ get_addrlen (struct Mono_Posix__SockaddrHeader* address, socklen_t* addrlen)
 int
 Mono_Posix_Sockaddr_GetNativeSize (struct Mono_Posix__SockaddrHeader* address, gint64* size)
 {
-	socklen_t value;
+	socklen_t value = 0;
 	int r;
 
 	r = get_addrlen (address, &value);

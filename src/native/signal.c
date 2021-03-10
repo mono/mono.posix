@@ -44,29 +44,28 @@ typedef struct Mono_Unix_UnixSignal_SignalInfo signal_info;
 static int count_handlers (int signum);
 #endif
 
-void*
+mph_sig_t
 Mono_Posix_Stdlib_SIG_DFL (void)
 {
-	return (void*)SIG_DFL;
+	return SIG_DFL;
 }
 
-void*
+mph_sig_t
 Mono_Posix_Stdlib_SIG_ERR (void)
 {
-	return (void*)SIG_ERR;
+	return SIG_ERR;
 }
 
-void*
+mph_sig_t
 Mono_Posix_Stdlib_SIG_IGN (void)
 {
-	return (void*)SIG_IGN;
+	return SIG_IGN;
 }
 
 void
-Mono_Posix_Stdlib_InvokeSignalHandler (int signum, void *handler)
+Mono_Posix_Stdlib_InvokeSignalHandler (int signum, mph_sig_t handler)
 {
-	mph_sighandler_t _h = (mph_sighandler_t) handler;
-	_h (signum);
+	handler (signum);
 }
 
 int Mono_Posix_SIGRTMIN (void)
@@ -306,7 +305,10 @@ Mono_Unix_UnixSignal_install (int sig)
 	if (sig >= SIGRTMIN && sig <= SIGRTMAX && count_handlers (sig) == 0) {
 		struct sigaction sinfo;
 		sigaction (sig, NULL, &sinfo);
-		if (sinfo.sa_handler != SIG_DFL || (void*)sinfo.sa_sigaction != (void*)SIG_DFL) {
+		// On some systems sa_handler and sa_sigaction are a union, but on some they are separate members of `struct
+		// sigaction` and they may have different signatures, `SIG_DFL` cannot be used to check validity of
+		// `sa_sigaction`
+		if (sinfo.sa_handler != SIG_DFL || sinfo.sa_sigaction != NULL) {
 			pthread_mutex_unlock (&signals_mutex);
 			errno = EADDRINUSE;
 			return NULL; // This is an rt signal with an existing handler. Bail out.
