@@ -11,7 +11,7 @@ project(
   VERSION ${MONO_POSIX_HELPER_VERSION}
   DESCRIPTION "Native helper library for the Mono.Posix assembly"
   HOMEPAGE_URL "https://github.com/mono/mono.posix/"
-  LANGUAGES C CXX
+  LANGUAGES CXX
   )
 
 option(STRIP_DEBUG "Strip debugging information when linking" ON)
@@ -127,10 +127,8 @@ if(IS_LINUX)
   endforeach()
 endif()
 
-include(CheckIncludeFiles)
-include(CheckCCompilerFlag)
+include(CheckIncludeFileCXX)
 include(CheckCXXCompilerFlag)
-include(CheckCCompilerFlag)
 include(CheckLinkerFlag)
 include(CheckSymbolExists)
 include(CheckStructHasMember)
@@ -152,10 +150,6 @@ macro(cxx_compiler_has_flag _flag)
   _compiler_has_flag(cxx ${_flag})
 endmacro()
 
-macro(c_compiler_has_flag _flag)
-  _compiler_has_flag(c ${_flag})
-endmacro()
-
 macro(_linker_has_flag _lang _flag)
   string(REGEX REPLACE "-|,|=" "_" _flag_name ${_flag})
   string(TOUPPER "${_lang}" _lang_upper)
@@ -172,10 +166,6 @@ macro(cxx_linker_has_flag _flag)
   _linker_has_flag(CXX ${_flag})
 endmacro()
 
-macro(c_linker_has_flag _flag)
-  _linker_has_flag(C ${_flag})
-endmacro()
-
 macro(mph_check_symbol_exists _symbol _files _variable)
   check_symbol_exists(${_symbol} "${_files}" ${_variable})
 endmacro()
@@ -184,7 +174,7 @@ macro(mph_check_type_exists _type _variable _includes)
   set(OLD_CMAKE_EXTRA_INCLUDE_FILES ${CMAKE_EXTRA_INCLUDE_FILES})
   set(CMAKE_EXTRA_INCLUDE_FILES ${_includes})
 
-  check_type_size(${_type} ${_variable})
+  check_type_size(${_type} ${_variable} LANGUAGE CXX)
 
   set(CMAKE_EXTRA_INCLUDE_FILES ${OLD_CMAKE_EXTRA_INCLUDE_FILES})
 endmacro()
@@ -197,7 +187,6 @@ set(MPH_SOURCES
   grp.cc
   macros.cc
   map.cc
-  nl.cc
   old-map.cc
   pwd.cc
   serial.cc
@@ -231,6 +220,8 @@ set(LOCAL_COMPILER_ARGS
   -ffunction-sections
   -funswitch-loops
   -finline-limit=300
+  -fno-exceptions
+  -fno-rtti
   -Wa,-noexecstack
   -fPIC
   -g
@@ -246,16 +237,7 @@ set(LOCAL_COMPILER_ARGS
   -Wsuggest-final-types
   -Wsuggest-final-methods
   -Wint-to-pointer-cast
-  )
-
-set(LOCAL_CXX_COMPILER_ARGS
   -Wsuggest-override
-  -fno-exceptions
-  -fno-rtti
-  )
-
-set(LOCAL_C_COMPILER_ARGS
-  -Wint-conversion
   )
 
 set(LOCAL_LINKER_ARGS
@@ -293,31 +275,13 @@ endif()
 # Compiler and linker flag checks
 #
 set(_CHECKED_FLAGS "")
-foreach(flag ${LOCAL_COMPILER_ARGS} LOCAL_C_COMPILER_ARGS)
-  c_compiler_has_flag(${flag})
-  if(COMPILER_FLAG_FOUND)
-    list(APPEND _CHECKED_FLAGS "${flag}")
-  endif()
-endforeach()
-set(MPH_C_FLAGS "${_CHECKED_FLAGS}")
-
-set(_CHECKED_FLAGS "")
-foreach(flag ${LOCAL_COMPILER_ARGS} ${LOCAL_CXX_COMPILER_ARGS})
+foreach(flag ${LOCAL_COMPILER_ARGS})
   cxx_compiler_has_flag(${flag})
   if(COMPILER_FLAG_FOUND)
     list(APPEND _CHECKED_FLAGS "${flag}")
   endif()
 endforeach()
 set(MPH_CXX_FLAGS "${_CHECKED_FLAGS}")
-
-set(_CHECKED_FLAGS "")
-foreach(flag ${LOCAL_LINKER_ARGS})
-  c_linker_has_flag(${flag})
-  if(LINKER_FLAG_FOUND)
-    list(APPEND _CHECKED_FLAGS "${flag}")
-  endif()
-endforeach()
-set(MPH_C_LINKER_FLAGS "${_CHECKED_FLAGS}")
 
 set(_CHECKED_FLAGS "")
 foreach(flag ${LOCAL_LINKER_ARGS})
@@ -387,37 +351,37 @@ endif()
 #
 # Header checks
 #
-check_include_files("attr/xattr.h" HAVE_ATTR_ATTR_H)
-check_include_files("checklist.h" HAVE_CHECKLIST_H)
-check_include_files("dirent.h" HAVE_DIRENT_H)
-check_include_files("fstab.h" HAVE_FSTAB_H)
-check_include_files("grp.h" HAVE_GRP_H)
-check_include_files("linux/netlink.h" HAVE_LINUX_NETLINK_H)
-check_include_files("linux/rtnetlink.h" HAVE_LINUX_RTNETLINK_H)
-check_include_files("linux/serial.h" HAVE_LINUX_SERIAL_H)
-check_include_files("netinet/in.h" HAVE_NETINET_IN_H)
-check_include_files("poll.h" HAVE_POLL_H)
-check_include_files("pwd.h" HAVE_PWD_H)
-check_include_files("stdint.h" HAVE_STDINT_H)
-check_include_files("stdio.h" HAVE_STDIO_H)
-check_include_files("sys/extattr.h" HAVE_SYS_EXTATTR_H)
-check_include_files("syslog.h" HAVE_SYSLOG_H)
-check_include_files("sys/mman.h" HAVE_SYS_MMAN_H)
-check_include_files("sys/param.h" HAVE_SYS_PARAM_H)
-check_include_files("sys/poll.h" HAVE_SYS_POLL_H)
-check_include_files("sys/sendfile.h" HAVE_SYS_SENDFILE_H)
-check_include_files("sys/socket.h" HAVE_SYS_SOCKET_H)
-check_include_files("sys/stat.h" HAVE_SYS_STAT_H)
-check_include_files("sys/statvfs.h" HAVE_SYS_STATVFS_H)
-check_include_files("sys/time.h" HAVE_SYS_TIME_H)
-check_include_files("sys/uio.h" HAVE_SYS_UIO_H)
-check_include_files("sys/vfs.h" HAVE_SYS_VFS_H)
-check_include_files("sys/vfstab.h" HAVE_SYS_VFSTAB_H)
-check_include_files("sys/wait.h" HAVE_SYS_WAIT_H)
-check_include_files("sys/xattr.h" HAVE_SYS_XATTR_H)
-check_include_files("sys/xattr.h" HAVE_SYS_XATTR_H)
-check_include_files("unistd.h" HAVE_UNISTD_H)
-check_include_files("utime.h" HAVE_UTIME_H)
+check_include_file_cxx("attr/xattr.h" HAVE_ATTR_ATTR_H)
+check_include_file_cxx("checklist.h" HAVE_CHECKLIST_H)
+check_include_file_cxx("dirent.h" HAVE_DIRENT_H)
+check_include_file_cxx("fstab.h" HAVE_FSTAB_H)
+check_include_file_cxx("grp.h" HAVE_GRP_H)
+check_include_file_cxx("linux/netlink.h" HAVE_LINUX_NETLINK_H)
+check_include_file_cxx("linux/rtnetlink.h" HAVE_LINUX_RTNETLINK_H)
+check_include_file_cxx("linux/serial.h" HAVE_LINUX_SERIAL_H)
+check_include_file_cxx("netinet/in.h" HAVE_NETINET_IN_H)
+check_include_file_cxx("poll.h" HAVE_POLL_H)
+check_include_file_cxx("pwd.h" HAVE_PWD_H)
+check_include_file_cxx("stdint.h" HAVE_STDINT_H)
+check_include_file_cxx("stdio.h" HAVE_STDIO_H)
+check_include_file_cxx("sys/extattr.h" HAVE_SYS_EXTATTR_H)
+check_include_file_cxx("syslog.h" HAVE_SYSLOG_H)
+check_include_file_cxx("sys/mman.h" HAVE_SYS_MMAN_H)
+check_include_file_cxx("sys/param.h" HAVE_SYS_PARAM_H)
+check_include_file_cxx("sys/poll.h" HAVE_SYS_POLL_H)
+check_include_file_cxx("sys/sendfile.h" HAVE_SYS_SENDFILE_H)
+check_include_file_cxx("sys/socket.h" HAVE_SYS_SOCKET_H)
+check_include_file_cxx("sys/stat.h" HAVE_SYS_STAT_H)
+check_include_file_cxx("sys/statvfs.h" HAVE_SYS_STATVFS_H)
+check_include_file_cxx("sys/time.h" HAVE_SYS_TIME_H)
+check_include_file_cxx("sys/uio.h" HAVE_SYS_UIO_H)
+check_include_file_cxx("sys/vfs.h" HAVE_SYS_VFS_H)
+check_include_file_cxx("sys/vfstab.h" HAVE_SYS_VFSTAB_H)
+check_include_file_cxx("sys/wait.h" HAVE_SYS_WAIT_H)
+check_include_file_cxx("sys/xattr.h" HAVE_SYS_XATTR_H)
+check_include_file_cxx("sys/xattr.h" HAVE_SYS_XATTR_H)
+check_include_file_cxx("unistd.h" HAVE_UNISTD_H)
+check_include_file_cxx("utime.h" HAVE_UTIME_H)
 
 #
 # Type checks
@@ -500,26 +464,26 @@ mph_check_symbol_exists(writev "sys/uio.h" HAVE_WRITEV)
 #
 # Structure checks
 #
-check_struct_has_member("struct cmsghdr" cmsg_len "sys/socket.h" HAVE_STRUCT_CMSGHDR)
-check_struct_has_member("struct dirent" d_off "dirent.h" HAVE_STRUCT_DIRENT_D_OFF)
-check_struct_has_member("struct dirent" d_reclen "dirent.h" HAVE_STRUCT_DIRENT_D_RECLEN)
-check_struct_has_member("struct dirent" d_type "dirent.h" HAVE_STRUCT_DIRENT_D_TYPE)
-check_struct_has_member("struct flock" l_type "fcntl.h" HAVE_STRUCT_FLOCK)
-check_struct_has_member("struct iovec" iov_base "sys/uio.h" HAVE_STRUCT_IOVEC)
-check_struct_has_member("struct linger" l_onoff "sys/socket.h" HAVE_STRUCT_LINGER)
-check_struct_has_member("struct passwd" pw_gecos "pwd.h" HAVE_STRUCT_PASSWD_PW_GECOS)
-check_struct_has_member("struct pollfd" fd "poll.h" HAVE_STRUCT_POLLFD)
-check_struct_has_member("struct sockaddr_in6" sin6_family "sys/socket.h;netinet/in.h" HAVE_STRUCT_SOCKADDR_IN6)
-check_struct_has_member("struct sockaddr_in" sin_family "sys/socket.h;netinet/in.h" HAVE_STRUCT_SOCKADDR_IN)
-check_struct_has_member("struct statfs" f_flags "sys/vfs.h" HAVE_STRUCT_STATFS_F_FLAGS)
-check_struct_has_member("struct stat" st_atimespec "sys/stat.h" HAVE_STRUCT_STAT_ST_ATIMESPEC)
-check_struct_has_member("struct stat" st_atim "sys/stat.h" HAVE_STRUCT_STAT_ST_ATIM)
-check_struct_has_member("struct stat" st_ctim "sys/stat.h" HAVE_STRUCT_STAT_ST_CTIM)
-check_struct_has_member("struct stat" st_mtim "sys/stat.h" HAVE_STRUCT_STAT_ST_MTIM)
-check_struct_has_member("struct timespec" tv_sec "time.h" HAVE_STRUCT_TIMESPEC)
-check_struct_has_member("struct timeval" tv_sec "time.h;sys/time.h" HAVE_STRUCT_TIMEVAL)
-check_struct_has_member("struct timezone" tz_minuteswest "sys/time.h" HAVE_STRUCT_TIMEZONE)
-check_struct_has_member("struct utimbuf" actime "utime.h" HAVE_STRUCT_UTIMBUF)
+check_struct_has_member("struct cmsghdr" cmsg_len "sys/socket.h" HAVE_STRUCT_CMSGHDR LANGUAGE CXX)
+check_struct_has_member("struct dirent" d_off "dirent.h" HAVE_STRUCT_DIRENT_D_OFF LANGUAGE CXX)
+check_struct_has_member("struct dirent" d_reclen "dirent.h" HAVE_STRUCT_DIRENT_D_RECLEN LANGUAGE CXX)
+check_struct_has_member("struct dirent" d_type "dirent.h" HAVE_STRUCT_DIRENT_D_TYPE LANGUAGE CXX)
+check_struct_has_member("struct flock" l_type "fcntl.h" HAVE_STRUCT_FLOCK LANGUAGE CXX)
+check_struct_has_member("struct iovec" iov_base "sys/uio.h" HAVE_STRUCT_IOVEC LANGUAGE CXX)
+check_struct_has_member("struct linger" l_onoff "sys/socket.h" HAVE_STRUCT_LINGER LANGUAGE CXX)
+check_struct_has_member("struct passwd" pw_gecos "pwd.h" HAVE_STRUCT_PASSWD_PW_GECOS LANGUAGE CXX)
+check_struct_has_member("struct pollfd" fd "poll.h" HAVE_STRUCT_POLLFD LANGUAGE CXX)
+check_struct_has_member("struct sockaddr_in6" sin6_family "sys/socket.h;netinet/in.h" HAVE_STRUCT_SOCKADDR_IN6 LANGUAGE CXX)
+check_struct_has_member("struct sockaddr_in" sin_family "sys/socket.h;netinet/in.h" HAVE_STRUCT_SOCKADDR_IN LANGUAGE CXX)
+check_struct_has_member("struct statfs" f_flags "sys/vfs.h" HAVE_STRUCT_STATFS_F_FLAGS LANGUAGE CXX)
+check_struct_has_member("struct stat" st_atimespec "sys/stat.h" HAVE_STRUCT_STAT_ST_ATIMESPEC LANGUAGE CXX)
+check_struct_has_member("struct stat" st_atim "sys/stat.h" HAVE_STRUCT_STAT_ST_ATIM LANGUAGE CXX)
+check_struct_has_member("struct stat" st_ctim "sys/stat.h" HAVE_STRUCT_STAT_ST_CTIM LANGUAGE CXX)
+check_struct_has_member("struct stat" st_mtim "sys/stat.h" HAVE_STRUCT_STAT_ST_MTIM LANGUAGE CXX)
+check_struct_has_member("struct timespec" tv_sec "time.h" HAVE_STRUCT_TIMESPEC LANGUAGE CXX)
+check_struct_has_member("struct timeval" tv_sec "time.h;sys/time.h" HAVE_STRUCT_TIMEVAL LANGUAGE CXX)
+check_struct_has_member("struct timezone" tz_minuteswest "sys/time.h" HAVE_STRUCT_TIMEZONE LANGUAGE CXX)
+check_struct_has_member("struct utimbuf" actime "utime.h" HAVE_STRUCT_UTIMBUF LANGUAGE CXX)
 
 #
 # Include directories
