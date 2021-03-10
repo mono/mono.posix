@@ -37,10 +37,6 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-set(CMAKE_C_STANDARD 11)
-set(CMAKE_C_STANDARD_REQUIRED ON)
-set(CMAKE_C_EXTENSIONS OFF)
-
 set(PACKAGE_NAME ${PROJECT_NAME})
 set(PACKAGE_VERSION ${PROJECT_VERSION})
 set(PACKAGE_STRING "${PROJECT_NAME} v${PROJECT_VERSION}")
@@ -48,30 +44,35 @@ set(PACKAGE_VERSION_MAJOR "${MONO_POSIX_HELPER_VERSION_MAJOR}")
 set(PACKAGE_VERSION_MINOR "${MONO_POSIX_HELPER_VERSION_MINOR}")
 set(PACKAGE_VERSION_MICRO "${MONO_POSIX_HELPER_VERSION_MICRO}")
 
+if(CMAKE_CXX_COMPILER_ID STREQUAL Clang)
+  set(IS_CLANG True)
+else()
+  set(IS_CLANG False)
+endif()
+
+set(IS_LINUX False)
+set(IS_BSD False)
+set(IS_MACOS False)
+set(IS_IOS False)
+set(IS_WATCHOS False)
+set(IS_TVOS False)
+set(IS_ANDROID False)
+set(IS_WASM False)
+
 if(NOT CMAKE_CROSSCOMPILING)
   if(CMAKE_HOST_SYSTEM_NAME STREQUAL Linux)
     set(IS_LINUX True)
-  else()
-    set(IS_LINUX False)
   endif()
 
   if(APPLE)
     set(IS_MACOS True)
-  else()
-    set(IS_MACOS False)
   endif()
 
   # TODO: test it!
   if(CMAKE_HOST_SYSTEM_NAME MATCHES ".*BSD")
     set(IS_BSD True)
-  else()
-    set(IS_BSD False)
   endif()
 else()
-  set(IS_IOS False)
-  set(IS_WATCHOS False)
-  set(IS_TVOS False)
-
   if(APPLE)
     if(CMAKE_SYSTEM_NAME STREQUAL iOS)
       set(IS_IOS True)
@@ -86,15 +87,11 @@ else()
 
   if(ANDROID)
     set(IS_ANDROID True)
-  else()
-    set(IS_ANDROID False)
   endif()
 
   # TODO: WASM must be defined in a toolchain file
   if(WASM)
     set(IS_WASM True)
-  else()
-    set(IS_WASM False)
   endif()
 endif()
 
@@ -243,6 +240,7 @@ set(LOCAL_COMPILER_ARGS
 set(LOCAL_LINKER_ARGS
   -rdynamic
   -fstack-protector-strong
+  -static-libgcc
   LINKER:-fstrict-return
   LINKER:-z,now
   LINKER:-z,relro
@@ -250,6 +248,10 @@ set(LOCAL_LINKER_ARGS
   LINKER:--no-undefined
   LINKER:--export-dynamic
   )
+
+if(IS_LINUX AND IS_CLANG)
+  list(APPEND LOCAL_LINKER_ARGS -static-libstdc++)
+endif()
 
 if(IS_DEBUG_BUILD)
   list(APPEND LOCAL_COMPILER_ARGS -O0)
