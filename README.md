@@ -41,7 +41,7 @@ The `src/native` directory here corresponds to `support/` in the Mono repository
         ones
   - [x] Migrate to C++ (no stdlib linking, just compiler + selected
         header files)
-  - [ ] Migrate to `<limits>` instead of the glib macros
+  - [x] Migrate to `<limits>` instead of the glib macros
   - [ ] Review what POSIX APIs are missing
   - [ ] Add OS-specific calls (in namespace per OS)
   - [ ] Migrate managed build to a dotnet SDK project (netstandard and
