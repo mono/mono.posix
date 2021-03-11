@@ -30,7 +30,7 @@ The `src/native` directory here corresponds to `support/` in the Mono repository
 
   - [x] Replace Mono atomic calls with compiler intrinsics (or
         standard library calls)
-  - [ ] Replace glib functions with something else (e.g. `g_error`)
+  - [x] Replace glib functions with something else (e.g. `g_error`)
   - [ ] Get rid of `void*` wherever possible
   - [x] Test build on macOS
   - [ ] Test build on {Free,Open,Net}BSD
