@@ -35,7 +35,6 @@
 #include <stddef.h>             /* offsetof */
 #include <limits.h>             /* LONG_MAX, ULONG_MAX */
 #include <errno.h>              /* for ERANGE */
-#include <glib.h>               /* for g* types, etc. */
 
 #ifdef HAVE_SYS_STAT_H
 #include <sys/stat.h>
@@ -47,6 +46,10 @@
 
 #if defined (HAVE_SYS_SOCKET_H)
 #include <sys/socket.h>
+#endif
+
+#if defined (HAVE_SYS_TIME_H)
+#include <sys/time.h>
 #endif
 
 #ifdef ANDROID_UNIFIED_HEADERS
@@ -121,6 +124,15 @@ int fsetpos(FILE*, const fpos_t*);
 #    define EOVERFLOW 87
 #  endif
 #endif /* !defined(EOVERFLOW) */
+
+// - Pointers should only be converted to or from pointer-sized integers.
+// - Any size integer can be converted to any other size integer.
+// - Therefore a pointer-sized integer is the intermediary between
+//   a pointer and any integer type.
+#define POINTER_TO_INT(ptr)   ((int)(ssize_t)(ptr))
+#define POINTER_TO_UINT(ptr)  ((unsigned int)(size_t)(ptr))
+#define INT_TO_POINTER(v)     ((void*)(ssize_t)(v))
+#define UINT_TO_POINTER(v)    ((void*)(size_t)(v))
 
 /* 
  * Solaris/Windows don't define these BSD values, and if they're not present
@@ -292,15 +304,39 @@ inline bool mph_have_ssize_t_overflow (T val)
 }
 
 template<typename T>
-inline bool mph_have_uint_overflow (T val)
+inline bool mph_have_unsigned_int_overflow (T val)
 {
 	return mph_have_integer_overflow<unsigned int, T> (val);
+}
+
+template<typename T>
+inline bool mph_have_int_overflow (T val)
+{
+	return mph_have_integer_overflow<int, T> (val);
+}
+
+template<typename T>
+inline bool mph_have_unsigned_short_overflow (T val)
+{
+	return mph_have_integer_overflow<unsigned short, T> (val);
 }
 
 template<typename T>
 inline bool mph_have_long_overflow (T val)
 {
 	return mph_have_integer_overflow<long, T> (val);
+}
+
+template<typename T>
+inline bool mph_have_int64_t_overflow (T val)
+{
+	return mph_have_integer_overflow<int64_t, T> (val);
+}
+
+template<typename T>
+inline bool mph_have_uint64_t_overflow (T val)
+{
+	return mph_have_integer_overflow<uint64_t, T> (val);
 }
 
 template<typename T>
@@ -316,9 +352,21 @@ inline bool mph_have_off_t_overflow (T val)
 }
 
 template<typename T>
+inline bool mph_have_pid_t_overflow (T val)
+{
+	return mph_have_integer_overflow<pid_t, T> (val);
+}
+
+template<typename T>
 inline bool mph_have_time_t_overflow (T val)
 {
 	return mph_have_integer_overflow<time_t, T> (val);
+}
+
+template<typename T>
+inline bool mph_have_suseconds_t_overflow (T val)
+{
+	return mph_have_integer_overflow<suseconds_t, T> (val);
 }
 
 /*

@@ -16,7 +16,6 @@
 
 #include "map.hh"
 #include "mph.hh"
-#include <glib.h>
 
 #if defined(HAVE_STRUCT_TIMESPEC) && _POSIX_C_SOURCE >= 199309L
 int

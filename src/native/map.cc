@@ -7,6 +7,8 @@
 #include <config.h>
 #endif /* ndef HAVE_CONFIG_H */
 
+#include <type_traits>
+#include <limits>
 #include <stdlib.h>
 #include <string.h>
 
@@ -82,169 +84,6 @@
 #include "map.hh"
 
 #include <errno.h>    /* errno, EOVERFLOW */
-#include <glib.h>     /* g* types, g_assert_not_reached() */
-
-#if defined (G_MININT8)
-#define CNM_MININT8 G_MININT8
-#else
-#define CNM_MININT8 (-128)
-#endif
-
-#if defined (G_MAXINT8)
-#define CNM_MAXINT8 G_MAXINT8
-#else
-#define CNM_MAXINT8 (127)
-#endif
-
-#if defined (G_MAXUINT8)
-#define CNM_MAXUINT8 G_MAXUINT8
-#else
-#define CNM_MAXUINT8 (255)
-#endif
-
-#if defined (G_MININT16)
-#define CNM_MININT16 G_MININT16
-#else
-#define CNM_MININT16 (-32768)
-#endif
-
-#if defined (G_MAXINT16)
-#define CNM_MAXINT16 G_MAXINT16
-#else
-#define CNM_MAXINT16 (32767)
-#endif
-
-#if defined (G_MAXUINT16)
-#define CNM_MAXUINT16 G_MAXUINT16
-#else
-#define CNM_MAXUINT16 (65535)
-#endif
-
-#if defined (G_MININT32)
-#define CNM_MININT32 G_MININT32
-#else
-#define CNM_MININT32 (-2147483648)
-#endif
-
-#if defined (G_MAXINT32)
-#define CNM_MAXINT32 G_MAXINT32
-#else
-#define CNM_MAXINT32 (2147483647)
-#endif
-
-#if defined (G_MAXUINT32)
-#define CNM_MAXUINT32 G_MAXUINT32
-#else
-#define CNM_MAXUINT32 (4294967295U)
-#endif
-
-#if defined (G_MININT64)
-#define CNM_MININT64 G_MININT64
-#else
-#define CNM_MININT64 (-9223372036854775808LL)
-#endif
-
-#if defined (G_MAXINT64)
-#define CNM_MAXINT64 G_MAXINT64
-#else
-#define CNM_MAXINT64 (9223372036854775807LL)
-#endif
-
-#if defined (G_MAXUINT64)
-#define CNM_MAXUINT64 G_MAXUINT64
-#else
-#define CNM_MAXUINT64 (18446744073709551615ULL)
-#endif
-
-
-/* returns TRUE if @type is an unsigned type */
-#define _cnm_integral_type_is_unsigned(type) \
-    (sizeof(type) == sizeof(int8_t)           \
-      ? (((type)-1) > CNM_MAXINT8)             \
-      : sizeof(type) == sizeof(int16_t)       \
-        ? (((type)-1) > CNM_MAXINT16)          \
-        : sizeof(type) == sizeof(gint32)     \
-          ? (((type)-1) > CNM_MAXINT32)        \
-          : sizeof(type) == sizeof(int64_t)   \
-            ? (((type)-1) > CNM_MAXINT64)      \
-            : (g_assert_not_reached (), 0))
-
-/* returns the minimum value of @type as a int64_t */
-#define _cnm_integral_type_min(type)          \
-    (_cnm_integral_type_is_unsigned (type)    \
-      ? 0                                     \
-      : sizeof(type) == sizeof(int8_t)         \
-        ? CNM_MININT8                           \
-        : sizeof(type) == sizeof(int16_t)      \
-          ? CNM_MININT16                        \
-          : sizeof(type) == sizeof(gint32)    \
-            ? CNM_MININT32                      \
-            : sizeof(type) == sizeof(int64_t)  \
-              ? CNM_MININT64                    \
-              : (g_assert_not_reached (), 0))
-
-/* returns the maximum value of @type as a uint64_t */
-#define _cnm_integral_type_max(type)            \
-    (_cnm_integral_type_is_unsigned (type)      \
-      ? sizeof(type) == sizeof(int8_t)           \
-        ? CNM_MAXUINT8                            \
-        : sizeof(type) == sizeof(int16_t)        \
-          ? CNM_MAXUINT16                         \
-          : sizeof(type) == sizeof(gint32)      \
-            ? CNM_MAXUINT32                       \
-            : sizeof(type) == sizeof(int64_t)    \
-              ? CNM_MAXUINT64                     \
-              : (g_assert_not_reached (), 0)    \
-      : sizeof(type) == sizeof(int8_t)           \
-          ? CNM_MAXINT8                           \
-          : sizeof(type) == sizeof(int16_t)      \
-            ? CNM_MAXINT16                        \
-            : sizeof(type) == sizeof(gint32)    \
-              ? CNM_MAXINT32                      \
-              : sizeof(type) == sizeof(int64_t)  \
-                ? CNM_MAXINT64                    \
-                : (g_assert_not_reached (), 0))
-
-#ifdef _CNM_DUMP
-#define _cnm_dump(to_t,from)                                             \
-  printf ("# %s -> %s: uns=%i; min=%llx; max=%llx; value=%llx; lt=%i; l0=%i; gt=%i; e=%i\n", \
-    #from, #to_t,                                                        \
-    (int) _cnm_integral_type_is_unsigned (to_t),                         \
-    (int64_t) (_cnm_integral_type_min (to_t)),                            \
-    (int64_t) (_cnm_integral_type_max (to_t)),                            \
-    (int64_t) (from),                                                     \
-    (((int64_t) _cnm_integral_type_min (to_t)) <= (int64_t) from),         \
-    (from < 0),                                                          \
-    (((uint64_t) from) <= (uint64_t) _cnm_integral_type_max (to_t)),       \
-    !((int) _cnm_integral_type_is_unsigned (to_t)                        \
-      ? ((0 <= from) &&                                                  \
-         ((uint64_t) from <= (uint64_t) _cnm_integral_type_max (to_t)))    \
-      : ((int64_t) _cnm_integral_type_min(to_t) <= (int64_t) from &&       \
-         (uint64_t) from <= (uint64_t) _cnm_integral_type_max (to_t)))     \
-  )
-#else /* ndef _CNM_DUMP */
-#define _cnm_dump(to_t, from) do {} while (0)
-#endif /* def _CNM_DUMP */
-
-#ifdef DEBUG
-#define _cnm_return_val_if_overflow(to_t,from,val)  G_STMT_START {   \
-    int     uns = _cnm_integral_type_is_unsigned (to_t);             \
-    int64_t  min = (int64_t)  _cnm_integral_type_min (to_t);           \
-    uint64_t max = (uint64_t) _cnm_integral_type_max (to_t);           \
-    int64_t  sf  = (int64_t)  from;                                    \
-    uint64_t uf  = (uint64_t) from;                                    \
-    if (!(uns ? ((0 <= from) && (uf <= max))                         \
-              : (min <= sf && (from < 0 || uf <= max)))) {           \
-      _cnm_dump(to_t, from);                                         \
-      errno = EOVERFLOW;                                             \
-      return (val);                                                  \
-    }                                                                \
-  } G_STMT_END
-#else /* !def DEBUG */
-/* don't do any overflow checking */
-#define _cnm_return_val_if_overflow(to_t,from,val)  G_STMT_START {   \
-  } G_STMT_END
-#endif /* def DEBUG */
 
 int Mono_Posix_FromAccessModes (int x, int *r)
 {
@@ -372,7 +211,9 @@ int Mono_Posix_ToAtFlags (int x, int *r)
 int
 Mono_Posix_FromCmsghdr (struct Mono_Posix_Cmsghdr *from, struct cmsghdr *to)
 {
-	_cnm_return_val_if_overflow (int64_t, from->cmsg_len, -1);
+	if (mph_have_int64_t_overflow (from->cmsg_len)) {
+		return -1;
+	}
 
 	memset (to, 0, sizeof(*to));
 
@@ -393,7 +234,9 @@ Mono_Posix_FromCmsghdr (struct Mono_Posix_Cmsghdr *from, struct cmsghdr *to)
 int
 Mono_Posix_ToCmsghdr (struct cmsghdr *from, struct Mono_Posix_Cmsghdr *to)
 {
-	_cnm_return_val_if_overflow (int64_t, from->cmsg_len, -1);
+	if (mph_have_int64_t_overflow (from->cmsg_len)) {
+		return -1;
+	}
 
 	memset (to, 0, sizeof(*to));
 
@@ -3136,9 +2979,11 @@ int Mono_Posix_ToFilePermissions (unsigned int x, unsigned int *r)
 int
 Mono_Posix_FromFlock (struct Mono_Posix_Flock *from, struct flock *to)
 {
-	_cnm_return_val_if_overflow (off_t, from->l_start, -1);
-	_cnm_return_val_if_overflow (off_t, from->l_len, -1);
-	_cnm_return_val_if_overflow (pid_t, from->l_pid, -1);
+	if (mph_have_off_t_overflow (from->l_start) ||
+	    mph_have_off_t_overflow (from->l_len) ||
+	    mph_have_pid_t_overflow (from->l_pid)) {
+		return -1;
+	}
 
 	memset (to, 0, sizeof(*to));
 
@@ -3161,9 +3006,11 @@ Mono_Posix_FromFlock (struct Mono_Posix_Flock *from, struct flock *to)
 int
 Mono_Posix_ToFlock (struct flock *from, struct Mono_Posix_Flock *to)
 {
-	_cnm_return_val_if_overflow (int64_t, from->l_start, -1);
-	_cnm_return_val_if_overflow (int64_t, from->l_len, -1);
-	_cnm_return_val_if_overflow (int, from->l_pid, -1);
+	if (mph_have_int64_t_overflow (from->l_start) ||
+	    mph_have_int64_t_overflow (from->l_len) ||
+	    mph_have_pid_t_overflow (from->l_pid)) {
+		return -1;
+	}
 
 	memset (to, 0, sizeof(*to));
 
@@ -3186,8 +3033,6 @@ Mono_Posix_ToFlock (struct flock *from, struct Mono_Posix_Flock *to)
 int
 Mono_Posix_FromIovec (struct Mono_Posix_Iovec *from, struct iovec *to)
 {
-	_cnm_return_val_if_overflow (uint64_t, from->iov_len, -1);
-
 	memset (to, 0, sizeof(*to));
 
 	to->iov_base = from->iov_base;
@@ -3202,8 +3047,6 @@ Mono_Posix_FromIovec (struct Mono_Posix_Iovec *from, struct iovec *to)
 int
 Mono_Posix_ToIovec (struct iovec *from, struct Mono_Posix_Iovec *to)
 {
-	_cnm_return_val_if_overflow (uint64_t, from->iov_len, -1);
-
 	memset (to, 0, sizeof(*to));
 
 	to->iov_base = from->iov_base;
@@ -3218,8 +3061,9 @@ Mono_Posix_ToIovec (struct iovec *from, struct Mono_Posix_Iovec *to)
 int
 Mono_Posix_FromLinger (struct Mono_Posix_Linger *from, struct linger *to)
 {
-	_cnm_return_val_if_overflow (int, from->l_onoff, -1);
-	_cnm_return_val_if_overflow (int, from->l_linger, -1);
+	if (mph_have_int_overflow (from->l_onoff) || mph_have_int_overflow (from->l_linger)) {
+		return -1;
+	}
 
 	memset (to, 0, sizeof(*to));
 
@@ -3235,8 +3079,9 @@ Mono_Posix_FromLinger (struct Mono_Posix_Linger *from, struct linger *to)
 int
 Mono_Posix_ToLinger (struct linger *from, struct Mono_Posix_Linger *to)
 {
-	_cnm_return_val_if_overflow (int, from->l_onoff, -1);
-	_cnm_return_val_if_overflow (int, from->l_linger, -1);
+	if (mph_have_int_overflow (from->l_onoff) || mph_have_int_overflow (from->l_linger)) {
+		return -1;
+	}
 
 	memset (to, 0, sizeof(*to));
 
@@ -4724,7 +4569,9 @@ int Mono_Posix_ToPollEvents (short x, short *r)
 int
 Mono_Posix_FromPollfd (struct Mono_Posix_Pollfd *from, struct pollfd *to)
 {
-	_cnm_return_val_if_overflow (int, from->fd, -1);
+	if (mph_have_int_overflow (from->fd)) {
+		return -1;
+	}
 
 	memset (to, 0, sizeof(*to));
 
@@ -4745,7 +4592,9 @@ Mono_Posix_FromPollfd (struct Mono_Posix_Pollfd *from, struct pollfd *to)
 int
 Mono_Posix_ToPollfd (struct pollfd *from, struct Mono_Posix_Pollfd *to)
 {
-	_cnm_return_val_if_overflow (int, from->fd, -1);
+	if (mph_have_int_overflow (from->fd)) {
+		return -1;
+	}
 
 	memset (to, 0, sizeof(*to));
 
@@ -5462,7 +5311,9 @@ int Mono_Posix_ToSignum (int x, int *r)
 int
 Mono_Posix_FromSockaddrIn (struct Mono_Posix_SockaddrIn *from, struct sockaddr_in *to)
 {
-	_cnm_return_val_if_overflow (unsigned short, from->sin_port, -1);
+	if (mph_have_unsigned_short_overflow (from->sin_port)) {
+		return -1;
+	}
 
 	memset (to, 0, sizeof(*to));
 
@@ -5480,7 +5331,9 @@ Mono_Posix_FromSockaddrIn (struct Mono_Posix_SockaddrIn *from, struct sockaddr_i
 int
 Mono_Posix_ToSockaddrIn (struct sockaddr_in *from, struct Mono_Posix_SockaddrIn *to)
 {
-	_cnm_return_val_if_overflow (unsigned short, from->sin_port, -1);
+	if (mph_have_unsigned_short_overflow (from->sin_port)) {
+		return -1;
+	}
 
 	memset (to, 0, sizeof(*to));
 
@@ -5498,9 +5351,11 @@ Mono_Posix_ToSockaddrIn (struct sockaddr_in *from, struct Mono_Posix_SockaddrIn 
 int
 Mono_Posix_FromSockaddrIn6 (struct Mono_Posix_SockaddrIn6 *from, struct sockaddr_in6 *to)
 {
-	_cnm_return_val_if_overflow (unsigned short, from->sin6_port, -1);
-	_cnm_return_val_if_overflow (unsigned int, from->sin6_flowinfo, -1);
-	_cnm_return_val_if_overflow (unsigned int, from->sin6_scope_id, -1);
+	if (mph_have_unsigned_short_overflow (from->sin6_port) ||
+	    mph_have_unsigned_int_overflow (from->sin6_flowinfo) ||
+	    mph_have_unsigned_int_overflow (from->sin6_scope_id)) {
+		return -1;
+	}
 
 	memset (to, 0, sizeof(*to));
 
@@ -5520,9 +5375,11 @@ Mono_Posix_FromSockaddrIn6 (struct Mono_Posix_SockaddrIn6 *from, struct sockaddr
 int
 Mono_Posix_ToSockaddrIn6 (struct sockaddr_in6 *from, struct Mono_Posix_SockaddrIn6 *to)
 {
-	_cnm_return_val_if_overflow (unsigned short, from->sin6_port, -1);
-	_cnm_return_val_if_overflow (unsigned int, from->sin6_flowinfo, -1);
-	_cnm_return_val_if_overflow (unsigned int, from->sin6_scope_id, -1);
+	if (mph_have_unsigned_short_overflow (from->sin6_port) ||
+	    mph_have_unsigned_int_overflow (from->sin6_flowinfo) ||
+	    mph_have_unsigned_int_overflow (from->sin6_scope_id)) {
+		return -1;
+	}
 
 	memset (to, 0, sizeof(*to));
 
@@ -8042,8 +7899,9 @@ int Mono_Posix_ToSyslogOptions (int x, int *r)
 int
 Mono_Posix_FromTimespec (struct Mono_Posix_Timespec *from, struct timespec *to)
 {
-	_cnm_return_val_if_overflow (time_t, from->tv_sec, -1);
-	_cnm_return_val_if_overflow (int64_t, from->tv_nsec, -1);
+	if (mph_have_time_t_overflow (from->tv_sec) || mph_have_int64_t_overflow (from->tv_nsec)) {
+		return -1;
+	}
 
 	memset (to, 0, sizeof(*to));
 
@@ -8059,8 +7917,9 @@ Mono_Posix_FromTimespec (struct Mono_Posix_Timespec *from, struct timespec *to)
 int
 Mono_Posix_ToTimespec (struct timespec *from, struct Mono_Posix_Timespec *to)
 {
-	_cnm_return_val_if_overflow (int64_t, from->tv_sec, -1);
-	_cnm_return_val_if_overflow (int64_t, from->tv_nsec, -1);
+	if (mph_have_time_t_overflow (from->tv_sec) || mph_have_int64_t_overflow (from->tv_nsec)) {
+		return -1;
+	}
 
 	memset (to, 0, sizeof(*to));
 
@@ -8076,8 +7935,9 @@ Mono_Posix_ToTimespec (struct timespec *from, struct Mono_Posix_Timespec *to)
 int
 Mono_Posix_FromTimeval (struct Mono_Posix_Timeval *from, struct timeval *to)
 {
-	_cnm_return_val_if_overflow (time_t, from->tv_sec, -1);
-	_cnm_return_val_if_overflow (suseconds_t, from->tv_usec, -1);
+	if (mph_have_time_t_overflow (from->tv_sec) || mph_have_suseconds_t_overflow (from->tv_usec)) {
+		return -1;
+	}
 
 	memset (to, 0, sizeof(*to));
 
@@ -8093,8 +7953,9 @@ Mono_Posix_FromTimeval (struct Mono_Posix_Timeval *from, struct timeval *to)
 int
 Mono_Posix_ToTimeval (struct timeval *from, struct Mono_Posix_Timeval *to)
 {
-	_cnm_return_val_if_overflow (int64_t, from->tv_sec, -1);
-	_cnm_return_val_if_overflow (int64_t, from->tv_usec, -1);
+	if (mph_have_time_t_overflow (from->tv_sec) || mph_have_suseconds_t_overflow (from->tv_usec)) {
+		return -1;
+	}
 
 	memset (to, 0, sizeof(*to));
 
@@ -8110,8 +7971,9 @@ Mono_Posix_ToTimeval (struct timeval *from, struct Mono_Posix_Timeval *to)
 int
 Mono_Posix_FromTimezone (struct Mono_Posix_Timezone *from, struct timezone *to)
 {
-	_cnm_return_val_if_overflow (int, from->tz_minuteswest, -1);
-	_cnm_return_val_if_overflow (int, from->tz_dsttime, -1);
+	if (mph_have_int_overflow (from->tz_minuteswest) || mph_have_int_overflow (from->tz_dsttime)) {
+		return -1;
+	}
 
 	memset (to, 0, sizeof(*to));
 
@@ -8127,8 +7989,9 @@ Mono_Posix_FromTimezone (struct Mono_Posix_Timezone *from, struct timezone *to)
 int
 Mono_Posix_ToTimezone (struct timezone *from, struct Mono_Posix_Timezone *to)
 {
-	_cnm_return_val_if_overflow (int, from->tz_minuteswest, -1);
-	_cnm_return_val_if_overflow (int, from->tz_dsttime, -1);
+	if (mph_have_int_overflow (from->tz_minuteswest) || mph_have_int_overflow (from->tz_dsttime)) {
+		return -1;
+	}
 
 	memset (to, 0, sizeof(*to));
 
@@ -9470,8 +9333,9 @@ int Mono_Posix_ToUnixSocketType (int x, int *r)
 int
 Mono_Posix_FromUtimbuf (struct Mono_Posix_Utimbuf *from, struct utimbuf *to)
 {
-	_cnm_return_val_if_overflow (time_t, from->actime, -1);
-	_cnm_return_val_if_overflow (time_t, from->modtime, -1);
+	if (mph_have_time_t_overflow (from->actime) || mph_have_time_t_overflow (from->modtime)) {
+		return -1;
+	}
 
 	memset (to, 0, sizeof(*to));
 
@@ -9487,8 +9351,9 @@ Mono_Posix_FromUtimbuf (struct Mono_Posix_Utimbuf *from, struct utimbuf *to)
 int
 Mono_Posix_ToUtimbuf (struct utimbuf *from, struct Mono_Posix_Utimbuf *to)
 {
-	_cnm_return_val_if_overflow (int64_t, from->actime, -1);
-	_cnm_return_val_if_overflow (int64_t, from->modtime, -1);
+	if (mph_have_time_t_overflow (from->actime) || mph_have_time_t_overflow (from->modtime)) {
+		return -1;
+	}
 
 	memset (to, 0, sizeof(*to));
 

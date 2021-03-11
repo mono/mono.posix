@@ -25,8 +25,6 @@
 #include <linux/serial.h>
 #endif
 
-#include <glib.h>
-
 /* This is for FIONREAD on solaris */
 #if defined(sun)
 #include <sys/filio.h>
@@ -193,7 +191,7 @@ get_bytes_in_buffer (int fd, bool input)
 bool
 is_baud_rate_legal (int baud_rate)
 {
-	bool ignore = FALSE;
+	bool ignore = false;
 	return setup_baud_rate (baud_rate, &ignore) != -1;
 }
 
@@ -285,7 +283,7 @@ setup_baud_rate (int baud_rate, bool *custom_baud_rate)
 #endif
 	    break;
 	default:
-		*custom_baud_rate = TRUE;
+		*custom_baud_rate = true;
 		break;
 	}
 	return baud_rate;
@@ -295,10 +293,10 @@ bool
 set_attributes (int fd, int baud_rate, MonoParity parity, int dataBits, MonoStopBits stopBits, MonoHandshake handshake)
 {
 	struct termios newtio;
-	bool custom_baud_rate = FALSE;
+	bool custom_baud_rate = false;
 
 	if (tcgetattr (fd, &newtio) == -1)
-		return FALSE;
+		return false;
 
 	newtio.c_cflag |=  (CLOCAL | CREAD);
 	newtio.c_lflag &= ~(ICANON | ECHO | ECHOE | ECHOK | ECHONL | ISIG | IEXTEN );
@@ -393,9 +391,9 @@ set_attributes (int fd, int baud_rate, MonoParity parity, int dataBits, MonoStop
 			break;
 	}
 
-	if (custom_baud_rate == FALSE) {
+	if (custom_baud_rate == false) {
 		if (cfsetospeed (&newtio, baud_rate) < 0 || cfsetispeed (&newtio, baud_rate) < 0)
-			return FALSE;
+			return false;
 	} else {
 #if __linux__ || defined(HAVE_IOKIT)
 
@@ -406,20 +404,20 @@ set_attributes (int fd, int baud_rate, MonoParity parity, int dataBits, MonoStop
 		 * https://developer.apple.com/library/mac/samplecode/SerialPortSample/Listings/SerialPortSample_SerialPortSample_c.html#//apple_ref/doc/uid/DTS10000454-SerialPortSample_SerialPortSample_c-DontLinkElementID_4
 		 */
 		if (cfsetospeed (&newtio, B38400) < 0 || cfsetispeed (&newtio, B38400) < 0)
-			return FALSE;
+			return false;
 #endif
 	}
 
 	if (tcsetattr (fd, TCSANOW, &newtio) < 0)
-		return FALSE;
+		return false;
 
-	if (custom_baud_rate == TRUE){
+	if (custom_baud_rate == true){
 #if defined(HAVE_LINUX_SERIAL_H)
 		struct serial_struct ser;
 
 		if (ioctl (fd, TIOCGSERIAL, &ser) < 0)
 		{
-			return FALSE;
+			return false;
 		}
 
 		ser.custom_divisor = ser.baud_base / baud_rate;
@@ -428,7 +426,7 @@ set_attributes (int fd, int baud_rate, MonoParity parity, int dataBits, MonoStop
 
 		if (ioctl (fd, TIOCSSERIAL, &ser) < 0)
 		{
-			return FALSE;
+			return false;
 		}
 #elif defined(HAVE_IOKIT)
 		speed_t speed = baud_rate;
@@ -440,7 +438,7 @@ set_attributes (int fd, int baud_rate, MonoParity parity, int dataBits, MonoStop
 #endif
 	}
 
-	return TRUE;
+	return true;
 }
 
 
@@ -551,7 +549,7 @@ poll_serial (int fd, int32_t *error, int timeout)
 		/* EINTR is an OK condition, we should not throw in the upper layer an IOException */
 		if (errno != EINTR){
 			*error = -1;
-			return FALSE;
+			return false;
 		}
 	}
 

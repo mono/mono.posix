@@ -11,7 +11,6 @@
 #include <errno.h>
 #include <dirent.h>
 #include <string.h>
-#include <glib.h>
 #include "mph.hh" /* Don't remove or move after map.h! Works around issues with Android SDK unified headers */
 #include "map.hh"
 

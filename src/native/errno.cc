@@ -135,7 +135,7 @@ Mono_Posix_Syscall_strerror_r (int errnum, char *buf, mph_size_t n)
 		return -1;
 	}
 
-	return GPOINTER_TO_INT (strerror_r (errnum, buf, (size_t) n));
+	return POINTER_TO_INT (strerror_r (errnum, buf, (size_t) n));
 }
 
 #endif /* def STRERROR_R_CHAR_P */

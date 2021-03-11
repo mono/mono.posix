@@ -7,6 +7,8 @@
  * Copyright (C) 2004-2005 Jonathan Pryor
  */
 
+#include <algorithm>
+
 #include <dirent.h>
 #include <errno.h>
 #include <string.h>
@@ -18,7 +20,7 @@
 #include "mph.hh"
 
 #if defined (PATH_MAX) && defined (NAME_MAX)
-static constexpr size_t MPH_PATH_MAX = MAX(PATH_MAX, NAME_MAX);
+static constexpr size_t MPH_PATH_MAX = std::max(PATH_MAX, NAME_MAX);
 #elif defined (PATH_MAX)
 static constexpr size_t MPH_PATH_MAX = PATH_MAX;
 #elif defined (NAME_MAX)

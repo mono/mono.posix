@@ -10,8 +10,6 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 
-#include <glib.h>
-
 #include "mph.hh"
 #include "map.hh"
 

@@ -13,7 +13,6 @@
 
 #include "map.hh"
 #include "mph.hh"
-#include <glib.h>
 
 int
 Mono_Posix_Syscall_openlog (void* ident, int option, int facility)
