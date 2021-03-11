@@ -11,7 +11,7 @@ project(
   VERSION ${MONO_POSIX_HELPER_VERSION}
   DESCRIPTION "Native helper library for the Mono.Posix assembly"
   HOMEPAGE_URL "https://github.com/mono/mono.posix/"
-  LANGUAGES CXX
+  LANGUAGES CXX C
   )
 
 option(STRIP_DEBUG "Strip debugging information when linking" ON)
@@ -130,6 +130,7 @@ include(CheckLinkerFlag)
 include(CheckSymbolExists)
 include(CheckStructHasMember)
 include(CheckTypeSize)
+include(CheckPrototypeDefinition)
 
 macro(_compiler_has_flag _lang _flag)
   string(REGEX REPLACE "-|,|=" "_" _flag_name ${_flag})
@@ -216,7 +217,7 @@ set(LOCAL_COMPILER_ARGS
   -fno-strict-aliasing
   -ffunction-sections
   -funswitch-loops
-  -finline-limit=300
+  -finline-limit=500
   -fno-exceptions
   -fno-rtti
   -Wa,-noexecstack
@@ -406,6 +407,7 @@ endif()
 #
 mph_check_symbol_exists(accept4 "sys/types.h;sys/socket.h" HAVE_ACCEPT4)
 mph_check_symbol_exists(confstr "unistd.h" HAVE_CONFSTR)
+mph_check_symbol_exists(endgrent "sys/types.h;grp.h" HAVE_ENDGRENT)
 mph_check_symbol_exists(endpwent "sys/types.h;pwd.h" HAVE_ENDPWENT)
 mph_check_symbol_exists(endusershell "unistd.h" HAVE_ENDUSERSHELL)
 mph_check_symbol_exists(fgetgrent "stdio.h;sys/types.h;grp.h" HAVE_FGETGRENT)
@@ -486,6 +488,17 @@ check_struct_has_member("struct timespec" tv_sec "time.h" HAVE_STRUCT_TIMESPEC L
 check_struct_has_member("struct timeval" tv_sec "time.h;sys/time.h" HAVE_STRUCT_TIMEVAL LANGUAGE CXX)
 check_struct_has_member("struct timezone" tz_minuteswest "sys/time.h" HAVE_STRUCT_TIMEZONE LANGUAGE CXX)
 check_struct_has_member("struct utimbuf" actime "utime.h" HAVE_STRUCT_UTIMBUF LANGUAGE CXX)
+
+#
+# Misc
+#
+check_prototype_definition(
+  strerror_r
+  "char *strerror_r(int errnum, char *buf, size_t buflen)"
+  "NULL"
+  "string.h"
+  STRERROR_R_CHAR_P
+  )
 
 #
 # Include directories

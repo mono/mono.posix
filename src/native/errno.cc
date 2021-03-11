@@ -1,15 +1,19 @@
 /*
  * <errno.h> wrapper functions.
  */
+#if defined (HAVE_CONFIG_H)
+#include <config.h>
+#endif
 
-#include <errno.h>
-#include <string.h>
+#include <algorithm>
+#include <cerrno>
+#include <cstring>
 #include "map.hh"
 #include "mph.hh"
-#include <stdio.h>
+#include <cstdio>
 
 int
-Mono_Posix_Stdlib_GetLastError (void)
+Mono_Posix_Stdlib_GetLastError ()
 {
 	return errno;
 }
@@ -40,11 +44,10 @@ Mono_Posix_Stdlib_SetLastError (int error_number)
  */
 
 #ifdef STRERROR_R_CHAR_P
-#define mph_min(x,y) ((x) <= (y) ? (x) : (y))
 
 /* If you pass an invalid errno value to glibc 2.3.2's strerror_r, you get
  * back the string "Unknown error" with the error value appended. */
-static const char mph_unknown[] = "Unknown error ";
+static constexpr char mph_unknown[] = "Unknown error ";
 
 /*
  * Translate the GNU semantics to the XPG semantics.
@@ -76,13 +79,12 @@ static const char mph_unknown[] = "Unknown error ";
 int32_t
 Mono_Posix_Syscall_strerror_r (int errnum, char *buf, mph_size_t n)
 {
+	if (mph_have_size_t_overflow (n)) {
+		return -1;
+	}
+
 	char *r;
 	char ebuf [sizeof(mph_unknown)];
-	size_t len;
-	size_t blen;
-
-	mph_return_if_size_t_overflow (n);
-
 	/* first, check for valid errnum */
 #if HOST_ANDROID
 	/* Android NDK defines _GNU_SOURCE but strerror_r follows the XSI semantics
@@ -101,26 +103,25 @@ Mono_Posix_Syscall_strerror_r (int errnum, char *buf, mph_size_t n)
 #else
 	r = strerror_r (errnum, ebuf, sizeof(ebuf));
 #endif
-	if (!r) {
+	if (r == nullptr) {
 		errno = EINVAL;
 		return -1;
 	} 
-	len = strlen (r);
+	size_t len = strlen (r);
 
 	if (r == ebuf ||
-			strncmp (r, mph_unknown, mph_min (len, sizeof(mph_unknown))) == 0) {
+	    strncmp (r, mph_unknown, std::min (len, sizeof(mph_unknown))) == 0) {
 		errno = EINVAL;
 		return -1;
 	}
 
 	/* valid errnum (we hope); is buffer big enough? */
-	blen = (size_t) n;
-	if ((len+1) > blen) {
+	if ((len+1) > static_cast<size_t>(n)) {
 		errno = ERANGE;
 		return -1;
 	}
 
-	strncpy (buf, r, len);
+	strncpy (buf, r, n);
 	buf[len] = '\0';
 
 	return 0;

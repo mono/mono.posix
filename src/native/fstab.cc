@@ -6,12 +6,15 @@
  *
  * Copyright (C) 2004-2005 Jonathan Pryor
  */
+#if defined (HAVE_CONFIG_H)
+#include <config.h>
+#endif
 
-#include <errno.h>
-#include <string.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <stddef.h>
+#include <cerrno>
+#include <cstring>
+#include <cstdio>
+#include <cstdlib>
+#include <cstddef>
 
 #include "map.hh"
 #include "mph.hh"
@@ -96,25 +99,22 @@ mph_fstab_offsets[] = {
  * To minimize separate mallocs, all the strings are allocated within the same
  * memory block (stored in _fs_buf_).
  */
-static int
+static inline bool
 copy_fstab (struct Mono_Posix_Syscall__Fstab *to, mph_fstab *from)
 {
-	char *buf;
-
 	memset (to, 0, sizeof(*to));
 
-	buf = _mph_copy_structure_strings (to, mph_fstab_offsets,
-			from, fstab_offsets, sizeof(fstab_offsets)/sizeof(fstab_offsets[0]));
+	char *buf = _mph_copy_structure_strings (to, mph_fstab_offsets, from, fstab_offsets, sizeof(fstab_offsets)/sizeof(fstab_offsets[0]));
 
 	to->fs_freq   = from->fs_freq;
 	to->fs_passno = from->fs_passno;
 
 	to->_fs_buf_ = buf;
 	if (buf == nullptr) {
-		return -1;
+		return false;
 	}
 
-	return 0;
+	return true;
 }
 
 #endif /* def HAVE_CHECKLIST_H || def HAVE_FSTAB_H */
@@ -150,15 +150,12 @@ mph_fstab_offsets[] = {
  * To minimize separate mallocs, all the strings are allocated within the same
  * memory block (stored in _fs_buf_).
  */
-static int
+static inline bool
 copy_fstab (struct Mono_Posix_Syscall__Fstab *to, struct vfstab *from)
 {
-	char *buf;
-
 	memset (to, 0, sizeof(*to));
 
-	buf = _mph_copy_structure_strings (to, mph_fstab_offsets,
-			from, vfstab_offsets, sizeof(vfstab_offsets)/sizeof(vfstab_offsets[0]));
+	char *buf = _mph_copy_structure_strings (to, mph_fstab_offsets, from, vfstab_offsets, sizeof(vfstab_offsets)/sizeof(vfstab_offsets[0]));
 
 	to->fs_type   = nullptr;
 	to->fs_freq   = -1;
@@ -166,10 +163,10 @@ copy_fstab (struct Mono_Posix_Syscall__Fstab *to, struct vfstab *from)
 
 	to->_fs_buf_ = buf;
 	if (buf == nullptr) {
-		return -1;
+		return false;
 	}
 
-	return 0;
+	return true;
 }
 
 /*
@@ -262,18 +259,16 @@ Mono_Posix_Syscall_endfsent (void)
 int32_t
 Mono_Posix_Syscall_getfsent (struct Mono_Posix_Syscall__Fstab *fsbuf)
 {
-	mph_fstab *fs;
-
 	if (fsbuf == nullptr) {
 		errno = EFAULT;
 		return -1;
 	}
 
-	fs = getfsent ();
+	mph_fstab *fs = getfsent ();
 	if (fs == nullptr)
 		return -1;
 
-	if (copy_fstab (fsbuf, fs) == -1) {
+	if (!copy_fstab (fsbuf, fs)) {
 		errno = ENOMEM;
 		return -1;
 	}
@@ -281,21 +276,18 @@ Mono_Posix_Syscall_getfsent (struct Mono_Posix_Syscall__Fstab *fsbuf)
 }
 
 int32_t
-Mono_Posix_Syscall_getfsfile (const char *mount_point, 
-		struct Mono_Posix_Syscall__Fstab *fsbuf)
+Mono_Posix_Syscall_getfsfile (const char *mount_point, struct Mono_Posix_Syscall__Fstab *fsbuf)
 {
-	mph_fstab *fs;
-
 	if (fsbuf == nullptr) {
 		errno = EFAULT;
 		return -1;
 	}
 
-	fs = getfsfile (mount_point);
+	mph_fstab *fs = getfsfile (mount_point);
 	if (fs == nullptr)
 		return -1;
 
-	if (copy_fstab (fsbuf, fs) == -1) {
+	if (!copy_fstab (fsbuf, fs)) {
 		errno = ENOMEM;
 		return -1;
 	}
@@ -303,21 +295,18 @@ Mono_Posix_Syscall_getfsfile (const char *mount_point,
 }
 
 int32_t
-Mono_Posix_Syscall_getfsspec (const char *special_file, 
-		struct Mono_Posix_Syscall__Fstab *fsbuf)
+Mono_Posix_Syscall_getfsspec (const char *special_file, struct Mono_Posix_Syscall__Fstab *fsbuf)
 {
-	mph_fstab *fs;
-
 	if (fsbuf == nullptr) {
 		errno = EFAULT;
 		return -1;
 	}
 
-	fs = getfsspec (special_file);
+	mph_fstab *fs = getfsspec (special_file);
 	if (fs == nullptr)
 		return -1;
 
-	if (copy_fstab (fsbuf, fs) == -1) {
+	if (!copy_fstab (fsbuf, fs)) {
 		errno = ENOMEM;
 		return -1;
 	}
@@ -325,7 +314,7 @@ Mono_Posix_Syscall_getfsspec (const char *special_file,
 }
 
 int32_t
-Mono_Posix_Syscall_setfsent (void)
+Mono_Posix_Syscall_setfsent ()
 {
 	return setfsent ();
 }

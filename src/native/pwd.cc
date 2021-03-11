@@ -7,11 +7,15 @@
  * Copyright (C) 2004-2005 Jonathan Pryor
  */
 
+#if defined (HAVE_CONFIG_H)
+#include <config.h>
+#endif
+
 #include <pwd.h>
-#include <errno.h>
-#include <string.h>
-#include <stdio.h>
-#include <stdlib.h>
+#include <cerrno>
+#include <cstring>
+#include <cstdio>
+#include <cstdlib>
 
 #include "mph.hh" /* Don't remove or move after map.h! Works around issues with Android SDK unified headers */
 #include "map.hh"
@@ -44,40 +48,37 @@ mph_passwd_offsets[] = {
  * To minimize separate mallocs, all the strings are allocated within the same
  * memory block (stored in _pw_buf_).
  */
-static int
+static inline bool
 copy_passwd (struct Mono_Posix_Syscall__Passwd *to, struct passwd *from)
 {
-	char *buf;
-	buf = _mph_copy_structure_strings (to, mph_passwd_offsets,
-			from, passwd_offsets, sizeof(passwd_offsets)/sizeof(passwd_offsets[0]));
+	char *buf = _mph_copy_structure_strings (to, mph_passwd_offsets, from, passwd_offsets, sizeof(passwd_offsets)/sizeof(passwd_offsets[0]));
 
 	to->pw_uid    = from->pw_uid;
 	to->pw_gid    = from->pw_gid;
 
 	to->_pw_buf_ = buf;
 	if (buf == nullptr) {
-		return -1;
+		return false;
 	}
 
-	return 0;
+	return true;
 }
 
 int32_t
 Mono_Posix_Syscall_getpwnam (const char *name, struct Mono_Posix_Syscall__Passwd *pwbuf)
 {
-	struct passwd *pw;
-
-	if (pwbuf == nullptr) {
+	if (pwbuf == nullptr || name == nullptr) {
 		errno = EFAULT;
 		return -1;
 	}
 
 	errno = 0;
-	pw = getpwnam (name);
-	if (pw == nullptr)
+	struct passwd *pw = getpwnam (name);
+	if (pw == nullptr) {
 		return -1;
+	}
 
-	if (copy_passwd (pwbuf, pw) == -1) {
+	if (!copy_passwd (pwbuf, pw)) {
 		errno = ENOMEM;
 		return -1;
 	}
@@ -87,20 +88,18 @@ Mono_Posix_Syscall_getpwnam (const char *name, struct Mono_Posix_Syscall__Passwd
 int32_t
 Mono_Posix_Syscall_getpwuid (mph_uid_t uid, struct Mono_Posix_Syscall__Passwd *pwbuf)
 {
-	struct passwd *pw;
-
 	if (pwbuf == nullptr) {
 		errno = EFAULT;
 		return -1;
 	}
 
 	errno = 0;
-	pw = getpwuid (uid);
+	struct passwd *pw = getpwuid (uid);
 	if (pw == nullptr) {
 		return -1;
 	}
 
-	if (copy_passwd (pwbuf, pw) == -1) {
+	if (!copy_passwd (pwbuf, pw)) {
 		errno = ENOMEM;
 		return -1;
 	}
@@ -109,25 +108,20 @@ Mono_Posix_Syscall_getpwuid (mph_uid_t uid, struct Mono_Posix_Syscall__Passwd *p
 
 #ifdef HAVE_GETPWNAM_R
 int32_t
-Mono_Posix_Syscall_getpwnam_r (const char *name, 
-	struct Mono_Posix_Syscall__Passwd *pwbuf,
-	void **pwbufp)
+Mono_Posix_Syscall_getpwnam_r (const char *name, struct Mono_Posix_Syscall__Passwd *pwbuf, struct passwd** pwbufp)
 {
-	char *buf, *buf2;
-	size_t buflen;
-	int r;
-	struct passwd _pwbuf;
-
-	if (pwbuf == nullptr) {
+	if (pwbuf == nullptr || name == nullptr) {
 		errno = EFAULT;
 		return -1;
 	}
 
-	buf = buf2 = nullptr;
-	buflen = 2;
+	char *buf = nullptr;
+	size_t buflen = 2;
+	int r;
+	struct passwd _pwbuf;
 
 	do {
-		buf2 = static_cast<char*>(realloc (buf, buflen *= 2));
+		char *buf2 = static_cast<char*>(realloc (buf, buflen *= 2));
 		if (buf2 == nullptr) {
 			free (buf);
 			errno = ENOMEM;
@@ -135,15 +129,17 @@ Mono_Posix_Syscall_getpwnam_r (const char *name,
 		}
 		buf = buf2;
 		errno = 0;
-	} while ((r = getpwnam_r (name, &_pwbuf, buf, buflen, (struct passwd**) pwbufp)) && 
-			recheck_range (r));
+	} while ((r = getpwnam_r (name, &_pwbuf, buf, buflen, pwbufp)) && recheck_range (r));
 
-	if (r == 0 && !(*pwbufp))
+	if (r == 0 && !(*pwbufp)) {
 		/* On solaris, this function returns 0 even if the entry was not found */
 		r = errno = ENOENT;
+	}
 
-	if (r == 0 && copy_passwd (pwbuf, &_pwbuf) == -1)
+	if (r == 0 && !copy_passwd (pwbuf, &_pwbuf)) {
 		r = errno = ENOMEM;
+	}
+
 	free (buf);
 
 	return r;
@@ -152,25 +148,20 @@ Mono_Posix_Syscall_getpwnam_r (const char *name,
 
 #ifdef HAVE_GETPWUID_R
 int32_t
-Mono_Posix_Syscall_getpwuid_r (mph_uid_t uid,
-	struct Mono_Posix_Syscall__Passwd *pwbuf,
-	void **pwbufp)
+Mono_Posix_Syscall_getpwuid_r (mph_uid_t uid, struct Mono_Posix_Syscall__Passwd *pwbuf,	struct passwd** pwbufp)
 {
-	char *buf, *buf2;
-	size_t buflen;
-	int r;
-	struct passwd _pwbuf;
-
 	if (pwbuf == nullptr) {
 		errno = EFAULT;
 		return -1;
 	}
 
-	buf = buf2 = nullptr;
-	buflen = 2;
+	char *buf = nullptr;
+	size_t buflen = 2;
+	int r;
+	struct passwd _pwbuf;
 
 	do {
-		buf2 = static_cast<char*>(realloc (buf, buflen *= 2));
+		char *buf2 = static_cast<char*>(realloc (buf, buflen *= 2));
 		if (buf2 == nullptr) {
 			free (buf);
 			errno = ENOMEM;
@@ -178,15 +169,18 @@ Mono_Posix_Syscall_getpwuid_r (mph_uid_t uid,
 		}
 		buf = buf2;
 		errno = 0;
-	} while ((r = getpwuid_r (uid, &_pwbuf, buf, buflen, (struct passwd**) pwbufp)) && 
+	} while ((r = getpwuid_r (uid, &_pwbuf, buf, buflen, pwbufp)) &&
 			recheck_range (r));
 
-	if (r == 0 && !(*pwbufp))
+	if (r == 0 && !(*pwbufp)) {
 		/* On solaris, this function returns 0 even if the entry was not found */
 		r = errno = ENOENT;
+	}
 
-	if (r == 0 && copy_passwd (pwbuf, &_pwbuf) == -1)
+	if (r == 0 && !copy_passwd (pwbuf, &_pwbuf)) {
 		r = errno = ENOMEM;
+	}
+
 	free (buf);
 
 	return r;
@@ -197,19 +191,17 @@ Mono_Posix_Syscall_getpwuid_r (mph_uid_t uid,
 int32_t
 Mono_Posix_Syscall_getpwent (struct Mono_Posix_Syscall__Passwd *pwbuf)
 {
-	struct passwd *pw;
-
 	if (pwbuf == nullptr) {
 		errno = EFAULT;
 		return -1;
 	}
 
 	errno = 0;
-	pw = getpwent ();
+	struct passwd *pw = getpwent ();
 	if (pw == nullptr)
 		return -1;
 
-	if (copy_passwd (pwbuf, pw) == -1) {
+	if (!copy_passwd (pwbuf, pw)) {
 		errno = ENOMEM;
 		return -1;
 	}
@@ -219,21 +211,19 @@ Mono_Posix_Syscall_getpwent (struct Mono_Posix_Syscall__Passwd *pwbuf)
 
 #ifdef HAVE_FGETPWENT
 int32_t
-Mono_Posix_Syscall_fgetpwent (void *stream, struct Mono_Posix_Syscall__Passwd *pwbuf)
+Mono_Posix_Syscall_fgetpwent (FILE* stream, struct Mono_Posix_Syscall__Passwd *pwbuf)
 {
-	struct passwd *pw;
-
 	if (pwbuf == nullptr) {
 		errno = EFAULT;
 		return -1;
 	}
 
 	errno = 0;
-	pw = fgetpwent ((FILE*) stream);
+	struct passwd *pw = fgetpwent (stream);
 	if (pw == nullptr)
 		return -1;
 
-	if (copy_passwd (pwbuf, pw) == -1) {
+	if (!copy_passwd (pwbuf, pw)) {
 		errno = ENOMEM;
 		return -1;
 	}
@@ -243,7 +233,7 @@ Mono_Posix_Syscall_fgetpwent (void *stream, struct Mono_Posix_Syscall__Passwd *p
 
 #if HAVE_SETPWENT
 int
-Mono_Posix_Syscall_setpwent (void)
+Mono_Posix_Syscall_setpwent ()
 {
 	errno = 0;
 	do {
@@ -260,7 +250,7 @@ Mono_Posix_Syscall_setpwent (void)
 
 #if HAVE_ENDPWENT
 int
-Mono_Posix_Syscall_endpwent (void)
+Mono_Posix_Syscall_endpwent ()
 {
 	errno = 0;
 	endpwent ();

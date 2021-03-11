@@ -63,4 +63,7 @@ The `src/native` directory here corresponds to `support/` in the Mono repository
         `libMonoPosixHelper.so` to make sure that all p/invokes are
         there.
   - [ ] Add guard objects to `free(3)` allocated objects automatically
+  - [ ] If a given function/syscall etc isn't available on the host
+        OS, we should still make the corresponding p/invoke in the
+        helper lib available, but set `errno` to `ENOSYS`
 

@@ -380,14 +380,14 @@ inline bool mph_have_suseconds_t_overflow (T val)
  *
  * Unify the checking in one place.
  */
-static inline int
+inline bool
 recheck_range (int ret)
 {
 	if (ret == ERANGE)
-		return 1;
+		return true;
 	if (ret == -1)
 		return errno == ERANGE;
-	return 0;
+	return false;
 }
 
 typedef unsigned int mph_string_offset_t;

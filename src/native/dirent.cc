@@ -6,14 +6,17 @@
  *
  * Copyright (C) 2004-2005 Jonathan Pryor
  */
+#if defined (HAVE_CONFIG_H)
+#include <config.h>
+#endif
 
 #include <algorithm>
 
 #include <dirent.h>
-#include <errno.h>
-#include <string.h>
-#include <stdlib.h>
-#include <limits.h>
+#include <cerrno>
+#include <cstring>
+#include <cstdlib>
+#include <climits>
 #include <unistd.h>
 
 #include "map.hh"
@@ -33,25 +36,29 @@ static constexpr size_t MPH_PATH_MAX = 2048;
 int32_t
 Mono_Posix_Syscall_seekdir (DIR *dir, mph_off_t offset)
 {
-	if (mph_have_off_t_overflow (offset)) {
+	if (dir == nullptr || mph_have_off_t_overflow (offset)) {
 		return -1;
 	}
 
-	seekdir (dir, (off_t) offset);
+	seekdir (dir, offset);
 
 	return 0;
 }
 #endif  /* def HAVE_SEEKDIR */
 
 #if HAVE_TELLDIR
-mph_off_t
+int64_t
 Mono_Posix_Syscall_telldir (DIR *dir)
 {
+	if (dir == nullptr) {
+		return -1;
+	}
+
 	return telldir (dir);
 }
 #endif  /* def HAVE_TELLDIR */
 
-static void
+static inline void
 copy_dirent (struct Mono_Posix_Syscall__Dirent *to, struct dirent *from)
 {
 	memset (to, 0, sizeof(*to));
@@ -73,15 +80,13 @@ copy_dirent (struct Mono_Posix_Syscall__Dirent *to, struct dirent *from)
 int32_t
 Mono_Posix_Syscall_readdir (DIR *dirp, struct Mono_Posix_Syscall__Dirent *entry)
 {
-	struct dirent *d;
-
-	if (entry == nullptr) {
+	if (dirp == nullptr || entry == nullptr) {
 		errno = EFAULT;
 		return -1;
 	}
 
 	errno = 0;
-	d = readdir (dirp);
+	struct dirent *d = readdir (dirp);
 
 	if (d == nullptr) {
 		return -1;
@@ -93,10 +98,13 @@ Mono_Posix_Syscall_readdir (DIR *dirp, struct Mono_Posix_Syscall__Dirent *entry)
 }
 
 int32_t
-Mono_Posix_Syscall_readdir_r (DIR *dirp, struct Mono_Posix_Syscall__Dirent *entry, void **result)
+Mono_Posix_Syscall_readdir_r (DIR *dirp, struct Mono_Posix_Syscall__Dirent *entry, struct dirent** result)
 {
+	if (result == nullptr) {
+		return (errno = EFAULT);
+	}
+
 	auto _entry = static_cast<struct dirent*> (malloc (sizeof (struct dirent) + MPH_PATH_MAX + 1));
-	int r;
 
 	// TODO: mark the managed API as deprecated
 	// readdir_r is deprecated, but we still want to support it, so hush the warning
@@ -108,7 +116,8 @@ Mono_Posix_Syscall_readdir_r (DIR *dirp, struct Mono_Posix_Syscall__Dirent *entr
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 #endif
 
-	r = readdir_r (dirp, _entry, (struct dirent**) result);
+	errno = 0;
+	int r = readdir_r (dirp, _entry, (struct dirent**) result);
 
 #if defined (__clang__)
 #pragma clang diagnostic pop
@@ -125,9 +134,13 @@ Mono_Posix_Syscall_readdir_r (DIR *dirp, struct Mono_Posix_Syscall__Dirent *entr
 	return r;
 }
 
-int
+int32_t
 Mono_Posix_Syscall_rewinddir (DIR* dir)
 {
+	if (dir == nullptr) {
+		return -1;
+	}
+
 	rewinddir (dir);
 	return 0;
 }

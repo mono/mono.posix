@@ -7,8 +7,8 @@
  * Copyright (C) 2004, 2006 Jonathan Pryor
  */
 
-#ifndef _GNU_SOURCE
-#define _GNU_SOURCE
+#if defined (HAVE_CONFIG_H)
+#include <config.h>
 #endif
 
 #include <sys/types.h>
@@ -17,7 +17,7 @@
 #include <unistd.h>
 #endif
 #include <fcntl.h>
-#include <errno.h>
+#include <cerrno>
 #ifdef HOST_WIN32
 #include <corecrt_io.h>
 #endif
@@ -53,13 +53,11 @@ Mono_Posix_Syscall_fcntl_arg_ptr (int32_t fd, int32_t cmd, void *arg)
 int32_t
 Mono_Posix_Syscall_fcntl_arg (int32_t fd, int32_t cmd, int64_t arg)
 {
-	long _arg;
-	int32_t _cmd;
-
 	if (mph_have_long_overflow (arg)) {
 		return -1;
 	}
 
+	long _arg;
 #ifdef F_NOTIFY
 	if (cmd == F_NOTIFY) {
 		int _argi;
@@ -70,8 +68,9 @@ Mono_Posix_Syscall_fcntl_arg (int32_t fd, int32_t cmd, int64_t arg)
 	}
 	else
 #endif
-		_arg = (long) arg;
+		_arg = static_cast<long>(arg);
 
+	int32_t _cmd;
 	if (Mono_Posix_FromFcntlCommand (cmd, &_cmd) == -1)
 		return -1;
 	return fcntl (fd, cmd, _arg);
@@ -80,21 +79,19 @@ Mono_Posix_Syscall_fcntl_arg (int32_t fd, int32_t cmd, int64_t arg)
 int32_t
 Mono_Posix_Syscall_fcntl_lock (int32_t fd, int32_t cmd, struct Mono_Posix_Flock *lock)
 {
-	struct flock _lock;
-	int r;
-
 	if (lock == nullptr) {
 		errno = EFAULT;
 		return -1;
 	}
 
+	struct flock _lock;
 	if (Mono_Posix_FromFlock (lock, &_lock) == -1)
 		return -1;
 
 	if (Mono_Posix_FromFcntlCommand (cmd, &cmd) == -1)
 		return -1;
 
-	r = fcntl (fd, cmd, &_lock);
+	int r = fcntl (fd, cmd, &_lock);
 
 	if (Mono_Posix_ToFlock (&_lock, lock) == -1)
 		return -1;
@@ -144,8 +141,7 @@ Mono_Posix_Syscall_creat (const char *pathname, uint32_t mode)
 
 #ifdef HAVE_POSIX_FADVISE
 int32_t
-Mono_Posix_Syscall_posix_fadvise (int32_t fd, mph_off_t offset, mph_off_t len,
-	int32_t advice)
+Mono_Posix_Syscall_posix_fadvise (int32_t fd, mph_off_t offset, mph_off_t len, int32_t advice)
 {
 	if (mph_have_off_t_overflow (offset) || mph_have_off_t_overflow (len)) {
 		return -1;

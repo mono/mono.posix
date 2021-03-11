@@ -69,6 +69,7 @@
 // functions
 #cmakedefine HAVE_ACCEPT4 1
 #cmakedefine HAVE_CONFSTR 1
+#cmakedefine HAVE_ENDGRENT 1
 #cmakedefine HAVE_ENDPWENT 1
 #cmakedefine HAVE_ENDUSERSHELL 1
 #cmakedefine HAVE_FGETGRENT 1
@@ -128,5 +129,6 @@
 
 // Other
 #cmakedefine HAVE_LARGE_FILE_SUPPORT 1
+#cmakedefine STRERROR_R_CHAR_P 1
 
 #endif // __MPH_CONFIG_H

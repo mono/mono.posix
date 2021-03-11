@@ -7,35 +7,40 @@
  * Copyright (C) 2004-2005 Jonathan Pryor
  */
 
+#if defined (HAVE_CONFIG_H)
+#include <config.h>
+#endif
+
 #include <sys/types.h>
 #ifdef HAVE_SYS_PARAM_H
 #include <sys/param.h>
 #endif
-#include <grp.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <errno.h>
-#include <string.h>
+
+#include <cstdio>
+#include <cstdlib>
+#include <cerrno>
+#include <cstring>
 #include <unistd.h>	/* for setgroups on Mac OS X */
 
 #include "map.hh"
 #include "mph.hh"
 
-static void
+using int_limits = std::numeric_limits<int>;
+
+static inline void
 count_members (char **gr_mem, int *count, size_t *mem)
 {
-	char *cur;
 	*count = 0;
 
 	// ensure that later (*mem)+1 doesn't result in integer overflow
-	if (*mem > INT_MAX - 1)
+	if (*mem > int_limits::max () - 1)
 		return;
 
-	for (cur = *gr_mem; cur != nullptr; cur = *++gr_mem) {
+	for (char *cur = *gr_mem; cur != nullptr; cur = *++gr_mem) {
 		size_t len;
 		len = strlen (cur);
 
-		if (!(len < INT_MAX - ((*mem) + 1)))
+		if (!(len < int_limits::max () - ((*mem) + 1)))
 			break;
 
 		++(*count);
@@ -43,43 +48,38 @@ count_members (char **gr_mem, int *count, size_t *mem)
 	}
 }
 
-static int
+static inline bool
 copy_group (struct Mono_Posix_Syscall__Group *to, struct group *from)
 {
-	size_t nlen, plen, buflen;
-	int i, count;
-	char *cur, **to_mem;
-
 	to->gr_gid    = from->gr_gid;
-
 	to->gr_name   = nullptr;
 	to->gr_passwd = nullptr;
 	to->gr_mem    = nullptr;
 	to->_gr_buf_  = nullptr;
 
-	nlen = strlen (from->gr_name);
-	plen = strlen (from->gr_passwd);
+	size_t nlen = strlen (from->gr_name);
+	size_t buflen = 2;
 
-	buflen = 2;
-
-	if (!(nlen < INT_MAX - buflen))
-		return -1;
+	if (!(nlen < int_limits::max () - buflen)) {
+		return false;
+	}
 	buflen += nlen;
 
-	if (!(plen < INT_MAX - buflen))
-		return -1;
+	size_t plen = strlen (from->gr_passwd);
+	if (!(plen < int_limits::max () - buflen)) {
+		return false;
+	}
 	buflen += plen;
 
-	count = 0;
+	int count = 0;
 	count_members (from->gr_mem, &count, &buflen);
 
 	to->_gr_nmem_ = count;
-	cur = to->_gr_buf_ = static_cast<char*>(malloc (buflen));
-	to_mem = to->gr_mem = static_cast<char**>(malloc (sizeof(char*)*(count+1)));
+	char *cur = to->_gr_buf_ = static_cast<char*>(malloc (buflen));
 	if (to->_gr_buf_ == nullptr || to->gr_mem == nullptr) {
 		free (to->_gr_buf_);
 		free (to->gr_mem);
-		return -1;
+		return false;
 	}
 
 	to->gr_name = strcpy (cur, from->gr_name);
@@ -87,31 +87,32 @@ copy_group (struct Mono_Posix_Syscall__Group *to, struct group *from)
 	to->gr_passwd = strcpy (cur, from->gr_passwd);
 	cur += (plen + 1);
 
-	for (i = 0; i != count; ++i) {
+	int i = 0;
+	char **to_mem = to->gr_mem = static_cast<char**>(malloc (sizeof(char*)*(count+1)));
+	for (; i != count; ++i) {
 		to_mem [i] = strcpy (cur, from->gr_mem[i]);
 		cur += (strlen (from->gr_mem[i])+1);
 	}
 	to_mem [i] = nullptr;
 
-	return 0;
+	return true;
 }
 
 int32_t
 Mono_Posix_Syscall_getgrnam (const char *name, struct Mono_Posix_Syscall__Group *gbuf)
 {
-	struct group *_gbuf;
-
 	if (gbuf == nullptr) {
 		errno = EFAULT;
 		return -1;
 	}
 
 	errno = 0;
-	_gbuf = getgrnam (name);
-	if (_gbuf == nullptr)
+	struct group *_gbuf = getgrnam (name);
+	if (_gbuf == nullptr) {
 		return -1;
+	}
 
-	if (copy_group (gbuf, _gbuf) == -1) {
+	if (!copy_group (gbuf, _gbuf)) {
 		errno = ENOMEM;
 		return -1;
 	}
@@ -121,19 +122,18 @@ Mono_Posix_Syscall_getgrnam (const char *name, struct Mono_Posix_Syscall__Group 
 int32_t
 Mono_Posix_Syscall_getgrgid (mph_gid_t gid, struct Mono_Posix_Syscall__Group *gbuf)
 {
-	struct group *_gbuf;
-
 	if (gbuf == nullptr) {
 		errno = EFAULT;
 		return -1;
 	}
 
 	errno = 0;
-	_gbuf = getgrgid (gid);
-	if (_gbuf == nullptr)
+	struct group *_gbuf = getgrgid (gid);
+	if (_gbuf == nullptr) {
 		return -1;
+	}
 
-	if (copy_group (gbuf, _gbuf) == -1) {
+	if (!copy_group (gbuf, _gbuf)) {
 		errno = ENOMEM;
 		return -1;
 	}
@@ -142,25 +142,20 @@ Mono_Posix_Syscall_getgrgid (mph_gid_t gid, struct Mono_Posix_Syscall__Group *gb
 
 #ifdef HAVE_GETGRNAM_R
 int32_t
-Mono_Posix_Syscall_getgrnam_r (const char *name, 
-	struct Mono_Posix_Syscall__Group *gbuf,
-	void **gbufp)
+Mono_Posix_Syscall_getgrnam_r (const char *name, struct Mono_Posix_Syscall__Group *gbuf, struct group** gbufp)
 {
-	char *buf, *buf2;
-	size_t buflen;
-	int r;
-	struct group _grbuf;
-
 	if (gbuf == nullptr) {
 		errno = EFAULT;
 		return -1;
 	}
 
-	buf = buf2 = nullptr;
-	buflen = 2;
+	char *buf = nullptr;
+	size_t buflen = 2;
+	int r;
+	struct group _grbuf;
 
 	do {
-		buf2 = static_cast<char*>(realloc (buf, buflen *= 2));
+		char *buf2 = static_cast<char*>(realloc (buf, buflen *= 2));
 		if (buf2 == nullptr) {
 			free (buf);
 			errno = ENOMEM;
@@ -168,15 +163,15 @@ Mono_Posix_Syscall_getgrnam_r (const char *name,
 		}
 		buf = buf2;
 		errno = 0;
-	} while ((r = getgrnam_r (name, &_grbuf, buf, buflen, (struct group**) gbufp)) && 
-			recheck_range (r));
+	} while ((r = getgrnam_r (name, &_grbuf, buf, buflen, gbufp)) && recheck_range (r));
 
 	/* On Solaris, this function returns 0 even if the entry was not found */
 	if (r == 0 && !(*gbufp))
 		r = errno = ENOENT;
 
-	if (r == 0 && copy_group (gbuf, &_grbuf) == -1)
+	if (r == 0 && !copy_group (gbuf, &_grbuf)) {
 		r = errno = ENOMEM;
+	}
 	free (buf);
 
 	return r;
@@ -185,25 +180,20 @@ Mono_Posix_Syscall_getgrnam_r (const char *name,
 
 #ifdef HAVE_GETGRGID_R
 int32_t
-Mono_Posix_Syscall_getgrgid_r (mph_gid_t gid,
-	struct Mono_Posix_Syscall__Group *gbuf,
-	void **gbufp)
+Mono_Posix_Syscall_getgrgid_r (mph_gid_t gid, struct Mono_Posix_Syscall__Group *gbuf, struct group** gbufp)
 {
-	char *buf, *buf2;
-	size_t buflen;
-	int r;
-	struct group _grbuf;
-
 	if (gbuf == nullptr) {
 		errno = EFAULT;
 		return -1;
 	}
 
-	buf = buf2 = nullptr;
-	buflen = 2;
+	char *buf = nullptr;
+	size_t buflen = 2;
+	int r;
+	struct group _grbuf;
 
 	do {
-		buf2 = static_cast<char*>(realloc (buf, buflen *= 2));
+		char *buf2 = static_cast<char*>(realloc (buf, buflen *= 2));
 		if (buf2 == nullptr) {
 			free (buf);
 			errno = ENOMEM;
@@ -211,14 +201,13 @@ Mono_Posix_Syscall_getgrgid_r (mph_gid_t gid,
 		}
 		buf = buf2;
 		errno = 0;
-	} while ((r = getgrgid_r (gid, &_grbuf, buf, buflen, (struct group**) gbufp)) && 
-			recheck_range (r));
+	} while ((r = getgrgid_r (gid, &_grbuf, buf, buflen, gbufp)) && recheck_range (r));
 
 	/* On Solaris, this function returns 0 even if the entry was not found */
 	if (r == 0 && !(*gbufp))
 		r = errno = ENOENT;
 
-	if (r == 0 && copy_group (gbuf, &_grbuf) == -1)
+	if (r == 0 && !copy_group (gbuf, &_grbuf))
 		r = errno = ENOMEM;
 	free (buf);
 
@@ -230,19 +219,17 @@ Mono_Posix_Syscall_getgrgid_r (mph_gid_t gid,
 int32_t
 Mono_Posix_Syscall_getgrent (struct Mono_Posix_Syscall__Group *grbuf)
 {
-	struct group *gr;
-
 	if (grbuf == nullptr) {
 		errno = EFAULT;
 		return -1;
 	}
 
 	errno = 0;
-	gr = getgrent ();
+	struct group *gr = getgrent ();
 	if (gr == nullptr)
 		return -1;
 
-	if (copy_group (grbuf, gr) == -1) {
+	if (!copy_group (grbuf, gr)) {
 		errno = ENOMEM;
 		return -1;
 	}
@@ -254,19 +241,17 @@ Mono_Posix_Syscall_getgrent (struct Mono_Posix_Syscall__Group *grbuf)
 int32_t
 Mono_Posix_Syscall_fgetgrent (void *stream, struct Mono_Posix_Syscall__Group *grbuf)
 {
-	struct group *gr;
-
 	if (grbuf == nullptr) {
 		errno = EFAULT;
 		return -1;
 	}
 
 	errno = 0;
-	gr = fgetgrent ((FILE*) stream);
+	struct group *gr = fgetgrent ((FILE*) stream);
 	if (gr == nullptr)
 		return -1;
 
-	if (copy_group (grbuf, gr) == -1) {
+	if (!copy_group (grbuf, gr)) {
 		errno = ENOMEM;
 		return -1;
 	}
@@ -288,7 +273,7 @@ Mono_Posix_Syscall_setgroups (mph_size_t size, mph_gid_t *list)
 
 #if HAVE_SETGRENT
 int
-Mono_Posix_Syscall_setgrent (void)
+Mono_Posix_Syscall_setgrent ()
 {
 	errno = 0;
 	do {
@@ -305,7 +290,7 @@ Mono_Posix_Syscall_setgrent (void)
 
 #if HAVE_ENDGRENT
 int
-Mono_Posix_Syscall_endgrent (void)
+Mono_Posix_Syscall_endgrent ()
 {
 	endgrent();
 	return 0;
