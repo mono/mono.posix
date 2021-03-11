@@ -83,7 +83,7 @@ int Mono_Posix_SIGRTMAX (void)
 #endif /* ndef SIGRTMAX */
 }
 
-int Mono_Posix_FromRealTimeSignum (int offset, int *r)
+int Mono_Posix_FromRealTimeSignum ([[maybe_unused]] int offset, int *r)
 {
 	if (nullptr == r) {
 		errno = EINVAL;
