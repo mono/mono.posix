@@ -334,8 +334,11 @@ bsd_flistxattr (int fd, void *list, mph_size_t size)
 int32_t
 Mono_Posix_Syscall_setxattr (const char *path, const char *name, unsigned char *value, mph_size_t size, int32_t flags)
 {
+	if (mph_have_size_t_overflow (size)) {
+		return -1;
+	}
+
 	int32_t ret;
-	mph_return_if_size_t_overflow (size);
 
 #ifdef EA_UNIX
 	{
@@ -368,8 +371,11 @@ Mono_Posix_Syscall_setxattr (const char *path, const char *name, unsigned char *
 int32_t
 Mono_Posix_Syscall_lsetxattr (const char *path, const char *name, unsigned char *value, mph_size_t size, int32_t flags)
 {
+	if (mph_have_size_t_overflow (size)) {
+		return -1;
+	}
+
 	int32_t ret;
-	mph_return_if_size_t_overflow (size);
 
 #ifdef EA_UNIX
 	{
@@ -398,8 +404,11 @@ Mono_Posix_Syscall_lsetxattr (const char *path, const char *name, unsigned char 
 int32_t
 Mono_Posix_Syscall_fsetxattr (int fd, const char *name, unsigned char *value, mph_size_t size, int32_t flags)
 {
+	if (mph_have_size_t_overflow (size)) {
+		return -1;
+	}
+
 	int32_t ret;
-	mph_return_if_size_t_overflow (size);
 
 #ifdef EA_UNIX
 	{
@@ -431,8 +440,11 @@ Mono_Posix_Syscall_fsetxattr (int fd, const char *name, unsigned char *value, mp
 mph_ssize_t
 Mono_Posix_Syscall_getxattr (const char *path, const char *name, unsigned char *value, mph_size_t size)
 {
+	if (mph_have_size_t_overflow (size)) {
+		return -1;
+	}
+
 	mph_ssize_t ret;
-	mph_return_if_size_t_overflow (size);
 
 #ifdef EA_UNIX
 #if __APPLE__
@@ -458,8 +470,11 @@ Mono_Posix_Syscall_getxattr (const char *path, const char *name, unsigned char *
 mph_ssize_t
 Mono_Posix_Syscall_lgetxattr (const char *path, const char *name, unsigned char *value, mph_size_t size)
 {
+	if (mph_have_size_t_overflow (size)) {
+		return -1;
+	}
+
 	mph_ssize_t ret;
-	mph_return_if_size_t_overflow (size);
 
 #ifdef EA_UNIX
 	ret = lgetxattr (path, name, value, (size_t) size);
@@ -481,8 +496,11 @@ Mono_Posix_Syscall_lgetxattr (const char *path, const char *name, unsigned char 
 mph_ssize_t
 Mono_Posix_Syscall_fgetxattr (int fd, const char *name, unsigned char *value, mph_size_t size)
 {
+	if (mph_have_size_t_overflow (size)) {
+		return -1;
+	}
+
 	mph_ssize_t ret;
-	mph_return_if_size_t_overflow (size);
 
 #ifdef EA_UNIX
 #if __APPLE__
@@ -507,7 +525,9 @@ Mono_Posix_Syscall_fgetxattr (int fd, const char *name, unsigned char *value, mp
 mph_ssize_t
 Mono_Posix_Syscall_listxattr (const char *path, unsigned char *list, mph_size_t size)
 {
-	mph_return_if_size_t_overflow (size);
+	if (mph_have_size_t_overflow (size)) {
+		return -1;
+	}
 
 #ifdef EA_UNIX
 #if __APPLE__
@@ -524,7 +544,9 @@ Mono_Posix_Syscall_listxattr (const char *path, unsigned char *list, mph_size_t 
 mph_ssize_t
 Mono_Posix_Syscall_llistxattr (const char *path, unsigned char *list, mph_size_t size)
 {
-	mph_return_if_size_t_overflow (size);
+	if (mph_have_size_t_overflow (size)) {
+		return -1;
+	}
 
 #ifdef EA_UNIX
 	return llistxattr (path, (char*) list, (size_t) size);
@@ -537,7 +559,9 @@ Mono_Posix_Syscall_llistxattr (const char *path, unsigned char *list, mph_size_t
 mph_ssize_t
 Mono_Posix_Syscall_flistxattr (int fd, unsigned char *list, mph_size_t size)
 {
-	mph_return_if_size_t_overflow (size);
+	if (mph_have_size_t_overflow (size)) {
+		return -1;
+	}
 
 #ifdef EA_UNIX
 #if __APPLE__

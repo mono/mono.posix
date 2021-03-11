@@ -37,7 +37,9 @@ extern int sethostid(long);
 mph_off_t
 Mono_Posix_Syscall_lseek (int32_t fd, mph_off_t offset, int32_t whence)
 {
-	mph_return_if_off_t_overflow (offset);
+	if (mph_have_off_t_overflow (offset)) {
+		return -1;
+	}
 
 	return lseek (fd, offset, whence);
 }
@@ -45,22 +47,29 @@ Mono_Posix_Syscall_lseek (int32_t fd, mph_off_t offset, int32_t whence)
 mph_ssize_t
 Mono_Posix_Syscall_read (int32_t fd, void *buf, mph_size_t count)
 {
-	mph_return_if_size_t_overflow (count);
+	if (mph_have_size_t_overflow (count)) {
+		return -1;
+	};
+
 	return read (fd, buf, (size_t) count);
 }
 
 mph_ssize_t
 Mono_Posix_Syscall_write (int32_t fd, void *buf, mph_size_t count)
 {
-	mph_return_if_size_t_overflow (count);
+	if (mph_have_size_t_overflow (count)) {
+		return -1;
+	};
+
 	return write (fd, buf, (size_t) count);
 }
 
 mph_ssize_t
 Mono_Posix_Syscall_pread (int32_t fd, void *buf, mph_size_t count, mph_off_t offset)
 {
-	mph_return_if_size_t_overflow (count);
-	mph_return_if_off_t_overflow (offset);
+	if (mph_have_size_t_overflow (count) || mph_have_off_t_overflow (offset)) {
+		return -1;
+	};
 
 	return pread (fd, buf, (size_t) count, (off_t) offset);
 }
@@ -68,8 +77,9 @@ Mono_Posix_Syscall_pread (int32_t fd, void *buf, mph_size_t count, mph_off_t off
 mph_ssize_t
 Mono_Posix_Syscall_pwrite (int32_t fd, void *buf, mph_size_t count, mph_off_t offset)
 {
-	mph_return_if_size_t_overflow (count);
-	mph_return_if_off_t_overflow (offset);
+	if (mph_have_size_t_overflow (count) || mph_have_off_t_overflow (offset)) {
+		return -1;
+	};
 
 	return pwrite (fd, buf, (size_t) count, (off_t) offset);
 }
@@ -95,7 +105,10 @@ Mono_Posix_Syscall_pipe (int32_t *reading, int32_t *writing)
 void*
 Mono_Posix_Syscall_getcwd (char *buf, mph_size_t size)
 {
-	mph_return_val_if_size_t_overflow (size, nullptr);
+	if (mph_have_size_t_overflow (size)) {
+		return nullptr;
+	}
+
 	return getcwd (buf, (size_t) size);
 }
 
@@ -130,9 +143,12 @@ Mono_Posix_Syscall_sysconf (int name, int defaultError)
 mph_size_t
 Mono_Posix_Syscall_confstr (int name, char *buf, mph_size_t len)
 {
-	mph_return_if_size_t_overflow (len);
+	if (mph_have_size_t_overflow (len)) {
+		return 0;
+	};
+
 	if (Mono_Posix_FromConfstrName (name, &name) == -1)
-		return -1;
+		return 0;
 	return confstr (name, buf, (size_t) len);
 }
 #endif  /* def HAVE_CONFSTR */
@@ -141,7 +157,10 @@ Mono_Posix_Syscall_confstr (int name, char *buf, mph_size_t len)
 int32_t
 Mono_Posix_Syscall_ttyname_r (int fd, char *buf, mph_size_t len)
 {
-	mph_return_if_size_t_overflow (len);
+	if (mph_have_size_t_overflow (len)) {
+		return -1;
+	};
+
 	return ttyname_r (fd, buf, (size_t) len);
 }
 #endif /* ndef HAVE_TTYNAME_R */
@@ -149,7 +168,10 @@ Mono_Posix_Syscall_ttyname_r (int fd, char *buf, mph_size_t len)
 int64_t
 Mono_Posix_Syscall_readlink (const char *path, unsigned char *buf, mph_size_t len)
 {
-	mph_return_if_size_t_overflow (len);
+	if (mph_have_size_t_overflow (len)) {
+		return 0;
+	};
+
 	ssize_t r = readlink (path, (char*) buf, (size_t) len);
 	if (r >= 0 && (size_t)r < len)
 		buf [r] = '\0';
@@ -160,8 +182,12 @@ Mono_Posix_Syscall_readlink (const char *path, unsigned char *buf, mph_size_t le
 int64_t
 Mono_Posix_Syscall_readlinkat (int dirfd, const char *path, unsigned char *buf, mph_size_t len)
 {
+	if (mph_have_size_t_overflow (len)) {
+		return 0;
+	};
+
 	int64_t r;
-	mph_return_if_size_t_overflow (len);
+
 	r = readlinkat (dirfd, path, (char*) buf, (size_t) len);
 	if (r >= 0 && (size_t)r < len)
 		buf [r] = '\0';
@@ -173,7 +199,10 @@ Mono_Posix_Syscall_readlinkat (int dirfd, const char *path, unsigned char *buf, 
 int32_t
 Mono_Posix_Syscall_getlogin_r (char *buf, mph_size_t len)
 {
-	mph_return_if_size_t_overflow (len);
+	if (mph_have_size_t_overflow (len)) {
+		return 0;
+	};
+
 	return getlogin_r (buf, (size_t) len);
 }
 #endif  /* def HAVE_GETLOGIN_R */
@@ -181,7 +210,10 @@ Mono_Posix_Syscall_getlogin_r (char *buf, mph_size_t len)
 int32_t
 Mono_Posix_Syscall_gethostname (char *buf, mph_size_t len)
 {
-	mph_return_if_size_t_overflow (len);
+	if (mph_have_size_t_overflow (len)) {
+		return 0;
+	};
+
 	return gethostname (buf, (size_t) len);
 }
 
@@ -189,7 +221,10 @@ Mono_Posix_Syscall_gethostname (char *buf, mph_size_t len)
 int32_t
 Mono_Posix_Syscall_sethostname (const char *name, mph_size_t len)
 {
-	mph_return_if_size_t_overflow (len);
+	if (mph_have_size_t_overflow (len)) {
+		return 0;
+	};
+
 	return sethostname (name, (size_t) len);
 }
 #endif  /* def HAVE_SETHOSTNAME */
@@ -206,7 +241,10 @@ Mono_Posix_Syscall_gethostid (void)
 int32_t
 Mono_Posix_Syscall_sethostid (int64_t hostid)
 {
-	mph_return_if_long_overflow (hostid);
+	if (mph_have_long_overflow (hostid)) {
+		return -1;
+	}
+
 #ifdef MPH_ON_BSD
 	sethostid ((long) hostid);
 	return 0;
@@ -220,7 +258,10 @@ Mono_Posix_Syscall_sethostid (int64_t hostid)
 int32_t
 Mono_Posix_Syscall_getdomainname (char *name, mph_size_t len)
 {
-	mph_return_if_size_t_overflow (len);
+	if (mph_have_size_t_overflow (len)) {
+		return 0;
+	};
+
 	return getdomainname (name, (size_t) len);
 }
 #endif /* def HAVE_GETDOMAINNAME */
@@ -229,7 +270,10 @@ Mono_Posix_Syscall_getdomainname (char *name, mph_size_t len)
 int32_t
 Mono_Posix_Syscall_setdomainname (const char *name, mph_size_t len)
 {
-	mph_return_if_size_t_overflow (len);
+	if (mph_have_size_t_overflow (len)) {
+		return 0;
+	};
+
 	return setdomainname (name, (size_t) len);
 }
 #endif /* def HAVE_SETDOMAINNAME */
@@ -241,7 +285,10 @@ Mono_Posix_Syscall_setdomainname (const char *name, mph_size_t len)
 int32_t
 Mono_Posix_Syscall_truncate (const char *path, mph_off_t length)
 {
-	mph_return_if_off_t_overflow (length);
+	if (mph_have_off_t_overflow (length)) {
+		return -1;
+	}
+
 	return truncate (path, (off_t) length);
 }
 #endif
@@ -249,7 +296,10 @@ Mono_Posix_Syscall_truncate (const char *path, mph_off_t length)
 int32_t
 Mono_Posix_Syscall_ftruncate (int fd, mph_off_t length)
 {
-	mph_return_if_off_t_overflow (length);
+	if (mph_have_off_t_overflow (length)) {
+		return -1;
+	}
+
 	return ftruncate (fd, (off_t) length);
 }
 
@@ -257,7 +307,10 @@ Mono_Posix_Syscall_ftruncate (int fd, mph_off_t length)
 int32_t
 Mono_Posix_Syscall_lockf (int fd, int cmd, mph_off_t len)
 {
-	mph_return_if_off_t_overflow (len);
+	if (mph_have_off_t_overflow (len)) {
+		return -1;
+	}
+
 	if (Mono_Posix_FromLockfCommand (cmd, &cmd) == -1)
 		return -1;
 	return lockf (fd, cmd, (off_t) len);

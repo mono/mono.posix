@@ -37,8 +37,9 @@ Mono_Posix_Syscall_L_cuserid (void)
 mph_size_t
 Mono_Posix_Stdlib_fread (unsigned char *ptr, mph_size_t size, mph_size_t nmemb, void *stream)
 {
-	mph_return_if_size_t_overflow (size);
-	mph_return_if_size_t_overflow (nmemb);
+	if (mph_have_size_t_overflow (size) || mph_have_size_t_overflow (nmemb)) {
+		return 0;
+	}
 
 	return fread (ptr, (size_t) size, (size_t) nmemb, (FILE*) stream);
 }
@@ -46,8 +47,9 @@ Mono_Posix_Stdlib_fread (unsigned char *ptr, mph_size_t size, mph_size_t nmemb, 
 mph_size_t
 Mono_Posix_Stdlib_fwrite (unsigned char *ptr, mph_size_t size, mph_size_t nmemb, void *stream)
 {
-	mph_return_if_size_t_overflow (size);
-	mph_return_if_size_t_overflow (nmemb);
+	if (mph_have_size_t_overflow (size) || mph_have_size_t_overflow (nmemb)) {
+		return 0;
+	}
 
 	size_t ret = fwrite (ptr, (size_t) size, (size_t) nmemb, (FILE*) stream);
 #ifdef HOST_WIN32
@@ -72,9 +74,12 @@ Mono_Posix_Stdlib_snprintf (char *s, mph_size_t n, char *format, ...);
 int32_t
 Mono_Posix_Stdlib_snprintf (char *s, mph_size_t n, char *format, ...)
 {
+	if (mph_have_size_t_overflow (n)) {
+		return -1;
+	}
+
 	va_list ap;
 	int32_t r;
-	mph_return_if_size_t_overflow (n);
 
 	va_start (ap, format);
 	r = vsnprintf (s, (size_t) n, format, ap);
@@ -165,7 +170,10 @@ Mono_Posix_Stdlib_tmpfile (void)
 int32_t
 Mono_Posix_Stdlib_setvbuf (FILE* stream, void *buf, int mode, mph_size_t size)
 {
-	mph_return_if_size_t_overflow (size);
+	if (mph_have_size_t_overflow (size)) {
+		return -1;
+	}
+
 	return setvbuf (stream, (char *) buf, mode, (size_t) size);
 }
 
@@ -233,7 +241,9 @@ Mono_Posix_Stdlib_fflush (FILE* stream)
 int32_t
 Mono_Posix_Stdlib_fseek (FILE* stream, int64_t offset, int origin)
 {
-	mph_return_if_long_overflow (offset);
+	if (mph_have_long_overflow (offset)) {
+		return -1;
+	}
 
 	return fseek (stream, offset, origin);
 }
@@ -269,8 +279,11 @@ Mono_Posix_Stdlib_rewind (FILE* stream)
 	do {
 		rewind (stream);
 	} while (errno == EINTR);
-	mph_return_if_val_in_list5(errno, EAGAIN, EBADF, EFBIG, EINVAL, EIO);
-	mph_return_if_val_in_list5(errno, ENOSPC, ENXIO, EOVERFLOW, EPIPE, ESPIPE);
+
+	if (mph_value_in_list (errno, EAGAIN, EBADF, EFBIG, EINVAL, EIO, ENOSPC, ENXIO, EOVERFLOW, EPIPE, ESPIPE)) {
+		return -1;
+	}
+
 	return 0;
 }
 

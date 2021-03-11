@@ -78,7 +78,9 @@ Mono_Posix_Syscall_time (mph_time_t *t)
 		return -1;
 	}
 
-	mph_return_if_time_t_overflow (*t);
+	if (mph_have_time_t_overflow (*t)) {
+		return -1;
+	}
 
 	_t = (time_t) *t;
 	r = time (&_t);

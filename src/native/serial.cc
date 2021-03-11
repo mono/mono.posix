@@ -80,7 +80,7 @@ enum class MonoSerialSignal {
 	Dtr = 8, /* Data terminal ready */
 	Rts = 16  /* Request to send */
 };
-DECLARE_ENUM_FLAG_OPERATORS (MonoSerialSignal);
+DECLARE_ENUM_FLAG_OPERATORS (MonoSerialSignal)
 
 /*
  * Silence the compiler, we do not need these prototypes to be public, since these are only

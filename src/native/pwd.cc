@@ -249,7 +249,11 @@ Mono_Posix_Syscall_setpwent (void)
 	do {
 		setpwent ();
 	} while (errno == EINTR);
-	mph_return_if_val_in_list5(errno, EIO, EMFILE, ENFILE, ENOMEM, ERANGE);
+
+	if (mph_value_in_list (errno, EIO, EMFILE, ENFILE, ENOMEM, ERANGE)) {
+		return -1;
+	}
+
 	return 0;
 }
 #endif  /* def HAVE_SETPWENT */

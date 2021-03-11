@@ -87,10 +87,17 @@ Mono_Posix_Syscall_socketpair (int domain, int type, int protocol, int* socket1,
 int
 Mono_Posix_Syscall_getsockopt (int socket, int level, int option_name, void* option_value, int64_t* option_len)
 {
+	if (option_len == nullptr) {
+		errno = EINVAL;
+		return -1;
+	}
+
+	if (mph_have_socklen_t_overflow (*option_len)) {
+		return -1;
+	}
+
 	socklen_t len;
 	int r;
-
-	mph_return_if_socklen_t_overflow (*option_len);
 
 	len = *option_len;
 
@@ -148,7 +155,9 @@ Mono_Posix_Syscall_getsockopt_linger (int socket, int level, int option_name, st
 int
 Mono_Posix_Syscall_setsockopt (int socket, int level, int option_name, void* option_value, int64_t option_len)
 {
-	mph_return_if_socklen_t_overflow (option_len);
+	if (mph_have_socklen_t_overflow (option_len)) {
+		return -1;
+	}
 
 	return setsockopt (socket, level, option_name, option_value, option_len);
 }
@@ -185,12 +194,18 @@ get_addrlen (struct Mono_Posix__SockaddrHeader* address, socklen_t& addrlen)
 
 	switch (address->type) {
 		case Mono_Posix_SockaddrType_SockaddrStorage:
-			mph_return_if_socklen_t_overflow (((struct Mono_Posix__SockaddrDynamic*) address)->len);
+			if (mph_have_socklen_t_overflow (reinterpret_cast<struct Mono_Posix__SockaddrDynamic*>(address)->len)) {
+				return false;
+			}
+
 			addrlen = ((struct Mono_Posix__SockaddrDynamic*) address)->len;
 			return true;
 
 		case Mono_Posix_SockaddrType_SockaddrUn:
-			mph_return_if_socklen_t_overflow (offsetof (struct sockaddr_un, sun_path) + ((struct Mono_Posix__SockaddrDynamic*) address)->len);
+			if (mph_have_socklen_t_overflow (offsetof (struct sockaddr_un, sun_path) + (reinterpret_cast<struct Mono_Posix__SockaddrDynamic*>(address)->len))) {
+				return false;
+			}
+
 			addrlen = offsetof (struct sockaddr_un, sun_path) + ((struct Mono_Posix__SockaddrDynamic*) address)->len;
 			return true;
 
@@ -495,7 +510,9 @@ Mono_Posix_Syscall_getsockname (int socket, struct Mono_Posix__SockaddrHeader* a
 int64_t
 Mono_Posix_Syscall_recv (int socket, void* message, uint64_t length, int flags)
 {
-	mph_return_if_size_t_overflow (length);
+	if (mph_have_size_t_overflow (length)) {
+		return -1;
+	}
 
 	return recv (socket, message, length, flags);
 }
@@ -503,7 +520,9 @@ Mono_Posix_Syscall_recv (int socket, void* message, uint64_t length, int flags)
 int64_t
 Mono_Posix_Syscall_send (int socket, void* message, uint64_t length, int flags)
 {
-	mph_return_if_size_t_overflow (length);
+	if (mph_have_size_t_overflow (length)) {
+		return -1;
+	}
 
 	return send (socket, message, length, flags);
 }
@@ -511,7 +530,9 @@ Mono_Posix_Syscall_send (int socket, void* message, uint64_t length, int flags)
 int64_t
 Mono_Posix_Syscall_recvfrom (int socket, void* buffer, uint64_t length, int flags, struct Mono_Posix__SockaddrHeader* address)
 {
-	mph_return_if_size_t_overflow (length);
+	if (mph_have_size_t_overflow (length)) {
+		return -1;
+	}
 
 	SockAddr sock (address);
 	if (!sock.is_valid ()) {
@@ -531,7 +552,9 @@ Mono_Posix_Syscall_recvfrom (int socket, void* buffer, uint64_t length, int flag
 int64_t
 Mono_Posix_Syscall_sendto (int socket, void* message, uint64_t length, int flags, struct Mono_Posix__SockaddrHeader* address)
 {
-	mph_return_if_size_t_overflow (length);
+	if (mph_have_size_t_overflow (length)) {
+		return -1;
+	}
 
 	SockAddr sock (address);
 	if (!sock.is_valid ()) {

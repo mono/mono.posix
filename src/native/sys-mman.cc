@@ -38,10 +38,11 @@ void*
 Mono_Posix_Syscall_mmap (void *start, mph_size_t length, int prot, int flags, 
 		int fd, mph_off_t offset)
 {
-	int _prot, _flags;
+	if (mph_have_off_t_overflow (offset) || mph_have_size_t_overflow (length)) {
+		return MAP_FAILED;
+	}
 
-	mph_return_val_if_size_t_overflow (length, MAP_FAILED);
-	mph_return_val_if_off_t_overflow (offset, MAP_FAILED);
+	int _prot, _flags;
 
 	if (Mono_Posix_FromMmapProts (prot, &_prot) == -1)
 		return MAP_FAILED;
@@ -54,33 +55,39 @@ Mono_Posix_Syscall_mmap (void *start, mph_size_t length, int prot, int flags,
 int
 Mono_Posix_Syscall_munmap (void *start, mph_size_t length)
 {
-	mph_return_if_size_t_overflow (length);
+	if (mph_have_size_t_overflow (length)) {
+		return -1;
+	}
 
-	return munmap (start, (size_t) length);
+	return munmap (start, length);
 }
 
 int
 Mono_Posix_Syscall_mprotect (void *start, mph_size_t len, int prot)
 {
-	int _prot;
-	mph_return_if_size_t_overflow (len);
+	if (mph_have_size_t_overflow (len)) {
+		return -1;
+	}
 
+	int _prot;
 	if (Mono_Posix_FromMmapProts (prot, &_prot) == -1)
 		return -1;
 
-	return mprotect (start, (size_t) len, _prot);
+	return mprotect (start, len, _prot);
 }
 
 int
 Mono_Posix_Syscall_msync (void *start, mph_size_t len, int flags)
 {
-	int _flags;
-	mph_return_if_size_t_overflow (len);
+	if (mph_have_size_t_overflow (len)) {
+		return -1;
+	}
 
+	int _flags;
 	if (Mono_Posix_FromMsyncFlags (flags, &_flags) == -1)
 		return -1;
 
-	return msync (start, (size_t) len, _flags);
+	return msync (start, len, _flags);
 }
 
 int
@@ -89,9 +96,11 @@ Mono_Posix_Syscall_mlock (void *start, mph_size_t len)
 #if !defined (HAVE_MLOCK)
 	return ENOSYS;
 #else
-	mph_return_if_size_t_overflow (len);
+	if (mph_have_size_t_overflow (len)) {
+		return -1;
+	}
 
-	return mlock (start, (size_t) len);
+	return mlock (start, len);
 #endif
 }
 
@@ -101,9 +110,11 @@ Mono_Posix_Syscall_munlock (void *start, mph_size_t len)
 #if !defined (HAVE_MUNLOCK)
 	return ENOSYS;
 #else
-	mph_return_if_size_t_overflow (len);
+	if (mph_have_size_t_overflow (len)) {
+		return -1;
+	}
 
-	return munlock (start, (size_t) len);
+	return munlock (start, len);
 #endif
 }
 
@@ -112,10 +123,11 @@ void*
 Mono_Posix_Syscall_mremap (void *old_address, mph_size_t old_size, 
 		mph_size_t new_size, uint64_t flags)
 {
-	uint64_t _flags;
+	if (mph_have_size_t_overflow (old_size) || mph_have_size_t_overflow (new_size)) {
+		return MAP_FAILED;
+	}
 
-	mph_return_val_if_size_t_overflow (old_size, MAP_FAILED);
-	mph_return_val_if_size_t_overflow (new_size, MAP_FAILED);
+	uint64_t _flags;
 
 	if (Mono_Posix_FromMremapFlags (flags, &_flags) == -1)
 		return MAP_FAILED;
@@ -138,7 +150,9 @@ Mono_Posix_Syscall_mincore (void *start, mph_size_t length, unsigned char *vec)
 #if !defined (HAVE_MINCORE)
 	return ENOSYS;
 #else
-	mph_return_if_size_t_overflow (length);
+	if (mph_have_size_t_overflow (length)) {
+		return -1;
+	}
 
 #if defined (__linux__) || defined (HOST_WASM)
 	typedef unsigned char T;
@@ -153,12 +167,14 @@ Mono_Posix_Syscall_mincore (void *start, mph_size_t length, unsigned char *vec)
 int32_t
 Mono_Posix_Syscall_posix_madvise (void *addr, mph_size_t len, int32_t advice)
 {
-	mph_return_if_size_t_overflow (len);
+	if (mph_have_size_t_overflow (len)) {
+		return -1;
+	}
 
 	if (Mono_Posix_FromPosixMadviseAdvice (advice, &advice) == -1)
 		return -1;
 
-	return posix_madvise (addr, (size_t) len, advice);
+	return posix_madvise (addr, len, advice);
 }
 #endif /* def HAVE_POSIX_MADVISE */
 
@@ -169,15 +185,16 @@ Mono_Posix_Syscall_remap_file_pages (void *start, mph_size_t size,
 {
 	int _prot, _flags;
 
-	mph_return_if_size_t_overflow (size);
-	mph_return_if_ssize_t_overflow (pgoff);
+	if (mph_have_size_t_overflow (size) || mph_have_ssize_t_overflow (pgoff)) {
+		return -1;
+	}
 
 	if (Mono_Posix_FromMmapProts (prot, &_prot) == -1)
 		return -1;
 	if (Mono_Posix_FromMmapFlags (flags, &_flags) == -1)
 		return -1;
 
-	return remap_file_pages (start, (size_t) size, _prot, (ssize_t) pgoff, _flags);
+	return remap_file_pages (start, size, _prot, pgoff, _flags);
 }
 #endif /* def HAVE_REMAP_FILE_PAGES */
 

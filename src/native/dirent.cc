@@ -31,7 +31,9 @@ static constexpr size_t MPH_PATH_MAX = 2048;
 int32_t
 Mono_Posix_Syscall_seekdir (DIR *dir, mph_off_t offset)
 {
-	mph_return_if_off_t_overflow (offset);
+	if (mph_have_off_t_overflow (offset)) {
+		return -1;
+	}
 
 	seekdir (dir, (off_t) offset);
 

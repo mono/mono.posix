@@ -23,9 +23,16 @@
 mph_ssize_t
 Mono_Posix_Syscall_sendfile (int out_fd, int in_fd, mph_off_t *offset, mph_size_t count)
 {
+	if (offset == nullptr) {
+		errno = EINVAL;
+	}
+
+	if (mph_have_off_t_overflow (*offset)) {
+		return -1;
+	}
+
 	off_t _offset;
 	ssize_t r;
-	mph_return_if_off_t_overflow (*offset);
 
 	_offset = *offset;
 

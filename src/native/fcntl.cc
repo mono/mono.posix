@@ -56,7 +56,9 @@ Mono_Posix_Syscall_fcntl_arg (int32_t fd, int32_t cmd, int64_t arg)
 	long _arg;
 	int32_t _cmd;
 
-	mph_return_if_long_overflow (arg);
+	if (mph_have_long_overflow (arg)) {
+		return -1;
+	}
 
 #ifdef F_NOTIFY
 	if (cmd == F_NOTIFY) {
@@ -145,8 +147,9 @@ int32_t
 Mono_Posix_Syscall_posix_fadvise (int32_t fd, mph_off_t offset, mph_off_t len,
 	int32_t advice)
 {
-	mph_return_if_off_t_overflow (offset);
-	mph_return_if_off_t_overflow (len);
+	if (mph_have_off_t_overflow (offset) || mph_have_off_t_overflow (len)) {
+		return -1;
+	}
 
 	if (Mono_Posix_FromPosixFadviseAdvice (advice, &advice) == -1)
 		return -1;
@@ -159,8 +162,9 @@ Mono_Posix_Syscall_posix_fadvise (int32_t fd, mph_off_t offset, mph_off_t len,
 int32_t
 Mono_Posix_Syscall_posix_fallocate (int32_t fd, mph_off_t offset, mph_size_t len)
 {
-	mph_return_if_off_t_overflow (offset);
-	mph_return_if_size_t_overflow (len);
+	if (mph_have_size_t_overflow (len) || mph_have_off_t_overflow (offset)) {
+		return -1;
+	}
 
 	return posix_fallocate (fd, (off_t) offset, (size_t) len);
 }

@@ -48,9 +48,9 @@ Mono_Posix_Syscall_settimeofday (
 	struct Mono_Posix_Timeval *tv,
 	struct Mono_Posix_Timezone *tz)
 {
-	struct timeval _tv   = {0};
+	struct timeval _tv{};
 	struct timeval *ptv  = nullptr;
-	struct timezone _tz  = {0};
+	struct timezone _tz{};
 	struct timezone *ptz = nullptr;
 	int r;
 

@@ -278,7 +278,10 @@ Mono_Posix_Syscall_fgetgrent (void *stream, struct Mono_Posix_Syscall__Group *gr
 int32_t
 Mono_Posix_Syscall_setgroups (mph_size_t size, mph_gid_t *list)
 {
-	mph_return_if_size_t_overflow (size);
+	if (mph_have_size_t_overflow (size)) {
+		return -1;
+	}
+
 	return setgroups ((size_t) size, list);
 }
 #endif  /* def HAVE_SETGROUPS */
@@ -291,7 +294,11 @@ Mono_Posix_Syscall_setgrent (void)
 	do {
 		setgrent ();
 	} while (errno == EINTR);
-	mph_return_if_val_in_list5(errno, EIO, EMFILE, ENFILE, ENOMEM, ERANGE);
+
+	if (mph_value_in_list (errno, EIO, EMFILE, ENFILE, ENOMEM, ERANGE)) {
+		return -1;
+	}
+
 	return 0;
 }
 #endif  /* def HAVE_SETGRENT */

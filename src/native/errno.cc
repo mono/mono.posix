@@ -131,7 +131,10 @@ Mono_Posix_Syscall_strerror_r (int errnum, char *buf, mph_size_t n)
 int32_t
 Mono_Posix_Syscall_strerror_r (int errnum, char *buf, mph_size_t n)
 {
-	mph_return_if_size_t_overflow (n);
+	if (mph_have_size_t_overflow (n)) {
+		return -1;
+	}
+
 	return GPOINTER_TO_INT (strerror_r (errnum, buf, (size_t) n));
 }
 

@@ -62,4 +62,5 @@ The `src/native` directory here corresponds to `support/` in the Mono repository
   - [ ] Write a tool to verify `Mono.Posix.dll` against
         `libMonoPosixHelper.so` to make sure that all p/invokes are
         there.
+  - [ ] Add guard objects to `free(3)` allocated objects automatically
 

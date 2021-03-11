@@ -30,6 +30,7 @@
 #endif // HAVE_CONFIG_HAVE
 
 #include <type_traits>
+#include <limits>
 
 #include <stddef.h>             /* offsetof */
 #include <limits.h>             /* LONG_MAX, ULONG_MAX */
@@ -99,6 +100,14 @@ int fsetpos(FILE*, const fpos_t*);
 #define MPH_API extern "C" MPH_API_EXPORT
 #else
 #define MPH_API MPH_API_EXPORT
+#endif
+
+#if defined (__clang__) || defined (__GNUC__)
+#define force_inline __attribute__((always_inline))
+#elif defined (_MSC_VER)
+#define force_inline __forceinline
+#else
+#define force_inline inline
 #endif
 
 #if !defined(EOVERFLOW)
@@ -180,24 +189,6 @@ typedef mph_blksize_t blksize_t;
 typedef int64_t suseconds_t;
 #endif
 
-#ifdef HAVE_LARGE_FILE_SUPPORT
-#define MPH_OFF_T_MAX G_MAXINT64
-#define MPH_OFF_T_MIN G_MININT64
-#else
-#define MPH_OFF_T_MAX G_MAXINT32
-#define MPH_OFF_T_MIN G_MININT32
-#endif
-
-#ifdef SIZE_MAX
-#define MPH_SIZE_T_MAX SIZE_MAX
-#elif SIZEOF_SIZE_T == 8
-#define MPH_SIZE_T_MAX  G_MAXUINT64
-#elif SIZEOF_SIZE_T == 4
-#define MPH_SIZE_T_MAX  G_MAXUINT32
-#else
-#error "sizeof(size_t) is unknown!"
-#endif
-
 #define DECLARE_ENUM_FLAG_OPERATORS(__enum_name__)                      \
         constexpr __enum_name__ operator& (__enum_name__ x, __enum_name__ y) \
         { \
@@ -240,63 +231,91 @@ typedef int64_t suseconds_t;
                 return __enum_name__ (~static_cast<etype> (x)); \
         }
 
-#define _mph_return_val_if_cb_(val, ret, cb) G_STMT_START{ \
-	if (cb (val)) { \
-		errno = EOVERFLOW; \
-		return ret; \
-	}}G_STMT_END
+template<typename TVar>
+inline bool mph_value_in_list ([[maybe_unused]] TVar var)
+{
+	return false;
+}
 
-#define mph_have_uint_overflow(var) ((var) < 0 || (var) > UINT_MAX)
+template<typename TVar, typename... Args>
+inline bool mph_value_in_list (TVar var, TVar arg, Args... args)
+{
+	if (var == arg) {
+		return true;
+	}
 
-#define mph_return_val_if_uint_overflow(var, ret) \
-	_mph_return_val_if_cb_(var, ret, mph_have_uint_overflow)
+	return mph_value_in_list (var, args...);
+}
 
-#define mph_return_if_uint_overflow(var) mph_return_val_if_uint_overflow(var, -1)
+//
+// TRef is the "reference" type whose limits we test against
+//
+template<typename TRef, typename T>
+inline bool mph_have_integer_overflow (T val)
+{
+	static_assert (std::is_integral_v<TRef>, "TRef must be an integer type");
+	static_assert (std::is_integral_v<T> || std::is_floating_point_v<T>, "T must be an integer or floating point type");
 
-#define mph_have_long_overflow(var) ((var) > LONG_MAX || (var) < LONG_MIN)
+	if constexpr (std::is_signed_v<T> && !std::is_signed_v<TRef>) {
+		if (val < 0) {
+			return true;
+		}
+	}
 
-#define mph_return_val_if_long_overflow(var, ret) \
-	_mph_return_val_if_cb_(var, ret, mph_have_long_overflow)
+	bool have_overflow = false;
+	if constexpr (std::is_signed_v<T> && std::is_signed_v<TRef>) {
+		have_overflow = val < std::numeric_limits<TRef>::min ();
+	}
 
-#define mph_return_if_long_overflow(var) mph_return_val_if_long_overflow(var, -1)
+	if (have_overflow || val > std::numeric_limits<TRef>::max ()) {
+		errno = EOVERFLOW;
+		return true;
+	}
 
-#define mph_have_ulong_overflow(var) (var) < 0 || ((var) > ULONG_MAX)
+	return false;
+}
 
-#define mph_return_val_if_ulong_overflow(var, ret) \
-	_mph_return_val_if_cb_(var, ret, mph_have_ulong_overflow)
+template<typename T>
+inline bool mph_have_size_t_overflow (T val)
+{
+	return mph_have_integer_overflow<size_t, T> (val);
+}
 
-#define mph_return_if_ulong_overflow(var) mph_return_val_if_ulong_overflow(var, -1)
+template<typename T>
+inline bool mph_have_ssize_t_overflow (T val)
+{
+	return mph_have_integer_overflow<ssize_t, T> (val);
+}
 
-#define mph_have_size_t_overflow(var) ((var) < 0 || (var) > MPH_SIZE_T_MAX)
+template<typename T>
+inline bool mph_have_uint_overflow (T val)
+{
+	return mph_have_integer_overflow<unsigned int, T> (val);
+}
 
-#define mph_return_val_if_size_t_overflow(var, ret) \
-	_mph_return_val_if_cb_(var, ret, mph_have_size_t_overflow)
+template<typename T>
+inline bool mph_have_long_overflow (T val)
+{
+	return mph_have_integer_overflow<long, T> (val);
+}
 
-#define mph_return_val_if_ssize_t_overflow(var, ret) \
-	_mph_return_val_if_cb_(var, ret, mph_have_long_overflow)
+template<typename T>
+inline bool mph_have_socklen_t_overflow (T val)
+{
+	return mph_have_integer_overflow<socklen_t, T> (val);
+}
 
-#define mph_return_if_size_t_overflow(var) mph_return_val_if_size_t_overflow(var, -1)
+template<typename T>
+inline bool mph_have_off_t_overflow (T val)
+{
+	return mph_have_integer_overflow<off_t, T> (val);
+}
 
-#define mph_return_if_ssize_t_overflow(var) mph_return_val_if_ssize_t_overflow(var, -1)
-
-#define mph_have_off_t_overflow(var) \
-	(((var) < MPH_OFF_T_MIN) || ((var) > MPH_OFF_T_MAX))
-
-#define mph_return_val_if_off_t_overflow(var, ret) \
-	_mph_return_val_if_cb_(var, ret, mph_have_off_t_overflow)
-
-#define mph_return_if_off_t_overflow(var) mph_return_val_if_long_overflow(var, -1)
-
-#define mph_return_if_time_t_overflow(var) mph_return_if_long_overflow(var)
-
-#define mph_return_if_socklen_t_overflow(var) mph_return_if_uint_overflow(var)
-
-#define mph_return_if_val_in_list5(var,a,b,c,d,e) \
-	do {                                                            \
-		int v = (var);                                                \
-		if (v == a || v == b || v == c || v == d || v == e)           \
-			return -1;                                                  \
-	} while (0)
+template<typename T>
+inline bool mph_have_time_t_overflow (T val)
+{
+	return mph_have_integer_overflow<time_t, T> (val);
+}
 
 /*
  * Helper function for functions which use ERANGE (such as getpwnam_r and
