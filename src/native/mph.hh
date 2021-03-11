@@ -45,6 +45,10 @@
 #include <stdint.h>             /* for SIZE_MAX */
 #endif
 
+#if defined (HAVE_SYS_SOCKET_H)
+#include <sys/socket.h>
+#endif
+
 #ifdef ANDROID_UNIFIED_HEADERS
 #ifdef HAVE_STDIO_H
 #include <stdio.h>
