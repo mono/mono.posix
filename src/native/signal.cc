@@ -14,9 +14,8 @@
 #include <config.h>
 #endif
 
-#include <assert.h>
-#include <stdbool.h>
-#include <signal.h>
+#include <cassert>
+#include <csignal>
 
 #include "map.hh"
 #include "mph.hh"
@@ -30,31 +29,29 @@
 #include <sys/poll.h>
 #endif
 #include <unistd.h>
-#include <stdlib.h>
-#include <string.h>
+#include <cstdlib>
+#include <cstring>
 #include <pthread.h>
-#endif
-
-typedef void (*mph_sighandler_t)(int);
+#endif // ndef HOST_WIN32
 
 #ifndef HOST_WIN32
 static int count_handlers (int signum);
 #endif
 
 mph_sig_t
-Mono_Posix_Stdlib_SIG_DFL (void)
+Mono_Posix_Stdlib_SIG_DFL ()
 {
 	return SIG_DFL;
 }
 
 mph_sig_t
-Mono_Posix_Stdlib_SIG_ERR (void)
+Mono_Posix_Stdlib_SIG_ERR ()
 {
 	return SIG_ERR;
 }
 
 mph_sig_t
-Mono_Posix_Stdlib_SIG_IGN (void)
+Mono_Posix_Stdlib_SIG_IGN ()
 {
 	return SIG_IGN;
 }
@@ -62,10 +59,15 @@ Mono_Posix_Stdlib_SIG_IGN (void)
 void
 Mono_Posix_Stdlib_InvokeSignalHandler (int signum, mph_sig_t handler)
 {
+	if (handler == nullptr) {
+		return;
+	}
+
 	handler (signum);
 }
 
-int Mono_Posix_SIGRTMIN (void)
+int
+Mono_Posix_SIGRTMIN (void)
 {
 #ifdef SIGRTMIN
 	return SIGRTMIN;
@@ -74,7 +76,8 @@ int Mono_Posix_SIGRTMIN (void)
 #endif /* ndef SIGRTMIN */
 }
 
-int Mono_Posix_SIGRTMAX (void)
+int
+Mono_Posix_SIGRTMAX (void)
 {
 #ifdef SIGRTMAX
 	return SIGRTMAX;
@@ -83,7 +86,8 @@ int Mono_Posix_SIGRTMAX (void)
 #endif /* ndef SIGRTMAX */
 }
 
-int Mono_Posix_FromRealTimeSignum ([[maybe_unused]] int offset, int *r)
+int
+Mono_Posix_FromRealTimeSignum ([[maybe_unused]] int offset, int *r)
 {
 	if (nullptr == r) {
 		errno = EINVAL;
@@ -139,10 +143,11 @@ Mono_Posix_Syscall_psignal (int sig, const char* s)
 }
 #endif  /* def HAVE_PSIGNAL */
 
-#define NUM_SIGNALS 64
+static constexpr size_t NUM_SIGNALS = 64;
 static Mono_Unix_UnixSignal_SignalInfo signals[NUM_SIGNALS];
 
-static int acquire_mutex (pthread_mutex_t *mutex)
+static int
+acquire_mutex (pthread_mutex_t *mutex)
 {
 	int mr;
 	while ((mr = pthread_mutex_lock (mutex)) == EAGAIN) {
@@ -155,7 +160,8 @@ static int acquire_mutex (pthread_mutex_t *mutex)
 	return 0;
 }
 
-static void release_mutex (pthread_mutex_t *mutex)
+static void
+release_mutex (pthread_mutex_t *mutex)
 {
 	int mr;
 	while ((mr = pthread_mutex_unlock (mutex)) == EAGAIN) {
@@ -180,12 +186,22 @@ keep_trying (int r)
 // The lock is split into a teardown bit and a handler count (sign bit unused).
 // There is a teardown running or waiting to run if the teardown bit is set.
 // There is a handler running if the handler count is nonzero.
-#define PIPELOCK_TEARDOWN_BIT (  (int)0x40000000 )
-#define PIPELOCK_COUNT_MASK   (~((int)0xC0000000))
-#define PIPELOCK_GET_COUNT(x)      ((x) & PIPELOCK_COUNT_MASK)
-#define PIPELOCK_INCR_COUNT(x, by) (((x) & PIPELOCK_TEARDOWN_BIT) | (PIPELOCK_GET_COUNT (PIPELOCK_GET_COUNT (x) + (by))))
+static constexpr int PIPELOCK_TEARDOWN_BIT = 0x40000000;
+static constexpr int PIPELOCK_COUNT_MASK = ~0xC0000000;
 
-static void
+static inline constexpr int
+PIPELOCK_GET_COUNT (int x)
+{
+	return (x & PIPELOCK_COUNT_MASK);
+}
+
+static inline constexpr int
+PIPELOCK_INCR_COUNT (int x, int by)
+{
+	return (x & PIPELOCK_TEARDOWN_BIT) | (PIPELOCK_GET_COUNT (PIPELOCK_GET_COUNT (x) + by));
+}
+
+static inline void
 acquire_pipelock_teardown (int *lock)
 {
 	int lockvalue_draining;
@@ -206,7 +222,7 @@ acquire_pipelock_teardown (int *lock)
 	}
 }
 
-static void
+static inline void
 release_pipelock_teardown (int *lock)
 {
 	while (true) {
@@ -219,7 +235,7 @@ release_pipelock_teardown (int *lock)
 }
 
 // Return 1 for success
-static int
+static inline int
 acquire_pipelock_handler (int *lock)
 {
 	while (true) {
@@ -256,8 +272,7 @@ release_pipelock_handler (int *lock)
 static void
 default_handler (int signum)
 {
-	int i;
-	for (i = 0; i < NUM_SIGNALS; ++i) {
+	for (size_t i = 0; i < NUM_SIGNALS; ++i) {
 		int fd;
 		Mono_Unix_UnixSignal_SignalInfo* h = &signals [i];
 		if (mph_int_get (&h->signum) != signum)
@@ -270,10 +285,9 @@ default_handler (int signum)
 
 		fd = mph_int_get (&h->write_fd);
 		if (fd > 0) { // If any listener exists to write to
-			int j,pipecounter;
 			char c = signum; // (Value is meaningless)
-			pipecounter = mph_int_get (&h->pipecnt); // Write one byte per pipe listener
-			for (j = 0; j < pipecounter; ++j) {
+			int pipecounter = mph_int_get (&h->pipecnt); // Write one byte per pipe listener
+			for (int j = 0; j < pipecounter; ++j) {
 				int r;
 				do { r = write (fd, &c, 1); } while (keep_trying (r));
 			}
@@ -285,15 +299,10 @@ default_handler (int signum)
 static pthread_mutex_t signals_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 // A UnixSignal object is being constructed
-void*
+Mono_Unix_UnixSignal_SignalInfo*
 Mono_Unix_UnixSignal_install (int sig)
 {
 #if defined(HAVE_SIGNAL)
-	int i;
-	Mono_Unix_UnixSignal_SignalInfo* h = nullptr;        // signals[] slot to install to
-	int have_handler = 0;         // Candidates for Mono_Unix_UnixSignal_SignalInfo handler fields
-	mph_sig_t handler = nullptr;
-
 	if (acquire_mutex (&signals_mutex) == -1)
 		return nullptr;
 
@@ -313,9 +322,12 @@ Mono_Unix_UnixSignal_install (int sig)
 	}
 #endif /*defined (SIGRTMIN) && defined (SIGRTMAX)*/
 
+	Mono_Unix_UnixSignal_SignalInfo* h = nullptr;        // signals[] slot to install to
+	mph_sig_t handler = nullptr;
+	bool have_handler = false;         // Candidates for Mono_Unix_UnixSignal_SignalInfo handler fields
 	// Scan through signals list looking for (1) an unused spot (2) a usable value for handler
-	for (i = 0; i < NUM_SIGNALS; ++i) {
-		int just_installed = 0;
+	for (size_t i = 0; i < NUM_SIGNALS; ++i) {
+		bool just_installed = false;
 		// We're still looking for a Mono_Unix_UnixSignal_SignalInfo spot, and this one is available:
 		if (h == nullptr && mph_int_get (&signals [i].signum) == 0) {
 			h = &signals [i];
@@ -326,21 +338,20 @@ Mono_Unix_UnixSignal_install (int sig)
 				break;
 			}
 			else {
-				just_installed = 1;
+				just_installed = true;
 			}
 		}
 		// Check if this slot has a "usable" (not installed by this file) handler-to-restore-later:
 		// (On the first signal to be installed, signals [i] will be == h when this happens.)
-		if (!have_handler && (just_installed || mph_int_get (&signals [i].signum) == sig) &&
-				signals [i].handler != default_handler) {
-			have_handler = 1;
+		if (!have_handler && (just_installed || mph_int_get (&signals [i].signum) == sig) && signals [i].handler != default_handler) {
+			have_handler = true;
 			handler = signals [i].handler;
 		}
-		if (h && have_handler) // We have everything we need
+		if (h != nullptr && have_handler) // We have everything we need
 			break;
 	}
 
-	if (h) {
+	if (h != nullptr) {
 		// If we reached here without have_handler, this means that default_handler
 		// was set as the signal handler before the first UnixSignal object was installed.
 		assert (have_handler);
@@ -358,17 +369,16 @@ Mono_Unix_UnixSignal_install (int sig)
 
 	return h;
 #else
-	g_error ("signal() is not supported by this platform");
+	fprintf (stderr, ("signal() is not supported by this platform");
 	return 0;
 #endif
 }
 
-static int
+static inline int
 count_handlers (int signum)
 {
-	int i;
 	int count = 0;
-	for (i = 0; i < NUM_SIGNALS; ++i) {
+	for (size_t i = 0; i < NUM_SIGNALS; ++i) {
 		if (mph_int_get (&signals [i].signum) == signum)
 			++count;
 	}
@@ -380,13 +390,11 @@ int
 Mono_Unix_UnixSignal_uninstall (Mono_Unix_UnixSignal_SignalInfo* info)
 {
 #if defined(HAVE_SIGNAL)
-	Mono_Unix_UnixSignal_SignalInfo* h;
-	int r = -1;
-
 	if (acquire_mutex (&signals_mutex) == -1)
 		return -1;
 
-	h = info;
+	Mono_Unix_UnixSignal_SignalInfo* h = info;
+	int r = -1;
 
 	if (h == nullptr || h < signals || h > &signals [NUM_SIGNALS])
 		errno = EINVAL;
@@ -394,7 +402,7 @@ Mono_Unix_UnixSignal_uninstall (Mono_Unix_UnixSignal_SignalInfo* info)
 		/* last UnixSignal -- we can unregister */
 		int signum = mph_int_get (&h->signum);
 		if (h->have_handler && count_handlers (signum) == 1) {
-			mph_sighandler_t p = signal (signum, h->handler);
+			mph_sig_t p = signal (signum, h->handler);
 			if (p != SIG_ERR)
 				r = 0;
 			h->handler      = nullptr;
@@ -407,7 +415,7 @@ Mono_Unix_UnixSignal_uninstall (Mono_Unix_UnixSignal_SignalInfo* info)
 
 	return r;
 #else
-	g_error ("signal() is not supported by this platform");
+	fprintf (stderr, "signal() is not supported by this platform");
 	return 0;
 #endif
 }
@@ -416,9 +424,8 @@ Mono_Unix_UnixSignal_uninstall (Mono_Unix_UnixSignal_SignalInfo* info)
 static int
 setup_pipes (Mono_Unix_UnixSignal_SignalInfo** signals, int count, struct pollfd *fd_structs, int *currfd)
 {
-	int i;
 	int r = 0;
-	for (i = 0; i < count; ++i) {
+	for (int i = 0; i < count; ++i) {
 		Mono_Unix_UnixSignal_SignalInfo* h;
 		int filedes[2];
 
@@ -443,8 +450,7 @@ setup_pipes (Mono_Unix_UnixSignal_SignalInfo** signals, int count, struct pollfd
 static void
 teardown_pipes (Mono_Unix_UnixSignal_SignalInfo** signals, int count)
 {
-	int i;
-	for (i = 0; i < count; ++i) {
+	for (int i = 0; i < count; ++i) {
 		Mono_Unix_UnixSignal_SignalInfo* h = signals [i];
 
 		if (mph_int_dec_test (&h->pipecnt)) { // Final listener for this Mono_Unix_UnixSignal_SignalInfo
@@ -466,19 +472,18 @@ teardown_pipes (Mono_Unix_UnixSignal_SignalInfo** signals, int count)
 static int
 wait_for_any (Mono_Unix_UnixSignal_SignalInfo** signals, int count, struct pollfd* fd_structs, int timeout, Mono_Posix_RuntimeIsShuttingDown shutting_down)
 {
-	int r, idx;
+	int r;
 	// Poll until one of this Mono_Unix_UnixSignal_SignalInfo's pipes is ready to read.
 	// Once a second, stop to check if the VM is shutting down.
 	do {
 		r = poll (fd_structs, count, timeout);
 	} while (keep_trying (r) && !shutting_down ());
 
-	idx = -1;
+	int idx = -1;
 	if (r == 0)
 		idx = timeout;
 	else if (r > 0) { // The pipe[s] are ready to read.
-		int i;
-		for (i = 0; i < count; ++i) {
+		for (int i = 0; i < count; ++i) {
 			Mono_Unix_UnixSignal_SignalInfo* h = signals [i];
 			if (fd_structs[i].revents & POLLIN) {
 				int r;
@@ -501,21 +506,19 @@ wait_for_any (Mono_Unix_UnixSignal_SignalInfo** signals, int count, struct pollf
  *          index into _signals array of signal that was generated on success
  */
 int
-Mono_Unix_UnixSignal_WaitAny (void** _signals, int count, int timeout /* milliseconds */, Mono_Posix_RuntimeIsShuttingDown shutting_down)
+Mono_Unix_UnixSignal_WaitAny (Mono_Unix_UnixSignal_SignalInfo** signals, int count, int timeout /* milliseconds */, Mono_Posix_RuntimeIsShuttingDown shutting_down)
 {
-	int r;
-	int currfd = 0;
+	if (signals == nullptr || count < 0 || static_cast<size_t>(count) > NUM_SIGNALS) {
+		return -1;
+	}
+
+	if (acquire_mutex (&signals_mutex) == -1) {
+		return -1;
+	}
+
 	struct pollfd fd_structs[NUM_SIGNALS];
-
-	Mono_Unix_UnixSignal_SignalInfo** signals = (Mono_Unix_UnixSignal_SignalInfo**) _signals;
-
-	if (count > NUM_SIGNALS)
-		return -1;
-
-	if (acquire_mutex (&signals_mutex) == -1)
-		return -1;
-
-	r = setup_pipes (signals, count, &fd_structs[0], &currfd);
+	int currfd = 0;
+	int r = setup_pipes (signals, count, &fd_structs[0], &currfd);
 
 	release_mutex (&signals_mutex);
 
@@ -523,8 +526,9 @@ Mono_Unix_UnixSignal_WaitAny (void** _signals, int count, int timeout /* millise
 		r = wait_for_any (signals, count, &fd_structs[0], timeout, shutting_down);
 	}
 
-	if (acquire_mutex (&signals_mutex) == -1)
+	if (acquire_mutex (&signals_mutex) == -1) {
 		return -1;
+	}
 
 	teardown_pipes (signals, count);
 
