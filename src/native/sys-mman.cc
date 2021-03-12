@@ -157,7 +157,7 @@ Mono_Posix_Syscall_mincore (void *start, mph_size_t length, unsigned char *vec)
 #else
 	typedef char T;
 #endif
-	return mincore (start, length, static_cast<T*>(vec));
+	return mincore (start, length, reinterpret_cast<T*>(vec));
 #endif
 }
 
