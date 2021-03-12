@@ -99,8 +99,13 @@ int fsetpos(FILE*, const fpos_t*);
 #define MPH_API_EXPORT __declspec(dllexport)
 #elif defined (__clang__) || defined (__GNUC__) // def _MSC_VER
 #define MPH_API_EXPORT __attribute__ ((__visibility__ ("default")))
+
+// May generate more efficient code when calling functions decorated with this attribute (it's like hidden only better
+// in that the compiler knows the function won't be referenced to from the outside via e.g. a pointer)
+#define MPH_API_INTERNAL __attribute__ ((__visibility__ ("internal")))
 #else // def __clang__ || def __GNUC__
 #define MPH_API_EXPORT
+#define MPH_API_INTERNAL
 #endif
 
 #if defined (__cplusplus)

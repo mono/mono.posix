@@ -28,6 +28,14 @@
 #include <grp.h>
 #endif
 
+#if defined (HAVE_SYS_SOCKET_H)
+#include <sys/socket.h>
+#endif
+
+#if defined (HAVE_NETINET_IN_H)
+#include <netinet/in.h>
+#endif
+
 #include <cstdio>
 
 #include "mph.hh"
@@ -2246,8 +2254,8 @@ MPH_API int map_Mono_Posix_FileMode (int mode);
 MPH_API int map_Mono_Posix_OpenFlags (int flags);
 MPH_API int map_Mono_Posix_WaitOptions (int wait_options);
 MPH_API int Mono_Posix_Cmsghdr_getsize (void);
-MPH_API int Mono_Posix_FromIn6Addr (struct Mono_Posix_In6Addr* source, void* destination);
-MPH_API int Mono_Posix_FromInAddr (struct Mono_Posix_InAddr* source, void* destination);
+MPH_API int Mono_Posix_FromIn6Addr (struct Mono_Posix_In6Addr* source, struct in6_addr* destination);
+MPH_API int Mono_Posix_FromInAddr (struct Mono_Posix_InAddr* source, struct in_addr* destination);
 MPH_API int Mono_Posix_FromMremapFlags (uint64_t value, uint64_t* rval);
 MPH_API int Mono_Posix_FromRealTimeSignum (int offset, int* rval);
 MPH_API int Mono_Posix_FromSockaddr (struct Mono_Posix__SockaddrHeader* source, void* destination);
@@ -2304,7 +2312,7 @@ MPH_API mph_sig_t Mono_Posix_Stdlib_SIG_IGN (void);
 MPH_API void* Mono_Posix_Stdlib_stderr (void);
 MPH_API void* Mono_Posix_Stdlib_stdin (void);
 MPH_API void* Mono_Posix_Stdlib_stdout (void);
-MPH_API uint64_t Mono_Posix_Stdlib_strlen (void* s);
+MPH_API uint64_t Mono_Posix_Stdlib_strlen (const char* s);
 MPH_API void* Mono_Posix_Stdlib_tmpfile (void);
 MPH_API int Mono_Posix_Stdlib_TMP_MAX (void);
 MPH_API int Mono_Posix_Stdlib_ungetc (int c, FILE* stream);
@@ -2369,7 +2377,7 @@ MPH_API int Mono_Posix_Syscall_getsockname (int socket, struct Mono_Posix__Socka
 MPH_API int Mono_Posix_Syscall_getsockopt (int socket, int level, int option_name, void* option_value, int64_t* option_len);
 MPH_API int Mono_Posix_Syscall_getsockopt_linger (int socket, int level, int option_name, struct Mono_Posix_Linger* option_value);
 MPH_API int Mono_Posix_Syscall_getsockopt_timeval (int socket, int level, int option_name, struct Mono_Posix_Timeval* option_value);
-MPH_API int Mono_Posix_Syscall_gettimeofday (struct Mono_Posix_Timeval* tv, void* ignore);
+MPH_API int Mono_Posix_Syscall_gettimeofday (struct Mono_Posix_Timeval* tv, struct Mono_Posix_Timezone* ignore);
 MPH_API int64_t Mono_Posix_Syscall_getxattr (const char* path, const char* name, unsigned char* value, uint64_t size);
 MPH_API int Mono_Posix_Syscall_get_at_fdcwd (void);
 MPH_API int64_t Mono_Posix_Syscall_get_utime_now (void);
@@ -2397,7 +2405,7 @@ MPH_API int Mono_Posix_Syscall_munlock (void* start, uint64_t len);
 MPH_API int Mono_Posix_Syscall_munmap (void* start, uint64_t length);
 MPH_API int Mono_Posix_Syscall_nanosleep (struct Mono_Posix_Timespec* req, struct Mono_Posix_Timespec* rem);
 MPH_API int Mono_Posix_Syscall_open (const char* pathname, int flags);
-MPH_API int Mono_Posix_Syscall_openlog (void* ident, int option, int facility);
+MPH_API int Mono_Posix_Syscall_openlog (const char* ident, int option, int facility);
 MPH_API int Mono_Posix_Syscall_open_mode (const char* pathname, int flags, unsigned int mode);
 MPH_API int64_t Mono_Posix_Syscall_pathconf (const char* path, int name, int defaultError);
 MPH_API int Mono_Posix_Syscall_pipe (int* reading, int* writing);
@@ -2464,8 +2472,8 @@ MPH_API int64_t Mono_Posix_Syscall_write (int fd, void* buf, uint64_t count);
 MPH_API int64_t Mono_Posix_Syscall_writev (int fd, struct Mono_Posix_Iovec* iov, int iovcnt);
 MPH_API int Mono_Posix_Syscall_WSTOPSIG (int status);
 MPH_API int Mono_Posix_Syscall_WTERMSIG (int status);
-MPH_API int Mono_Posix_ToIn6Addr (void* source, struct Mono_Posix_In6Addr* destination);
-MPH_API int Mono_Posix_ToInAddr (void* source, struct Mono_Posix_InAddr* destination);
+MPH_API int Mono_Posix_ToIn6Addr (struct in6_addr* source, struct Mono_Posix_In6Addr* destination);
+MPH_API int Mono_Posix_ToInAddr (struct in_addr* source, struct Mono_Posix_InAddr* destination);
 MPH_API int Mono_Posix_ToMremapFlags (uint64_t value, uint64_t* rval);
 MPH_API int Mono_Posix_ToSockaddr (void* source, int64_t size, struct Mono_Posix__SockaddrHeader* destination);
 MPH_API int Mono_Posix_ToStat (struct stat* source, struct Mono_Posix_Stat* destination);
@@ -2473,7 +2481,7 @@ MPH_API int Mono_Posix_ToStatvfs (struct statvfs* source, struct Mono_Posix_Stat
 MPH_API Mono_Unix_UnixSignal_SignalInfo* Mono_Unix_UnixSignal_install (int signum);
 MPH_API int Mono_Unix_UnixSignal_uninstall (Mono_Unix_UnixSignal_SignalInfo* info);
 MPH_API int Mono_Unix_UnixSignal_WaitAny (Mono_Unix_UnixSignal_SignalInfo** infos, int count, int timeout, Mono_Posix_RuntimeIsShuttingDown shutting_down);
-MPH_API void* Mono_Unix_VersionString (void);
+MPH_API const char* Mono_Unix_VersionString (void);
 MPH_API int wexitstatus (int status);
 MPH_API int wifexited (int status);
 MPH_API int wifsignaled (int status);

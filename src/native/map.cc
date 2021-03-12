@@ -7953,6 +7953,10 @@ Mono_Posix_FromTimeval (struct Mono_Posix_Timeval *from, struct timeval *to)
 int
 Mono_Posix_ToTimeval (struct timeval *from, struct Mono_Posix_Timeval *to)
 {
+	if (from == nullptr || to == nullptr) {
+		return -1;
+	}
+
 	if (mph_have_time_t_overflow (from->tv_sec) || mph_have_suseconds_t_overflow (from->tv_usec)) {
 		return -1;
 	}

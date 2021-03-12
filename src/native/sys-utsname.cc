@@ -6,10 +6,13 @@
  *
  * Copyright (C) 2004 Jonathan Pryor
  */
+#if defined (HAVE_CONFIG_H)
+#include <config.h>
+#endif
 
 #include <sys/types.h>
-#include <errno.h>
-#include <stdlib.h>
+#include <cerrno>
+#include <cstdlib>
 
 #include "map.hh"
 #include "mph.hh"
@@ -37,20 +40,17 @@ mph_utsname_offsets[] = {
 int
 Mono_Posix_Syscall_uname (struct Mono_Posix_Syscall__Utsname *buf)
 {
-	struct utsname _buf;
-	int r;
-
-	if (!buf) {
+	if (buf == nullptr) {
 		errno = EFAULT;
 		return -1;
 	}
 
-	r = uname (&_buf);
+	struct utsname _buf;
+	int r = uname (&_buf);
 	if (r == 0) {
-		buf->_buf_ = _mph_copy_structure_strings (buf, mph_utsname_offsets,
-				&_buf, utsname_offsets, sizeof(utsname_offsets)/sizeof(utsname_offsets[0]));
+		buf->_buf_ = _mph_copy_structure_strings (buf, mph_utsname_offsets, &_buf, utsname_offsets, sizeof(utsname_offsets)/sizeof(utsname_offsets[0]));
 		buf->domainname = nullptr;
-		if (!buf->_buf_) {
+		if (buf->_buf_ == nullptr) {
 			errno = ENOMEM;
 			return -1;
 		}

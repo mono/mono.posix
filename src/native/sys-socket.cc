@@ -15,69 +15,86 @@
 #include <netinet/in.h>
 #include <sys/un.h>
 #include <unistd.h>
-#include <stdlib.h>
-#include <stddef.h>
-#include <string.h>
+#include <cstdlib>
+#include <cstddef>
+#include <cstring>
 
 #include "map.hh"
 #include "mph.hh"
 #include "sys-uio.hh"
 
 int
-Mono_Posix_SockaddrStorage_get_size (void)
+Mono_Posix_SockaddrStorage_get_size ()
 {
 	return sizeof (struct sockaddr_storage);
 }
 
 int
-Mono_Posix_SockaddrUn_get_sizeof_sun_path (void)
+Mono_Posix_SockaddrUn_get_sizeof_sun_path ()
 {
 	struct sockaddr_un sun;
 	return sizeof (sun.sun_path);
 }
 
 int
-Mono_Posix_Cmsghdr_getsize (void)
+Mono_Posix_Cmsghdr_getsize ()
 {
 	return sizeof (struct cmsghdr);
 }
 
 int
-Mono_Posix_FromInAddr (struct Mono_Posix_InAddr* source, void* destination)
+Mono_Posix_FromInAddr (struct Mono_Posix_InAddr* source, struct in_addr* destination)
 {
-	memcpy (&((struct in_addr*)destination)->s_addr, &source->s_addr, 4);
+	if (source == nullptr || destination == nullptr) {
+		return -1;
+	}
+
+	memcpy (&destination->s_addr, &source->s_addr, 4);
 	return 0;
 }
 
 int
-Mono_Posix_ToInAddr (void* source, struct Mono_Posix_InAddr* destination)
+Mono_Posix_ToInAddr (struct in_addr* source, struct Mono_Posix_InAddr* destination)
 {
-	memcpy (&destination->s_addr, &((struct in_addr*)source)->s_addr, 4);
+	if (source == nullptr || destination == nullptr) {
+		return -1;
+	}
+
+	memcpy (&destination->s_addr, &source->s_addr, 4);
 	return 0;
 }
 
 int
-Mono_Posix_FromIn6Addr (struct Mono_Posix_In6Addr* source, void* destination)
+Mono_Posix_FromIn6Addr (struct Mono_Posix_In6Addr* source, struct in6_addr* destination)
 {
+	if (source == nullptr || destination == nullptr) {
+		return -1;
+	}
+
 	memcpy (&((struct in6_addr*)destination)->s6_addr, &source->addr0, 16);
 	return 0;
 }
 
 int
-Mono_Posix_ToIn6Addr (void* source, struct Mono_Posix_In6Addr* destination)
+Mono_Posix_ToIn6Addr (struct in6_addr* source, struct Mono_Posix_In6Addr* destination)
 {
-	memcpy (&destination->addr0, &((struct in6_addr*)source)->s6_addr, 16);
+	if (source == nullptr || destination == nullptr) {
+		return -1;
+	}
+
+	memcpy (&destination->addr0, &source->s6_addr, 16);
 	return 0;
 }
-
 
 int
 Mono_Posix_Syscall_socketpair (int domain, int type, int protocol, int* socket1, int* socket2)
 {
-	int filedes[2] = {-1, -1};
-	int r;
+	if (socket1 == nullptr || socket2 == nullptr) {
+		return -1;
+	}
 
-	r = socketpair (domain, type, protocol, filedes);
+	int filedes[2] = {-1, -1};
+	int r = socketpair (domain, type, protocol, filedes);
 
 	*socket1 = filedes[0];
 	*socket2 = filedes[1];
@@ -96,61 +113,61 @@ Mono_Posix_Syscall_getsockopt (int socket, int level, int option_name, void* opt
 		return -1;
 	}
 
-	socklen_t len;
-	int r;
-
-	len = *option_len;
-
-	r = getsockopt (socket, level, option_name, option_value, &len);
+	socklen_t len = *option_len;
+	int r = getsockopt (socket, level, option_name, option_value, &len);
 
 	*option_len = len;
 
 	return r;
 }
 
+#if defined (HAVE_STRUCT_TIMEVAL)
 int
 Mono_Posix_Syscall_getsockopt_timeval (int socket, int level, int option_name, struct Mono_Posix_Timeval* option_value)
 {
 	struct timeval tv;
-	int r;
-	socklen_t size;
-
-	size = sizeof (struct timeval);
-	r = getsockopt (socket, level, option_name, &tv, &size);
+	socklen_t size = sizeof (struct timeval);
+	int r = getsockopt (socket, level, option_name, &tv, &size);
 
 	if (r != -1 && size == sizeof (struct timeval)) {
 		if (Mono_Posix_ToTimeval (&tv, option_value) != 0)
 			return -1;
 	} else {
-		memset (option_value, 0, sizeof (struct Mono_Posix_Timeval));
+		if (option_value != nullptr) {
+			memset (option_value, 0, sizeof (struct Mono_Posix_Timeval));
+		}
+
 		if (r != -1)
 			errno = EINVAL;
 	}
 
 	return r;
 }
+#endif // def HAVE_STRUCT_TIMEVAL
 
+#if defined (HAVE_STRUCT_LINGER)
 int
 Mono_Posix_Syscall_getsockopt_linger (int socket, int level, int option_name, struct Mono_Posix_Linger* option_value)
 {
 	struct linger ling;
-	int r;
-	socklen_t size;
-
-	size = sizeof (struct linger);
-	r = getsockopt (socket, level, option_name, &ling, &size);
+	socklen_t size = sizeof (struct linger);
+	int r = getsockopt (socket, level, option_name, &ling, &size);
 
 	if (r != -1 && size == sizeof (struct linger)) {
 		if (Mono_Posix_ToLinger (&ling, option_value) != 0)
 			return -1;
 	} else {
-		memset (option_value, 0, sizeof (struct Mono_Posix_Linger));
+		if (option_value != nullptr) {
+			memset (option_value, 0, sizeof (struct Mono_Posix_Linger));
+		}
+
 		if (r != -1)
 			errno = EINVAL;
 	}
 
 	return r;
 }
+#endif // def HAVE_STRUCT_LINGER
 
 int
 Mono_Posix_Syscall_setsockopt (int socket, int level, int option_name, void* option_value, int64_t option_len)
@@ -162,6 +179,7 @@ Mono_Posix_Syscall_setsockopt (int socket, int level, int option_name, void* opt
 	return setsockopt (socket, level, option_name, option_value, option_len);
 }
 
+#if defined (HAVE_STRUCT_TIMEVAL)
 int
 Mono_Posix_Syscall_setsockopt_timeval (int socket, int level, int option_name, struct Mono_Posix_Timeval* option_value)
 {
@@ -172,7 +190,9 @@ Mono_Posix_Syscall_setsockopt_timeval (int socket, int level, int option_name, s
 
 	return setsockopt (socket, level, option_name, &tv, sizeof (struct timeval));
 }
+#endif // def HAVE_STRUCT_TIMEVAL
 
+#if defined (HAVE_STRUCT_LINGER)
 int
 Mono_Posix_Syscall_setsockopt_linger (int socket, int level, int option_name, struct Mono_Posix_Linger* option_value)
 {
@@ -183,6 +203,7 @@ Mono_Posix_Syscall_setsockopt_linger (int socket, int level, int option_name, st
 
 	return setsockopt (socket, level, option_name, &ling, sizeof (struct linger));
 }
+#endif // def HAVE_STRUCT_LINGER
 
 static bool
 get_addrlen (struct Mono_Posix__SockaddrHeader* address, socklen_t& addrlen)
@@ -241,40 +262,46 @@ Mono_Posix_Sockaddr_GetNativeSize (struct Mono_Posix__SockaddrHeader* address, i
 int
 Mono_Posix_FromSockaddr (struct Mono_Posix__SockaddrHeader* source, void* destination)
 {
-	if (!source)
-		return 0;
+	if (source == nullptr || destination == nullptr) {
+		errno = EFAULT;
+		return -1;
+	}
 
 	switch (source->type) {
-	case Mono_Posix_SockaddrType_SockaddrStorage:
-		// Do nothing, don't copy source->sa_family into addr->sa_family
-		return 0;
+		case Mono_Posix_SockaddrType_SockaddrStorage:
+			// Do nothing, don't copy source->sa_family into addr->sa_family
+			return 0;
 
-	case Mono_Posix_SockaddrType_SockaddrUn:
-		memcpy (((struct sockaddr_un*) destination)->sun_path, ((struct Mono_Posix__SockaddrDynamic*) source)->data, ((struct Mono_Posix__SockaddrDynamic*) source)->len);
-		break;
+		case Mono_Posix_SockaddrType_SockaddrUn:
+			memcpy (
+				static_cast<struct sockaddr_un*>(destination)->sun_path,
+				reinterpret_cast<struct Mono_Posix__SockaddrDynamic*>(source)->data,
+				reinterpret_cast<struct Mono_Posix__SockaddrDynamic*>(source)->len
+			);
+			break;
 
-	case Mono_Posix_SockaddrType_Sockaddr:
-		break;
+		case Mono_Posix_SockaddrType_Sockaddr:
+			break;
 
-	case Mono_Posix_SockaddrType_SockaddrIn:
-		if (Mono_Posix_FromSockaddrIn ((struct Mono_Posix_SockaddrIn*) source, (struct sockaddr_in*) destination) != 0)
+		case Mono_Posix_SockaddrType_SockaddrIn:
+			if (Mono_Posix_FromSockaddrIn (reinterpret_cast<struct Mono_Posix_SockaddrIn*>(source), static_cast<struct sockaddr_in*>(destination)) != 0)
+				return -1;
+			break;
+
+		case Mono_Posix_SockaddrType_SockaddrIn6:
+			if (Mono_Posix_FromSockaddrIn6 (reinterpret_cast<struct Mono_Posix_SockaddrIn6*>(source), static_cast<struct sockaddr_in6*>(destination)) != 0)
+				return -1;
+			break;
+
+		default:
+			errno = EINVAL;
 			return -1;
-		break;
-
-	case Mono_Posix_SockaddrType_SockaddrIn6:
-		if (Mono_Posix_FromSockaddrIn6 ((struct Mono_Posix_SockaddrIn6*) source, (struct sockaddr_in6*) destination) != 0)
-			return -1;
-		break;
-
-	default:
-		errno = EINVAL;
-		return -1;
 	}
 
 	int family;
 	if (Mono_Posix_FromUnixAddressFamily (source->sa_family, &family) != 0)
 		return -1;
-	((struct sockaddr*) destination)->sa_family = family;
+	static_cast<struct sockaddr*>(destination)->sa_family = family;
 
 	return 0;
 }
@@ -282,62 +309,68 @@ Mono_Posix_FromSockaddr (struct Mono_Posix__SockaddrHeader* source, void* destin
 int
 Mono_Posix_ToSockaddr (void* source, int64_t size, struct Mono_Posix__SockaddrHeader* destination)
 {
-	struct Mono_Posix__SockaddrDynamic* destination_dyn;
-
-	if (!destination || size < 0)
-		return 0;
-
-	switch (destination->type) {
-	case Mono_Posix_SockaddrType_Sockaddr:
-		if ((size_t)size < offsetof (struct sockaddr, sa_family) + sizeof (sa_family_t)) {
-			errno = ENOBUFS;
-			return -1;
-		}
-		break;
-
-	case Mono_Posix_SockaddrType_SockaddrStorage:
-		destination_dyn = ((struct Mono_Posix__SockaddrDynamic*) destination);
-		if (size > destination_dyn->len) {
-			errno = ENOBUFS;
-			return -1;
-		}
-		destination_dyn->len = size;
-		break;
-
-	case Mono_Posix_SockaddrType_SockaddrUn:
-		destination_dyn = ((struct Mono_Posix__SockaddrDynamic*) destination);
-		if (destination_dyn->len < 0 || (size_t)size - offsetof (struct sockaddr_un, sun_path) > (size_t)destination_dyn->len) {
-			errno = ENOBUFS;
-			return -1;
-		}
-		destination_dyn->len = size - offsetof (struct sockaddr_un, sun_path);
-		memcpy (destination_dyn->data, ((struct sockaddr_un*) source)->sun_path, size);
-		break;
-
-	case Mono_Posix_SockaddrType_SockaddrIn:
-		if (size != sizeof (struct sockaddr_in)) {
-			errno = ENOBUFS;
-			return -1;
-		}
-		if (Mono_Posix_ToSockaddrIn ((struct sockaddr_in*) source, (struct Mono_Posix_SockaddrIn*) destination) != 0)
-			return -1;
-		break;
-
-	case Mono_Posix_SockaddrType_SockaddrIn6:
-		if (size != sizeof (struct sockaddr_in6)) {
-			errno = ENOBUFS;
-			return -1;
-		}
-		if (Mono_Posix_ToSockaddrIn6 ((struct sockaddr_in6*) source, (struct Mono_Posix_SockaddrIn6*) destination) != 0)
-			return -1;
-		break;
-
-	default:
-		errno = EINVAL;
+	if (source == nullptr) {
+		errno = EFAULT;
 		return -1;
 	}
 
-	if (Mono_Posix_ToUnixAddressFamily (((struct sockaddr*) source)->sa_family, &destination->sa_family) != 0)
+	if (destination == nullptr || size < 0) {
+		return 0;
+	}
+
+	struct Mono_Posix__SockaddrDynamic* destination_dyn;
+
+	switch (destination->type) {
+		case Mono_Posix_SockaddrType_Sockaddr:
+			if (static_cast<size_t>(size) < offsetof (struct sockaddr, sa_family) + sizeof (sa_family_t)) {
+				errno = ENOBUFS;
+				return -1;
+			}
+			break;
+
+		case Mono_Posix_SockaddrType_SockaddrStorage:
+			destination_dyn = reinterpret_cast<struct Mono_Posix__SockaddrDynamic*>(destination);
+			if (size > destination_dyn->len) {
+				errno = ENOBUFS;
+				return -1;
+			}
+			destination_dyn->len = size;
+			break;
+
+		case Mono_Posix_SockaddrType_SockaddrUn:
+			destination_dyn = reinterpret_cast<struct Mono_Posix__SockaddrDynamic*>(destination);
+			if (destination_dyn->len < 0 || static_cast<size_t>(size) - offsetof (struct sockaddr_un, sun_path) > static_cast<size_t>(destination_dyn->len)) {
+				errno = ENOBUFS;
+				return -1;
+			}
+			destination_dyn->len = size - offsetof (struct sockaddr_un, sun_path);
+			memcpy (destination_dyn->data, static_cast<struct sockaddr_un*>(source)->sun_path, size);
+			break;
+
+		case Mono_Posix_SockaddrType_SockaddrIn:
+			if (size != sizeof (struct sockaddr_in)) {
+				errno = ENOBUFS;
+				return -1;
+			}
+			if (Mono_Posix_ToSockaddrIn (static_cast<struct sockaddr_in*>(source), reinterpret_cast<struct Mono_Posix_SockaddrIn*>(destination)) != 0)
+				return -1;
+			break;
+
+		case Mono_Posix_SockaddrType_SockaddrIn6:
+			if (size != sizeof (struct sockaddr_in6)) {
+				errno = ENOBUFS;
+				return -1;
+			}
+			if (Mono_Posix_ToSockaddrIn6 (static_cast<struct sockaddr_in6*>(source), reinterpret_cast<struct Mono_Posix_SockaddrIn6*>(destination)) != 0)
+				return -1;
+			break;
+
+		default:
+			errno = EINVAL;
+			return -1;
+	}
+
+	if (Mono_Posix_ToUnixAddressFamily (static_cast<struct sockaddr*>(source)->sa_family, &destination->sa_family) != 0)
 		destination->sa_family = Mono_Posix_UnixAddressFamily_Unknown;
 
 	return 0;
@@ -628,21 +661,24 @@ Mono_Posix_Syscall_sendmsg (int socket, struct Mono_Posix_Syscall__Msghdr* messa
 	return r;
 }
 
-static void make_msghdr (struct msghdr* hdr, unsigned char* msg_control, int64_t msg_controllen)
+static inline void
+make_msghdr (struct msghdr* hdr, unsigned char* msg_control, int64_t msg_controllen)
 {
 	memset (hdr, 0, sizeof (struct msghdr));
 	hdr->msg_control = msg_control;
 	hdr->msg_controllen = msg_controllen;
 }
 
-static struct cmsghdr* from_offset (unsigned char* msg_control, int64_t offset)
+static inline struct cmsghdr*
+from_offset (unsigned char* msg_control, int64_t offset)
 {
 	if (offset == -1)
 		return nullptr;
 	return reinterpret_cast<struct cmsghdr*>(msg_control + offset);
 }
 
-static int64_t to_offset (unsigned char* msg_control, void* hdr)
+static inline int64_t
+to_offset (unsigned char* msg_control, void* hdr)
 {
 	if (!hdr)
 		return -1;

@@ -7,19 +7,19 @@
  * Copyright (C) 2004-2006 Jonathan Pryor
  */
 
+#if defined (HAVE_CONFIG_H)
 #include <config.h>
+#endif
 
-#ifndef _GNU_SOURCE
-#define _GNU_SOURCE
-#endif /* ndef _GNU_SOURCE */
-
+#include <limits>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
 #include <fcntl.h>
-#include <errno.h>
-#include <limits.h>
-#include <string.h>     /* for swab(3) on Mac OS X */
+#include <cerrno>
+#include <climits>
+#include <cstring>     /* for swab(3) on Mac OS X */
+
 #if defined(_AIX)
 #include <netdb.h> /* for get/setdomainname */
 /*
@@ -51,7 +51,7 @@ Mono_Posix_Syscall_read (int32_t fd, void *buf, mph_size_t count)
 		return -1;
 	};
 
-	return read (fd, buf, (size_t) count);
+	return read (fd, buf, count);
 }
 
 mph_ssize_t
@@ -61,7 +61,7 @@ Mono_Posix_Syscall_write (int32_t fd, void *buf, mph_size_t count)
 		return -1;
 	};
 
-	return write (fd, buf, (size_t) count);
+	return write (fd, buf, count);
 }
 
 mph_ssize_t
@@ -71,7 +71,7 @@ Mono_Posix_Syscall_pread (int32_t fd, void *buf, mph_size_t count, mph_off_t off
 		return -1;
 	};
 
-	return pread (fd, buf, (size_t) count, (off_t) offset);
+	return pread (fd, buf, count, offset);
 }
 
 mph_ssize_t
@@ -81,7 +81,7 @@ Mono_Posix_Syscall_pwrite (int32_t fd, void *buf, mph_size_t count, mph_off_t of
 		return -1;
 	};
 
-	return pwrite (fd, buf, (size_t) count, (off_t) offset);
+	return pwrite (fd, buf, count, offset);
 }
 
 int32_t
@@ -109,7 +109,7 @@ Mono_Posix_Syscall_getcwd (char *buf, mph_size_t size)
 		return nullptr;
 	}
 
-	return getcwd (buf, (size_t) size);
+	return getcwd (buf, size);
 }
 
 int64_t
@@ -149,7 +149,7 @@ Mono_Posix_Syscall_confstr (int name, char *buf, mph_size_t len)
 
 	if (Mono_Posix_FromConfstrName (name, &name) == -1)
 		return 0;
-	return confstr (name, buf, (size_t) len);
+	return confstr (name, buf, len);
 }
 #endif  /* def HAVE_CONFSTR */
 
@@ -161,7 +161,7 @@ Mono_Posix_Syscall_ttyname_r (int fd, char *buf, mph_size_t len)
 		return -1;
 	};
 
-	return ttyname_r (fd, buf, (size_t) len);
+	return ttyname_r (fd, buf, len);
 }
 #endif /* ndef HAVE_TTYNAME_R */
 
@@ -172,7 +172,7 @@ Mono_Posix_Syscall_readlink (const char *path, unsigned char *buf, mph_size_t le
 		return 0;
 	};
 
-	ssize_t r = readlink (path, (char*) buf, (size_t) len);
+	ssize_t r = readlink (path, reinterpret_cast<char*>(buf), len);
 	if (r >= 0 && (size_t)r < len)
 		buf [r] = '\0';
 	return r;
@@ -186,9 +186,7 @@ Mono_Posix_Syscall_readlinkat (int dirfd, const char *path, unsigned char *buf, 
 		return 0;
 	};
 
-	int64_t r;
-
-	r = readlinkat (dirfd, path, (char*) buf, (size_t) len);
+	ssize_t r = readlinkat (dirfd, path, reinterpret_cast<char*>(buf), len);
 	if (r >= 0 && (size_t)r < len)
 		buf [r] = '\0';
 	return r;
@@ -203,7 +201,7 @@ Mono_Posix_Syscall_getlogin_r (char *buf, mph_size_t len)
 		return 0;
 	};
 
-	return getlogin_r (buf, (size_t) len);
+	return getlogin_r (buf, len);
 }
 #endif  /* def HAVE_GETLOGIN_R */
 
@@ -214,7 +212,7 @@ Mono_Posix_Syscall_gethostname (char *buf, mph_size_t len)
 		return 0;
 	};
 
-	return gethostname (buf, (size_t) len);
+	return gethostname (buf, len);
 }
 
 #if HAVE_SETHOSTNAME
@@ -225,13 +223,13 @@ Mono_Posix_Syscall_sethostname (const char *name, mph_size_t len)
 		return 0;
 	};
 
-	return sethostname (name, (size_t) len);
+	return sethostname (name, len);
 }
 #endif  /* def HAVE_SETHOSTNAME */
 
 #if HAVE_GETHOSTID
 int64_t
-Mono_Posix_Syscall_gethostid (void)
+Mono_Posix_Syscall_gethostid ()
 {
 	return gethostid ();
 }
@@ -249,7 +247,7 @@ Mono_Posix_Syscall_sethostid (int64_t hostid)
 	sethostid ((long) hostid);
 	return 0;
 #else
-	return sethostid ((long) hostid);
+	return sethostid (static_cast<long>(hostid));
 #endif
 }
 #endif /* def HAVE_SETHOSTID */
@@ -262,7 +260,7 @@ Mono_Posix_Syscall_getdomainname (char *name, mph_size_t len)
 		return 0;
 	};
 
-	return getdomainname (name, (size_t) len);
+	return getdomainname (name, len);
 }
 #endif /* def HAVE_GETDOMAINNAME */
 
@@ -274,7 +272,7 @@ Mono_Posix_Syscall_setdomainname (const char *name, mph_size_t len)
 		return 0;
 	};
 
-	return setdomainname (name, (size_t) len);
+	return setdomainname (name, len);
 }
 #endif /* def HAVE_SETDOMAINNAME */
 
@@ -289,7 +287,7 @@ Mono_Posix_Syscall_truncate (const char *path, mph_off_t length)
 		return -1;
 	}
 
-	return truncate (path, (off_t) length);
+	return truncate (path, length);
 }
 #endif
 
@@ -300,7 +298,7 @@ Mono_Posix_Syscall_ftruncate (int fd, mph_off_t length)
 		return -1;
 	}
 
-	return ftruncate (fd, (off_t) length);
+	return ftruncate (fd, length);
 }
 
 #if HAVE_LOCKF
@@ -313,7 +311,7 @@ Mono_Posix_Syscall_lockf (int fd, int cmd, mph_off_t len)
 
 	if (Mono_Posix_FromLockfCommand (cmd, &cmd) == -1)
 		return -1;
-	return lockf (fd, cmd, (off_t) len);
+	return lockf (fd, cmd, len);
 }
 #endif  /* def HAVE_LOCKF */
 
@@ -323,14 +321,14 @@ Mono_Posix_Syscall_swab (void *from, void *to, mph_ssize_t n)
 {
 	if (mph_have_long_overflow (n))
 		return -1;
-	swab (from, to, (ssize_t) n);
+	swab (from, to, n);
 	return 0;
 }
 #endif  /* def HAVE_SWAB */
 
 #if HAVE_SETUSERSHELL
 int
-Mono_Posix_Syscall_setusershell (void)
+Mono_Posix_Syscall_setusershell ()
 {
 	setusershell ();
 	return 0;
@@ -339,7 +337,7 @@ Mono_Posix_Syscall_setusershell (void)
 
 #if HAVE_ENDUSERSHELL
 int
-Mono_Posix_Syscall_endusershell (void)
+Mono_Posix_Syscall_endusershell ()
 {
 	endusershell ();
 	return 0;
@@ -347,7 +345,7 @@ Mono_Posix_Syscall_endusershell (void)
 #endif  /* def HAVE_ENDUSERSHELL */
 
 int
-Mono_Posix_Syscall_sync (void)
+Mono_Posix_Syscall_sync ()
 {
 	sync ();
 	return 0;

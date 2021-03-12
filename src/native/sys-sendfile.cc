@@ -7,10 +7,12 @@
  * Copyright (C) 2004 Jonathan Pryor
  */
 
+#if defined (HAVE_CONFIG_H)
 #include <config.h>
+#endif
 
 #include <sys/types.h>
-#include <errno.h>
+#include <cerrno>
 
 #include "map.hh"
 #include "mph.hh"
@@ -25,16 +27,15 @@ Mono_Posix_Syscall_sendfile (int out_fd, int in_fd, mph_off_t *offset, mph_size_
 {
 	if (offset == nullptr) {
 		errno = EINVAL;
+		return -1;
 	}
 
 	if (mph_have_off_t_overflow (*offset)) {
 		return -1;
 	}
 
-	off_t _offset;
 	ssize_t r;
-
-	_offset = *offset;
+	off_t _offset = *offset;
 
 #if defined(HOST_DARWIN) || defined(HOST_BSD)
 	/* The BSD version has 6 arguments */

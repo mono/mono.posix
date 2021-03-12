@@ -7,7 +7,9 @@
  * Copyright (C) 2004-2006 Jonathan Pryor
  */
 
+#if defined (HAVE_CONFIG_H)
 #include <config.h>
+#endif
 
 #if !defined (__OpenBSD__) && !defined (_XOPEN_SOURCE)
 #define _XOPEN_SOURCE 600
@@ -29,14 +31,13 @@
 
 #include <sys/types.h>
 #include <sys/mman.h>
-#include <errno.h>
+#include <cerrno>
 
 #include "map.hh"
 #include "mph.hh"
 
 void*
-Mono_Posix_Syscall_mmap (void *start, mph_size_t length, int prot, int flags, 
-		int fd, mph_off_t offset)
+Mono_Posix_Syscall_mmap (void *start, mph_size_t length, int prot, int flags, int fd, mph_off_t offset)
 {
 	if (mph_have_off_t_overflow (offset) || mph_have_size_t_overflow (length)) {
 		return MAP_FAILED;
@@ -49,7 +50,7 @@ Mono_Posix_Syscall_mmap (void *start, mph_size_t length, int prot, int flags,
 	if (Mono_Posix_FromMmapFlags (flags, &_flags) == -1)
 		return MAP_FAILED;
 
-	return mmap (start, (size_t) length, _prot, _flags, fd, (off_t) offset);
+	return mmap (start, length, _prot, _flags, fd, offset);
 }
 
 int
@@ -120,8 +121,7 @@ Mono_Posix_Syscall_munlock (void *start, mph_size_t len)
 
 #ifdef HAVE_MREMAP
 void*
-Mono_Posix_Syscall_mremap (void *old_address, mph_size_t old_size, 
-		mph_size_t new_size, uint64_t flags)
+Mono_Posix_Syscall_mremap (void *old_address, mph_size_t old_size, mph_size_t new_size, uint64_t flags)
 {
 	if (mph_have_size_t_overflow (old_size) || mph_have_size_t_overflow (new_size)) {
 		return MAP_FAILED;
@@ -133,11 +133,9 @@ Mono_Posix_Syscall_mremap (void *old_address, mph_size_t old_size,
 		return MAP_FAILED;
 
 #if defined(linux) || defined (__linux__) || defined (__linux)
-	return mremap (old_address, (size_t) old_size, (size_t) new_size,
-			(unsigned long) _flags);
+	return mremap (old_address, old_size, new_size, static_cast<unsigned long>(_flags));
 #elif defined(__NetBSD__)
-	return mremap (old_address, (size_t) old_size, old_address,
-			(size_t) new_size, (unsigned long) _flags);
+	return mremap (old_address, old_size, old_address, new_size, static_cast<unsigned long>(_flags));
 #else
 #error Port me
 #endif
@@ -159,7 +157,7 @@ Mono_Posix_Syscall_mincore (void *start, mph_size_t length, unsigned char *vec)
 #else
 	typedef char T;
 #endif
-	return mincore (start, (size_t) length, (T*)vec);
+	return mincore (start, length, static_cast<T*>(vec));
 #endif
 }
 
@@ -180,15 +178,13 @@ Mono_Posix_Syscall_posix_madvise (void *addr, mph_size_t len, int32_t advice)
 
 #ifdef HAVE_REMAP_FILE_PAGES
 int
-Mono_Posix_Syscall_remap_file_pages (void *start, mph_size_t size, 
-		int prot, mph_ssize_t pgoff, int flags)
+Mono_Posix_Syscall_remap_file_pages (void *start, mph_size_t size, int prot, mph_ssize_t pgoff, int flags)
 {
-	int _prot, _flags;
-
 	if (mph_have_size_t_overflow (size) || mph_have_ssize_t_overflow (pgoff)) {
 		return -1;
 	}
 
+	int _prot, _flags;
 	if (Mono_Posix_FromMmapProts (prot, &_prot) == -1)
 		return -1;
 	if (Mono_Posix_FromMmapFlags (flags, &_flags) == -1)
@@ -206,6 +202,10 @@ enum Mono_Posix_MremapFlags {
 // Mono_Posix_FromMremapFlags() and Mono_Posix_ToMremapFlags() are not in map.c because NetBSD needs special treatment for MREMAP_MAYMOVE
 int Mono_Posix_FromMremapFlags (uint64_t x, uint64_t *r)
 {
+	if (r == nullptr) {
+		return -1;
+	}
+
 	*r = 0;
 #ifndef __NetBSD__
 	if ((x & Mono_Posix_MremapFlags_MREMAP_MAYMOVE) == Mono_Posix_MremapFlags_MREMAP_MAYMOVE)
@@ -225,6 +225,10 @@ int Mono_Posix_FromMremapFlags (uint64_t x, uint64_t *r)
 
 int Mono_Posix_ToMremapFlags (uint64_t x, uint64_t *r)
 {
+	if (r == nullptr) {
+		return -1;
+	}
+
 	*r = 0;
 #ifndef __NetBSD__
 	if (x == 0)

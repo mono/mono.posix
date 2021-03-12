@@ -5,10 +5,10 @@
 #include <config.h>
 #endif
 
-#include <assert.h>
-#include <stdlib.h>
-#include <string.h>
-#include <limits.h>
+#include <cassert>
+#include <cstdlib>
+#include <cstring>
+#include <climits>
 
 #include "mph.hh"
 
@@ -24,7 +24,7 @@
 		: lstr_at(p, n)                                             \
 )
 
-char*
+MPH_API_INTERNAL char*
 _mph_copy_structure_strings (
 	void *to,         const mph_string_offset_t *to_offsets, 
 	const void *from, const mph_string_offset_t *from_offsets, 

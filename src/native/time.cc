@@ -11,37 +11,36 @@
 #include <config.h>
 #endif
 
-#include <time.h>
-#include <errno.h>
+#include <ctime>
+#include <cerrno>
 
 #include "map.hh"
 #include "mph.hh"
 
 #if defined(HAVE_STRUCT_TIMESPEC) && _POSIX_C_SOURCE >= 199309L
 int
-Mono_Posix_Syscall_nanosleep (struct Mono_Posix_Timespec *req,
-		struct Mono_Posix_Timespec *rem)
+Mono_Posix_Syscall_nanosleep (struct Mono_Posix_Timespec *req, struct Mono_Posix_Timespec *rem)
 {
-	struct timespec _req, _rem, *prem = nullptr;
-	int r;
-
 	if (req == nullptr) {
 		errno = EFAULT;
 		return -1;
 	}
 
+	struct timespec _req;
 	if (Mono_Posix_FromTimespec (req, &_req) == -1)
 		return -1;
 
-	if (rem) {
+	struct timespec *prem = nullptr;
+	if (rem != nullptr) {
+		struct timespec _rem;
 		if (Mono_Posix_FromTimespec (rem, &_rem) == -1)
 			return -1;
 		prem = &_rem;
 	}
 
-	r = nanosleep (&_req, prem);
+	int r = nanosleep (&_req, prem);
 
-	if (rem && Mono_Posix_ToTimespec (prem, rem) == -1)
+	if (rem != nullptr && Mono_Posix_ToTimespec (prem, rem) == -1)
 		return -1;
 
 	return r;
@@ -57,13 +56,12 @@ extern int stime(time_t);
 gint32
 Mono_Posix_Syscall_stime (mph_time_t *t)
 {
-	time_t _t;
 	if (t == nullptr) {
 		errno = EFAULT;
 		return -1;
 	}
 	mph_return_if_time_t_overflow (*t);
-	_t = (time_t) *t;
+	time_t = (time_t) *t;
 	return stime (&_t);
 }
 #endif /* ndef HAVE_STIME */
@@ -71,7 +69,6 @@ Mono_Posix_Syscall_stime (mph_time_t *t)
 mph_time_t
 Mono_Posix_Syscall_time (mph_time_t *t)
 {
-	time_t _t, r;
 	if (t == nullptr) {
 		errno = EFAULT;
 		return -1;
@@ -81,8 +78,8 @@ Mono_Posix_Syscall_time (mph_time_t *t)
 		return -1;
 	}
 
-	_t = (time_t) *t;
-	r = time (&_t);
+	auto _t = static_cast<time_t>(*t);
+	time_t r = time (&_t);
 	*t = _t;
 
 	return r;

@@ -176,7 +176,7 @@ static FILE*
 etc_fstab;
 
 static int
-setfsent (void)
+setfsent ()
 {
 	/* protect from bad users calling setfsent(), setfsent(), ... endfsent() */
 	if (etc_fstab != nullptr)
@@ -188,7 +188,7 @@ setfsent (void)
 }
 
 static void
-endfsent (void)
+endfsent ()
 {
 	fclose (etc_fstab);
 	etc_fstab = nullptr;
@@ -198,7 +198,7 @@ static struct vfstab
 cur_vfstab_entry;
 
 static struct vfstab*
-getfsent (void)
+getfsent ()
 {
 	int r;
 	r = getvfsent (etc_fstab, &cur_vfstab_entry);
@@ -250,7 +250,7 @@ getfsspec (const char *special_file)
 #if defined (HAVE_FSTAB_H) || defined (HAVE_CHECKPOINT_H) || defined (HAVE_SYS_VFSTAB_H)
 
 int
-Mono_Posix_Syscall_endfsent (void)
+Mono_Posix_Syscall_endfsent ()
 {
 	endfsent ();
 	return 0;

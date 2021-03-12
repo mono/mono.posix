@@ -7,22 +7,26 @@
  * Copyright (C) 2005 Jonathan Pryor
  */
 
-#include <stdarg.h>
+#if defined (HAVE_CONFIG_H)
+#include <config.h>
+#endif
+
+#include <cstdarg>
 #include <syslog.h>
-#include <errno.h>
+#include <cerrno>
 
 #include "map.hh"
 #include "mph.hh"
 
 int
-Mono_Posix_Syscall_openlog (void* ident, int option, int facility)
+Mono_Posix_Syscall_openlog (const char* ident, int option, int facility)
 {
-	openlog ((const char*) ident, option, facility);
+	openlog (ident, option, facility);
 	return 0;
 }
 
 int
-Mono_Posix_Syscall_closelog (void)
+Mono_Posix_Syscall_closelog ()
 {
 	closelog ();
 	return 0;
@@ -44,9 +48,6 @@ Mono_Posix_Syscall_syslog (int priority, const char* message)
 #endif
 
 /* vararg version of syslog(3). */
-int32_t
-Mono_Posix_Syscall_syslog2 (int priority, const char *format, ...);
-
 int32_t
 Mono_Posix_Syscall_syslog2 (int priority, const char *format, ...)
 {

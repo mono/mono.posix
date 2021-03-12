@@ -6,10 +6,13 @@
  *
  * Copyright (C) 2004-2006 Jonathan Pryor
  */
+#if defined (HAVE_CONFIG_H)
+#include <config.h>
+#endif
 
 #include <sys/types.h>
 #include <sys/time.h>
-#include <string.h>
+#include <cstring>
 #ifdef __HAIKU__
 #include <os/kernel/OS.h>
 #endif
@@ -18,25 +21,20 @@
 #include "mph.hh"
 
 int32_t
-Mono_Posix_Syscall_gettimeofday (
-	struct Mono_Posix_Timeval *tv,
-	void *tz)
+Mono_Posix_Syscall_gettimeofday (struct Mono_Posix_Timeval *tv, struct Mono_Posix_Timezone* tz)
 {
 	struct timeval _tv;
 	struct timezone _tz;
-	int r;
-
-	r = gettimeofday (&_tv, &_tz);
+	int r = gettimeofday (&_tv, &_tz);
 
 	if (r == 0) {
-		if (tv) {
+		if (tv != nullptr) {
 			tv->tv_sec  = _tv.tv_sec;
 			tv->tv_usec = _tv.tv_usec;
 		}
-		if (tz) {
-			struct Mono_Posix_Timezone *tz_ = (struct Mono_Posix_Timezone *) tz;
-			tz_->tz_minuteswest = _tz.tz_minuteswest;
-			tz_->tz_dsttime     = 0;
+		if (tz != nullptr) {
+			tz->tz_minuteswest = _tz.tz_minuteswest;
+			tz->tz_dsttime     = 0;
 		}
 	}
 
@@ -44,22 +42,19 @@ Mono_Posix_Syscall_gettimeofday (
 }
 
 int32_t
-Mono_Posix_Syscall_settimeofday (
-	struct Mono_Posix_Timeval *tv,
-	struct Mono_Posix_Timezone *tz)
+Mono_Posix_Syscall_settimeofday (struct Mono_Posix_Timeval *tv,	struct Mono_Posix_Timezone *tz)
 {
 	struct timeval _tv{};
 	struct timeval *ptv  = nullptr;
 	struct timezone _tz{};
 	struct timezone *ptz = nullptr;
-	int r;
 
-	if (tv) {
+	if (tv != nullptr) {
 		_tv.tv_sec  = tv->tv_sec;
 		_tv.tv_usec = tv->tv_usec;
 		ptv = &_tv;
 	}
-	if (tz) {
+	if (tz != nullptr) {
 		_tz.tz_minuteswest = tz->tz_minuteswest;
 		_tz.tz_dsttime = 0;
 		ptz = &_tz;
@@ -69,7 +64,7 @@ Mono_Posix_Syscall_settimeofday (
 	set_real_time_clock(ptv->tv_sec);
 	r = 0;
 #else
-	r = settimeofday (ptv, ptz);
+	int r = settimeofday (ptv, ptz);
 #endif
 
 	return r;
@@ -78,7 +73,7 @@ Mono_Posix_Syscall_settimeofday (
 static struct timeval*
 copy_utimes (struct timeval* to, struct Mono_Posix_Timeval *from)
 {
-	if (from) {
+	if (from != nullptr && to != nullptr) {
 		to[0].tv_sec  = from[0].tv_sec;
 		to[0].tv_usec = from[0].tv_usec;
 		to[1].tv_sec  = from[1].tv_sec;
@@ -90,7 +85,7 @@ copy_utimes (struct timeval* to, struct Mono_Posix_Timeval *from)
 }
 
 int32_t
-Mono_Posix_Syscall_utimes(const char *filename, struct Mono_Posix_Timeval *tv)
+Mono_Posix_Syscall_utimes (const char *filename, struct Mono_Posix_Timeval *tv)
 {
 	struct timeval _tv[2];
 	struct timeval *ptv;
@@ -102,7 +97,7 @@ Mono_Posix_Syscall_utimes(const char *filename, struct Mono_Posix_Timeval *tv)
 
 #ifdef HAVE_LUTIMES
 int32_t
-Mono_Posix_Syscall_lutimes(const char *filename, struct Mono_Posix_Timeval *tv)
+Mono_Posix_Syscall_lutimes (const char *filename, struct Mono_Posix_Timeval *tv)
 {
 	struct timeval _tv[2];
 	struct timeval *ptv;
@@ -115,7 +110,7 @@ Mono_Posix_Syscall_lutimes(const char *filename, struct Mono_Posix_Timeval *tv)
 
 #if HAVE_FUTIMES
 int32_t
-Mono_Posix_Syscall_futimes(int fd, struct Mono_Posix_Timeval *tv)
+Mono_Posix_Syscall_futimes (int fd, struct Mono_Posix_Timeval *tv)
 {
 	struct timeval _tv[2];
 	struct timeval *ptv;

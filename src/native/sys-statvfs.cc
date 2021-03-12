@@ -6,10 +6,12 @@
  *
  * Copyright (C) 2004-2006 Jonathan Pryor
  */
+#if defined (HAVE_CONFIG_H)
+#include <config.h>
+#endif
 
-#include <errno.h>
-
-#include <string.h>
+#include <cerrno>
+#include <cstring>
 
 #include "mph.hh"
 #include "map.hh"
@@ -37,6 +39,10 @@
 int
 Mono_Posix_ToStatvfs (struct statvfs* from, struct Mono_Posix_Statvfs *to)
 {
+	if (from == nullptr || to == nullptr) {
+		return -1;
+	}
+
 	to->f_bsize   = from->f_bsize;
 	to->f_frsize  = from->f_frsize;
 	to->f_blocks  = from->f_blocks;
@@ -65,7 +71,9 @@ Mono_Posix_ToStatvfs (struct statvfs* from, struct Mono_Posix_Statvfs *to)
 int
 Mono_Posix_FromStatvfs (struct Mono_Posix_Statvfs *from, struct statvfs* to)
 {
-	uint64_t flag;
+	if (from == nullptr || to == nullptr) {
+		return -1;
+	}
 
 	to->f_bsize   = from->f_bsize;
 	to->f_frsize  = from->f_frsize;
@@ -82,6 +90,7 @@ Mono_Posix_FromStatvfs (struct Mono_Posix_Statvfs *from, struct statvfs* to)
 #endif
 	to->f_namemax =	from->f_namemax;
 
+	uint64_t flag;
 	if (Mono_Posix_FromMountFlags (from->f_flag, &flag) != 0)
 		return -1;
 	to->f_flag = flag;
@@ -98,14 +107,13 @@ Mono_Posix_FromStatvfs (struct Mono_Posix_Statvfs *from, struct statvfs* to)
 int32_t
 Mono_Posix_Syscall_statvfs (const char *path, struct Mono_Posix_Statvfs *buf)
 {
-	struct statvfs s;
-	int r;
-
 	if (buf == nullptr) {
 		errno = EFAULT;
 		return -1;
 	}
 
+	struct statvfs s;
+	int r;
 	if ((r = statvfs (path, &s)) == 0)
 		r = Mono_Posix_ToStatvfs (&s, buf);
 
@@ -117,14 +125,13 @@ Mono_Posix_Syscall_statvfs (const char *path, struct Mono_Posix_Statvfs *buf)
 int32_t
 Mono_Posix_Syscall_fstatvfs (int32_t fd, struct Mono_Posix_Statvfs *buf)
 {
-	struct statvfs s;
-	int r;
-
 	if (buf == nullptr) {
 		errno = EFAULT;
 		return -1;
 	}
 
+	struct statvfs s;
+	int r;
 	if ((r = fstatvfs (fd, &s)) == 0)
 		r = Mono_Posix_ToStatvfs (&s, buf);
 
@@ -142,9 +149,11 @@ Mono_Posix_Syscall_fstatvfs (int32_t fd, struct Mono_Posix_Statvfs *buf)
 
 #if (defined (HAVE_STATFS) || defined (HAVE_FSTATFS)) && !defined (HAVE_STATVFS) && !defined(ANDROID_UNIFIED_HEADERS)
 int
-Mono_Posix_ToStatvfs (void *_from, struct Mono_Posix_Statvfs *to)
+Mono_Posix_ToStatvfs (struct statfs* from, struct Mono_Posix_Statvfs *to)
 {
-	struct statfs *from = _from;
+	if (from == nullptr || to == nullptr) {
+		return -1;
+	}
 
 	to->f_bsize   = from->f_bsize;
 	to->f_frsize  = from->f_bsize;
@@ -168,9 +177,12 @@ Mono_Posix_ToStatvfs (void *_from, struct Mono_Posix_Statvfs *to)
 }
 
 int
-Mono_Posix_FromStatvfs (struct Mono_Posix_Statvfs *from, void *_to)
+Mono_Posix_FromStatvfs (struct Mono_Posix_Statvfs *from, struct statfs* to)
 {
-	struct statfs *to = _to;
+	if (from == nullptr || to == nullptr) {
+		return -1;
+	}
+
 	uint64_t flag;
 
 	to->f_bsize   = from->f_bsize;

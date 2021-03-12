@@ -7,22 +7,25 @@
  * Copyright (C) 2012 Steffen Kiess
  */
 
-#ifndef _GNU_SOURCE
-#define _GNU_SOURCE
-#endif /* ndef _GNU_SOURCE */
+#if defined (HAVE_CONFIG_H)
+#include <config.h>
+#endif
 
 #include "sys-uio.hh"
 
 #include <sys/uio.h>
-#include <stdlib.h>
+#include <cstdlib>
 
 #include "map.hh"
 #include "mph.hh"
 
-struct iovec*
+MPH_API_INTERNAL struct iovec*
 _mph_from_iovec_array (struct Mono_Posix_Iovec *iov, int32_t iovcnt)
 {
-	int32_t i;
+	if (iov == nullptr) {
+		errno = EFAULT;
+		return nullptr;
+	}
 
 	if (iovcnt < 0) {
 		errno = EINVAL;
@@ -34,7 +37,7 @@ _mph_from_iovec_array (struct Mono_Posix_Iovec *iov, int32_t iovcnt)
 		return nullptr;
 	}
 
-	for (i = 0; i < iovcnt; i++) {
+	for (int32_t i = 0; i < iovcnt; i++) {
 		if (Mono_Posix_FromIovec (&iov[i], &v[i]) != 0) {
 			free (v);
 			return nullptr;
@@ -48,15 +51,12 @@ _mph_from_iovec_array (struct Mono_Posix_Iovec *iov, int32_t iovcnt)
 int64_t
 Mono_Posix_Syscall_readv (int dirfd, struct Mono_Posix_Iovec *iov, int32_t iovcnt)
 {
-	struct iovec* v;
-	int64_t res;
-
-	v = _mph_from_iovec_array (iov, iovcnt);
-	if (!v) {
+	struct iovec *v = _mph_from_iovec_array (iov, iovcnt);
+	if (v == nullptr) {
 		return -1;
 	}
 
-	res = readv(dirfd, v, iovcnt);
+	int64_t res = readv (dirfd, v, iovcnt);
 	free (v);
 	return res;
 }
@@ -66,15 +66,12 @@ Mono_Posix_Syscall_readv (int dirfd, struct Mono_Posix_Iovec *iov, int32_t iovcn
 int64_t
 Mono_Posix_Syscall_writev (int dirfd, struct Mono_Posix_Iovec *iov, int32_t iovcnt)
 {
-	struct iovec* v;
-	int64_t res;
-
-	v = _mph_from_iovec_array (iov, iovcnt);
-	if (!v) {
+	struct iovec *v = _mph_from_iovec_array (iov, iovcnt);
+	if (v == nullptr) {
 		return -1;
 	}
 
-	res = writev (dirfd, v, iovcnt);
+	int64_t res = writev (dirfd, v, iovcnt);
 	free (v);
 	return res;
 }
@@ -88,12 +85,12 @@ Mono_Posix_Syscall_preadv (int dirfd, struct Mono_Posix_Iovec *iov, int32_t iovc
 		return -1;
 	}
 
-	struct iovec* v = _mph_from_iovec_array (iov, iovcnt);
+	struct iovec *v = _mph_from_iovec_array (iov, iovcnt);
 	if (v == nullptr) {
 		return -1;
 	}
 
-	int64_t res = preadv (dirfd, v, iovcnt, (off_t) off);
+	int64_t res = preadv (dirfd, v, iovcnt, off);
 	free (v);
 	return res;
 }
@@ -107,12 +104,12 @@ Mono_Posix_Syscall_pwritev (int dirfd, struct Mono_Posix_Iovec *iov, int32_t iov
 		return -1;
 	}
 
-	struct iovec* v = _mph_from_iovec_array (iov, iovcnt);
+	struct iovec *v = _mph_from_iovec_array (iov, iovcnt);
 	if (v == nullptr) {
 		return -1;
 	}
 
-	int64_t res = pwritev (dirfd, v, iovcnt, (off_t) off);
+	int64_t res = pwritev (dirfd, v, iovcnt, off);
 	free (v);
 	return res;
 }

@@ -9,7 +9,9 @@
  * Copyright (C) 2006 Jonathan Pryor
  */
 
+#if defined (HAVE_CONFIG_H)
 #include <config.h>
+#endif
 
 //If we're compiling to API level < 16 this won't be available
 #if defined (HOST_ANDROID) && __ANDROID_API__ < 16
@@ -44,9 +46,9 @@
 
 #include <unistd.h>
 #include <fcntl.h>
-#include <errno.h>
-#include <string.h>
-#include <stdlib.h>
+#include <cerrno>
+#include <cstring>
+#include <cstdlib>
 
 #include "map.hh"
 #include "mph.hh"

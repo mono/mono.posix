@@ -7,9 +7,9 @@
  * Copyright (C) 2004-2006 Jonathan Pryor
  */
 
-#ifndef _GNU_SOURCE
-#define _GNU_SOURCE
-#endif /* ndef _GNU_SOURCE */
+#if defined (HAVE_CONFIG_H)
+#include <config.h>
+#endif
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -17,8 +17,8 @@
 #include <unistd.h>
 #endif
 #include <fcntl.h>
-#include <errno.h>
-#include <string.h>
+#include <cerrno>
+#include <cstring>
 
 #include "mph.hh" /* Don't remove or move after map.h! Works around issues with Android SDK unified headers */
 #include "map.hh"
@@ -26,6 +26,10 @@
 int
 Mono_Posix_FromStat (struct Mono_Posix_Stat *from, struct stat* to)
 {
+	if (from == nullptr || to == nullptr) {
+		return -1;
+	}
+
 	memset (to, 0, sizeof(*to));
 
 	to->st_dev         = from->st_dev;
@@ -73,6 +77,10 @@ Mono_Posix_FromStat (struct Mono_Posix_Stat *from, struct stat* to)
 int
 Mono_Posix_ToStat (struct stat* from, struct Mono_Posix_Stat *to)
 {
+	if (from == nullptr || to == nullptr) {
+		return -1;
+	}
+
 	memset (to, 0, sizeof(*to));
 
 	to->st_dev        = from->st_dev;
@@ -113,14 +121,13 @@ Mono_Posix_ToStat (struct stat* from, struct Mono_Posix_Stat *to)
 int32_t
 Mono_Posix_Syscall_stat (const char *file_name, struct Mono_Posix_Stat *buf)
 {
-	int r;
-	struct stat _buf;
-
 	if (buf == nullptr) {
 		errno = EFAULT;
 		return -1;
 	}
-	r = stat (file_name, &_buf);
+
+	struct stat _buf;
+	int r = stat (file_name, &_buf);
 	if (r != -1 && Mono_Posix_ToStat (&_buf, buf) == -1)
 		r = -1;
 	return r;
@@ -129,14 +136,13 @@ Mono_Posix_Syscall_stat (const char *file_name, struct Mono_Posix_Stat *buf)
 int32_t
 Mono_Posix_Syscall_fstat (int filedes, struct Mono_Posix_Stat *buf)
 {
-	int r;
-	struct stat _buf;
-
 	if (buf == nullptr) {
 		errno = EFAULT;
 		return -1;
 	}
-	r = fstat (filedes, &_buf);
+
+	struct stat _buf;
+	int r = fstat (filedes, &_buf);
 	if (r != -1 && Mono_Posix_ToStat (&_buf, buf) == -1)
 		r = -1;
 	return r;
@@ -146,14 +152,13 @@ Mono_Posix_Syscall_fstat (int filedes, struct Mono_Posix_Stat *buf)
 int32_t
 Mono_Posix_Syscall_lstat (const char *file_name, struct Mono_Posix_Stat *buf)
 {
-	int r;
-	struct stat _buf;
-
 	if (buf == nullptr) {
 		errno = EFAULT;
 		return -1;
 	}
-	r = lstat (file_name, &_buf);
+
+	struct stat _buf;
+	int r = lstat (file_name, &_buf);
 	if (r != -1 && Mono_Posix_ToStat (&_buf, buf) == -1)
 		r = -1;
 	return r;
@@ -164,17 +169,16 @@ Mono_Posix_Syscall_lstat (const char *file_name, struct Mono_Posix_Stat *buf)
 int32_t
 Mono_Posix_Syscall_fstatat (int32_t dirfd, const char *file_name, struct Mono_Posix_Stat *buf, int32_t flags)
 {
-	int r;
-	struct stat _buf;
-
-	if (Mono_Posix_FromAtFlags (flags, &flags) == -1)
-		return -1;
-
 	if (buf == nullptr) {
 		errno = EFAULT;
 		return -1;
 	}
-	r = fstatat (dirfd, file_name, &_buf, flags);
+
+	if (Mono_Posix_FromAtFlags (flags, &flags) == -1)
+		return -1;
+
+	struct stat _buf;
+	int r = fstatat (dirfd, file_name, &_buf, flags);
 	if (r != -1 && Mono_Posix_ToStat (&_buf, buf) == -1)
 		r = -1;
 	return r;
@@ -225,7 +229,7 @@ Mono_Posix_Syscall_get_utime_omit ()
 static struct timespec*
 copy_utimens (struct timespec* to, struct Mono_Posix_Timespec *from)
 {
-	if (from) {
+	if (from != nullptr && to != nullptr) {
 		to[0].tv_sec  = from[0].tv_sec;
 		to[0].tv_nsec = from[0].tv_nsec;
 		to[1].tv_sec  = from[1].tv_sec;
