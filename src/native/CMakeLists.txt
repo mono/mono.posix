@@ -187,7 +187,6 @@ set(MPH_SOURCES
   map.cc
   old-map.cc
   pwd.cc
-  serial.cc
   signal.cc
   stdio.cc
   stdlib.cc
