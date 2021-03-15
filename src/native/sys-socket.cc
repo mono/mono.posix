@@ -18,6 +18,8 @@
 #include <cstdlib>
 #include <cstddef>
 #include <cstring>
+#include <limits>
+#include <type_traits>
 
 #include "map.hh"
 #include "mph.hh"
@@ -379,7 +381,7 @@ Mono_Posix_ToSockaddr (void* source, int64_t size, struct Mono_Posix__SockaddrHe
 // Can't use RAII since exceptions are disabled
 class SockAddr final
 {
-	static constexpr size_t MAX_ADDRLEN = 2048;
+	static constexpr std::conditional<std::is_signed_v<socklen_t>, ssize_t, size_t>::type MAX_ADDRLEN = 2048;
 
 public:
 	explicit SockAddr (Mono_Posix__SockaddrHeader* address) noexcept

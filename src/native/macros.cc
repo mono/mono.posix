@@ -142,16 +142,6 @@ helper_Mono_Posix_getpwnamuid (int mode, char *in_name, int in_uid,
 	int *gid,
 	char **name,
 	char **home,
-	char **shell);
-
-int
-helper_Mono_Posix_getpwnamuid (int mode, char *in_name, int in_uid,
-	char **account,
-	char **password,
-	int *uid,
-	int *gid,
-	char **name,
-	char **home,
 	char **shell
 	)
 {
@@ -188,7 +178,11 @@ helper_Mono_Posix_getpwnamuid (int mode, char *in_name, int in_uid,
 	*password = pwp->pw_passwd;
 	*uid = pwp->pw_uid;
 	*gid = pwp->pw_gid;
+#if defined (HAVE_STRUCT_PASSWD_PW_GECOS)
 	*name = pwp->pw_gecos;
+#else
+	*name = nullptr;
+#endif
 	*home = pwp->pw_dir;
 	*shell = pwp->pw_shell;
 

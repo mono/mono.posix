@@ -124,6 +124,13 @@ if(IS_LINUX)
   endforeach()
 endif()
 
+if(IS_ANDROID)
+  set(HOST_MACROS
+    _GNU_SOURCE
+    _BSD_SOURCE
+    )
+endif()
+
 include(CheckIncludeFileCXX)
 include(CheckCXXCompilerFlag)
 include(CheckLinkerFlag)
@@ -217,8 +224,6 @@ set(LOCAL_COMPILER_ARGS
   -ffunction-sections
   -funswitch-loops
   -finline-limit=500
-  -fno-exceptions
-  -fno-rtti
   -Wa,-noexecstack
   -fPIC
   -g
@@ -236,6 +241,14 @@ set(LOCAL_COMPILER_ARGS
   -Wint-to-pointer-cast
   -Wsuggest-override
   )
+
+if(NOT IS_ANDROID)
+  # Android toolchain takes care of this on its own, based on selected features
+  list(APPEND LOCAL_COMPILE_ARGS
+    -fno-exceptions
+    -fno-rtti
+    )
+endif()
 
 set(LOCAL_LINKER_ARGS
   -rdynamic
@@ -321,9 +334,14 @@ if(IS_BSD)
   add_compile_definitions(HOST_BSD)
 endif()
 
-if(ANDROID)
+if(IS_ANDROID)
   add_compile_definitions(HOST_ANDROID)
   add_compile_definitions(ANDROID_UNIFIED_HEADERS)
+  add_compile_definitions(__ANDROID_API__=${ANDROID_NATIVE_API_LEVEL})
+
+  if (ANDROID_NDK_MAJOR LESS 20)
+    add_compile_definitions(__ANDROID_API_Q__=29)
+  endif()
 endif()
 
 if(WIN32)
@@ -502,6 +520,12 @@ check_prototype_definition(
 #
 # Include directories
 #
+if(ANDROID)
+  # We build without the stdlib, but since we use some include files from it, we
+  # need to add the include path manually here
+  include_directories(${CMAKE_SYSROOT}/usr/include/c++/v1/)
+endif()
+
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/compat)
 
