@@ -396,7 +396,11 @@ public:
 		} else if (address->type == Mono_Posix_SockaddrType_SockaddrUn) {
 			/* Use local_storage for up to 2048 bytes, use malloc() otherwise */
 			need_free = addrlen > MAX_ADDRLEN;
-			addr = reinterpret_cast<sockaddr*>(need_free ? malloc (addrlen) : local_storage);
+			if (addrlen > 0) {
+				// Don't allocate otherwise, malloc takes size_t and if socklen_t is signed, it could
+				// allocate a huge block of memory
+				addr = reinterpret_cast<sockaddr*>(need_free ? malloc (addrlen) : local_storage);
+			}
 		} else {
 			addr = reinterpret_cast<sockaddr*>(local_storage);
 		}
