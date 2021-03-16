@@ -44,15 +44,15 @@ Usage: ${MY_NAME} [OPTIONS] [TARGET]
 
 Where OPTIONS are:
 
-  -c, --configuration=NAME  build in configuration 'NAME' (Release or Debug, default is ${CONFIGURATION})
+  -c, --configuration NAME  build in configuration 'NAME' (Release or Debug, default is ${CONFIGURATION})
   -b, --no-color            do not use color for native compiler diagnostics
   -v, --verbose             make the build verbose
-  -m, --cmake=PATH          use the specified cmake binary instead of the default '${CMAKE}'
-  -n, --ninja=PATH          use the specified ninja binary instead of the default '${NINJA}'
-  -j, --jobs=NUM            spin up at most NUM jobs
+  -m, --cmake PATH          use the specified cmake binary instead of the default '${CMAKE}'
+  -n, --ninja PATH          use the specified ninja binary instead of the default '${NINJA}'
+  -j, --jobs NUM            spin up at most NUM jobs
   -r, --rebuild             rebuild from scratch
-  -a, --ndk=PATH            path to the Android NDK root directory (default: ${NDK_ROOT:-UNSET})
-  -p, --abi=ABIS            comma-separated list of Android ABIs to build (default: ${ANDROID_ABIS})
+  -a, --ndk PATH            path to the Android NDK root directory (default: ${NDK_ROOT:-UNSET})
+  -p, --abi ABIS            comma-separated list of Android ABIs to build (default: ${ANDROID_ABIS})
   -h, --help                show help
 
 And TARGET is one of:
@@ -192,27 +192,74 @@ function __build_package()
 	print_build_banner Packaging
 }
 
-TEMP=`getopt -o hvc:m:n:bj:p:r --long help,verbose,configuration:,cmake:,ninja:,no-color,jobs:,abi:,rebuild -n "$MY_NAME" -- "$@"`
+function missing_argument()
+{
+	die "Option '$1' requires an argument"
+}
 
-if [ $? != 0 ] ; then
-    die "Terminating..."
-fi
-eval set -- "$TEMP"
-
-while true; do
+POSITIONAL_ARGS=""
+while (( "$#" )); do
     case "$1" in
-		-n|--ninja) NINJA="$2"; shift 2;;
-		-m|--cmake) CMAKE="$2"; shift 2;;
-		-j|--jobs) JOBS="$2"; shift 2;;
-		-c|--configuration) CONFIGURATION="$2"; shift 2;;
+		-n|--ninja)
+			if [ -n "$2" ] && [ ${2:0:1} != "-" ]; then
+				NINJA="$2";
+				shift 2
+			else
+				missing_argument "$1"
+			fi
+			;;
+
+		-m|--cmake)
+			if [ -n "$2" ] && [ ${2:0:1} != "-" ]; then
+				CMAKE="$2";
+				shift 2
+			else
+				missing_argument "$1"
+			fi
+			;;
+
+		-j|--jobs)
+			if [ -n "$2" ] && [ ${2:0:1} != "-" ]; then
+				JOBS="$2";
+				shift 2
+			else
+				missing_argument "$1"
+			fi
+			;;
+
+		-c|--configuration)
+			if [ -n "$2" ] && [ ${2:0:1} != "-" ]; then
+				CONFIGURATION="$2";
+				shift 2
+			else
+				missing_argument "$1"
+			fi
+			;;
+
+		-p|--abi)
+			if [ -n "$2" ] && [ ${2:0:1} != "-" ]; then
+				ANDROID_ABIS="$(echo $2 | tr ',' ' ')";
+				shift 2
+			else
+				missing_argument "$1"
+			fi
+			;;
+
 		-v|--verbose) VERBOSE="yes"; shift ;;
+
 		-b|--no-color) USE_COLOR=OFF; shift ;;
-		-p|--abi) ANDROID_ABIS="$(echo $2 | tr ',' ' ')"; shift 2;;
+
 		-r|--rebuild) REBUILD="yes"; shift;;
+
         -h|--help) usage; shift ;;
-        --) shift ; break ;;
+
+        -*|--*=) die "Error: Unsupported flag $1";;
+
+		*) POSITIONAL_ARGS="${POSITIONAL_ARGS} $1"; shift;;
     esac
 done
+
+eval set -- "${POSITIONAL_ARGS}"
 
 if [ -z "${CMAKE}" ]; then
 	die cmake binary must be specified
