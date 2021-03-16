@@ -266,10 +266,9 @@ if(IS_LINUX AND IS_CLANG)
   list(APPEND LOCAL_LINKER_ARGS -static-libstdc++)
 endif()
 
+# Let CMake set the default optimization flag for Release builds
 if(IS_DEBUG_BUILD)
   list(APPEND LOCAL_COMPILER_ARGS -O0)
-else()
-  list(APPEND LOCAL_COMPILER_ARGS -O2)
 endif()
 
 if(UNIX)
