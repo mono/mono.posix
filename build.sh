@@ -14,22 +14,11 @@ CONFIGURATION="Release"
 USE_COLOR="ON"
 CMAKE="cmake"
 NINJA="ninja"
+XCODEBUILD="xcodebuild"
 NDK_ROOT="${ANDROID_NDK_HOME:-${ANDROID_NDK_ROOT}}"
 
-ANDROID_ABI_ARM32=armeabi-v7a
-ANDROID_ABI_ARM64=arm64-v8a
-ANDROID_ABI_X86=x86
-ANDROID_ABI_X64=x86_64
-
-#
-# NOTE: API levels must be compatible with the currently supported Xamarin.Android versions
-#
-ANDROID_ABIS="${ANDROID_ABI_ARM32} ${ANDROID_ABI_ARM64} ${ANDROID_ABI_X86} ${ANDROID_ABI_X64}"
-ANDROID_API_ARM32=16
-ANDROID_API_ARM64=21
-ANDROID_API_X86=16
-ANDROID_API_X64=21
-
+ANDROID_ABIS="arm32 arm64 x86 x64"
+IOS_ABIS="armv7 armv7s arm64 simx86 simarm64"
 
 function die()
 {
@@ -49,10 +38,14 @@ Where OPTIONS are:
   -v, --verbose             make the build verbose
   -m, --cmake PATH          use the specified cmake binary instead of the default '${CMAKE}'
   -n, --ninja PATH          use the specified ninja binary instead of the default '${NINJA}'
+  -x, --xcodebuild PATH     use the specified xcodebuild binary instead of the default '${XCODEBUILD}'
   -j, --jobs NUM            spin up at most NUM jobs
   -r, --rebuild             rebuild from scratch
   -a, --ndk PATH            path to the Android NDK root directory (default: ${NDK_ROOT:-UNSET})
-  -p, --abi ABIS            comma-separated list of Android ABIs to build (default: ${ANDROID_ABIS})
+  -p, --abi ABIS            comma-separated list of target platform ABIs to build:
+                               Android default: ${ANDROID_ABIS}
+                               iOS default: ${IOS_ABIS}
+
   -h, --help                show help
 
 And TARGET is one of:
@@ -68,19 +61,6 @@ EOF
 	exit 0
 }
 
-function get_android_api()
-{
-	local abi="$1"
-
-	case "${abi}" in
-		${ANDROID_ABI_ARM32}) echo ${ANDROID_API_ARM32} ;;
-		${ANDROID_ABI_ARM64}) echo ${ANDROID_API_ARM64} ;;
-		${ANDROID_ABI_X86}) echo ${ANDROID_API_X86} ;;
-		${ANDROID_ABI_X64}) echo ${ANDROID_API_X64} ;;
-		*) die "Unknown Android ABI '${abi}'"
-	esac
-}
-
 function print_build_banner()
 {
 	echo "$@"
@@ -94,32 +74,45 @@ function print_build_banner_native()
 function do_build()
 {
 	local strip_debug
-
+	local generator="${CMAKE_GENERATOR:-Ninja}"
+	local make_program="${CMAKE_MAKE:-${NINJA}}"
+	
 	if [ "${CONFIGURATION}" == "Release" ]; then
 		strip_debug="ON"
 	else
 		strip_debug="OFF"
 	fi
 
-	"${CMAKE}" -GNinja \
+	"${CMAKE}" -G${generator} \
 			   -DCMAKE_BUILD_TYPE=${CONFIGURATION} \
-			   -DCMAKE_MAKE_PROGRAM="${NINJA}" \
+			   -DCMAKE_MAKE_PROGRAM="${make_program}" \
 			   -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
 			   -DSTRIP_DEBUG=${strip_debug} \
 			   -DUSE_COLOR=${USE_COLOR} \
 			   "$@" \
 			   "${NATIVE_SOURCE_DIR}"
 
-	local ninja_verbose=""
-	local ninja_jobs=""
-	if [ "${VERBOSE}" == "yes" ]; then
-		ninja_verbose="-v"
-	fi
+	local verbose=""
+	local jobs=""
 
-	if [ -n "${JOBS}" ]; then
-		ninja_jobs="-j${JOBS}"
+	if [ "${make_program}" == "${NINJA}" ]; then
+		if [ "${VERBOSE}" == "yes" ]; then
+			verbose="-v"
+		fi
+
+		if [ -n "${JOBS}" ]; then
+			jobs="-j${JOBS}"
+		fi
+	elif [ "${make_program}" == "${xcodebuild}" ]; then
+		if [ "${VERBOSE}" == "yes" ]; then
+			verbose="-verbose"
+		fi
+
+		if [ -n "${JOBS}" ]; then
+			jobs="-jobs ${JOBS}"
+		fi
 	fi
-	"${NINJA}" ${ninja_verbose} ${ninja_jobs}
+	"${make_program}" ${verbose} ${jobs}
 }
 
 function build_common()
@@ -132,7 +125,8 @@ function build_common()
 
 	shift
 
-	local build_dir="${BUILD_DIR_ROOT}/${build_dir_name}-${CONFIGURATION}"
+	local config_lower=$(echo ${CONFIGURATION} | tr A-Z a-z)
+	local build_dir="${BUILD_DIR_ROOT}/${build_dir_name}-${config_lower}"
 	if [ "${REBUILD}" == "yes" -a -d "${build_dir}" ]; then
 		rm -rf "${build_dir}"
 	fi
@@ -142,8 +136,9 @@ function build_common()
 
 function __build_host()
 {
+	local OS_LOWER=$(echo ${OS} | tr A-Z a-z)
 	print_build_banner_native "${OS}"
-	build_common host
+	build_common host -DTARGET_PLATFORM=host-${OS_LOWER}
 }
 
 function __build_android()
@@ -160,21 +155,22 @@ function __build_android()
 
 	local api_level
 	for abi in ${ANDROID_ABIS}; do
-		api_level=$(get_android_api ${abi})
 		build_common android-${abi} \
-					 -DCMAKE_TOOLCHAIN_FILE="${NDK_ROOT}/build/cmake/android.toolchain.cmake" \
-					 -DANDROID_STL="none" \
-					 -DANDROID_CPP_FEATURES="no-rtti no-exceptions" \
-					 -DANDROID_NDK="${NDK_ROOT}" \
-					 -DANDROID_NATIVE_API_LEVEL=${api_level} \
-					 -DANDROID_PLATFORM=android-${api_level} \
-					 -DANDROID_ABI=${abi}
+					 -DTARGET_PLATFORM=android \
+					 -DMPH_ANDROID_ABI=${abi} \
+					 -DANDROID_NDK="${NDK_ROOT}"
 	done
 }
 
 function __build_ios()
 {
 	print_build_banner_native iOS
+
+	local abi_lower
+	for abi in ${ABIS:-${IOS_ABIS}}; do
+		abi_lower=$(echo ${abi} | tr A-Z a-z)
+		build_common ios-${abi_lower} -DTARGET_PLATFORM=ios-${abi_lower}
+	done
 }
 
 function __build_wasm()
@@ -198,6 +194,7 @@ function missing_argument()
 }
 
 POSITIONAL_ARGS=""
+ABIS=""
 while (( "$#" )); do
     case "$1" in
 		-n|--ninja)
@@ -212,6 +209,15 @@ while (( "$#" )); do
 		-m|--cmake)
 			if [ -n "$2" ] && [ ${2:0:1} != "-" ]; then
 				CMAKE="$2";
+				shift 2
+			else
+				missing_argument "$1"
+			fi
+			;;
+
+		-x|--xcodebuild)
+			if [ -n "$2" ] && [ ${2:0:1} != "-" ]; then
+				XCODEBUILD="$2";
 				shift 2
 			else
 				missing_argument "$1"
@@ -238,7 +244,7 @@ while (( "$#" )); do
 
 		-p|--abi)
 			if [ -n "$2" ] && [ ${2:0:1} != "-" ]; then
-				ANDROID_ABIS="$(echo $2 | tr ',' ' ')";
+				ABIS="$(echo $2 | tr ',' ' ')";
 				shift 2
 			else
 				missing_argument "$1"

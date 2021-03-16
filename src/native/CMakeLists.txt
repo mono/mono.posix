@@ -6,6 +6,16 @@ set(MONO_POSIX_HELPER_VERSION_MICRO 0)
 
 set(MONO_POSIX_HELPER_VERSION "${MONO_POSIX_HELPER_VERSION_MAJOR}.${MONO_POSIX_HELPER_VERSION_MINOR}.${MONO_POSIX_HELPER_VERSION_MICRO}")
 
+if(NOT DEFINED TARGET_PLATFORM)
+  message(FATAL_ERROR "Please define the TARGET_PLATFORM variable on command line")
+endif()
+
+#
+# These files MUST be included before the `project` command
+#
+include(${CMAKE_CURRENT_LIST_DIR}/../../cmake/toolchain.android.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/../../cmake/toolchain.ios.cmake)
+
 project(
   MonoPosixHelper
   VERSION ${MONO_POSIX_HELPER_VERSION}
@@ -54,7 +64,6 @@ set(IS_LINUX False)
 set(IS_BSD False)
 set(IS_MACOS False)
 set(IS_IOS False)
-set(IS_WATCHOS False)
 set(IS_TVOS False)
 set(IS_ANDROID False)
 set(IS_WASM False)
@@ -79,7 +88,7 @@ else()
     elseif(CMAKE_SYSTEM_NAME STREQUAL tvOS)
       set(IS_TVOS True)
     elseif(CMAKE_SYSTEM_NAME STREQUAL watchOS)
-      set(IS_WATCHOS True)
+      message(FATAL "watchOS not supported")
     else()
       message(FATAL "Unknown system when cross-compiling: ${CMAKE_SYSTEM_NAME}")
     endif()
@@ -128,6 +137,12 @@ if(IS_ANDROID)
   set(HOST_MACROS
     _GNU_SOURCE
     _BSD_SOURCE
+    )
+endif()
+
+if(IS_IOS OR IS_TVOS OR IS_MACOS)
+  set(HOST_MACROS
+    _DARWIN_C_SOURCE
     )
 endif()
 
@@ -215,6 +230,12 @@ set(MPH_SOURCES
   x-struct-str.cc
   )
 
+if(IS_IOS)
+  list(APPEND MPH_SOURCES
+    compat.ios.cc
+    )
+endif()
+
 # Args shared between the C and C++ compilers
 set(LOCAL_COMPILER_ARGS
   -fvisibility=hidden
@@ -240,6 +261,7 @@ set(LOCAL_COMPILER_ARGS
   -Wsuggest-final-methods
   -Wint-to-pointer-cast
   -Wsuggest-override
+  -Wunguarded-availability
   )
 
 if(NOT IS_ANDROID)
@@ -306,11 +328,9 @@ foreach(flag ${LOCAL_LINKER_ARGS})
 endforeach()
 set(MPH_CXX_LINKER_FLAGS "${_CHECKED_FLAGS}")
 
-add_compile_options("$<$<COMPILE_LANGUAGE:CXX>:${MPH_CXX_FLAGS}>")
-add_compile_options("$<$<COMPILE_LANGUAGE:C>:${MPH_C_FLAGS}>")
+add_compile_options(${MPH_CXX_FLAGS})
 
-add_link_options("$<$<COMPILE_LANGUAGE:CXX>:${MPH_CXX_LINKER_FLAGS}>")
-add_link_options("$<$<COMPILE_LANGUAGE:C>:${MPH_C_LINKER_FLAGS}>")
+add_link_options(${MPH_CXX_LINKER_FLAGS})
 
 #
 # Command line macro definitions
@@ -528,7 +548,7 @@ endif()
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/compat)
 
-if(APPLE)
+if(IS_MACOS)
   set(SDK_SUPPORTS_ARM64 False)
   set(SDK_SUPPORTS_X86_64 False)
   execute_process(
@@ -575,13 +595,21 @@ if(APPLE)
   endif()
 endif()
 
-add_library(
-  ${MPH_LIB_NAME}
-  SHARED
-  ${MPH_SOURCES}
+if(IS_IOS)
+  add_library(
+    ${MPH_LIB_NAME}
+    STATIC
+    ${MPH_SOURCES}
   )
+else()
+  add_library(
+    ${MPH_LIB_NAME}
+    SHARED
+    ${MPH_SOURCES}
+    )
+endif()
 
-if(APPLE)
+if(IS_MACOS)
   set_target_properties(
     ${MPH_LIB_NAME}
     PROPERTIES
@@ -589,4 +617,7 @@ if(APPLE)
     )
 endif()
 
+if(IS_IOS)
+  message(STATUS "iOS architectures: ${CMAKE_OSX_ARCHITECTURES}")
+endif()
 configure_file(config.h.in config.h @ONLY)

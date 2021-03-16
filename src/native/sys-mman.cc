@@ -15,10 +15,6 @@
 #define _XOPEN_SOURCE 600
 #endif
 
-#ifdef HOST_DARWIN
-/* For mincore () */
-#define _DARWIN_C_SOURCE
-#endif
 #if defined(__FreeBSD__) || defined(__OpenBSD__)
 /* For mincore () */
 #define __BSD_VISIBLE 1

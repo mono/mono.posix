@@ -19,6 +19,10 @@
 #include "map.hh"
 #include "mph.hh"
 
+#if defined(HOST_IOS)
+#include "compat.ios.hh"
+#endif // def HOST_IOS
+
 MPH_API_INTERNAL struct iovec*
 _mph_from_iovec_array (struct Mono_Posix_Iovec *iov, int32_t iovcnt)
 {
@@ -90,7 +94,12 @@ Mono_Posix_Syscall_preadv (int dirfd, struct Mono_Posix_Iovec *iov, int32_t iovc
 		return -1;
 	}
 
-	int64_t res = preadv (dirfd, v, iovcnt, off);
+	int64_t res;
+#if !defined(HOST_IOS)
+	res = preadv (dirfd, v, iovcnt, off);
+#else // ndef HOST_IOS
+	res = __ios_preadv (dirfd, v, iovcnt, off);
+#endif // def HOST_IOS
 	free (v);
 	return res;
 }
@@ -109,7 +118,12 @@ Mono_Posix_Syscall_pwritev (int dirfd, struct Mono_Posix_Iovec *iov, int32_t iov
 		return -1;
 	}
 
-	int64_t res = pwritev (dirfd, v, iovcnt, off);
+	int64_t res;
+#if !defined(HOST_IOS)
+	res = pwritev (dirfd, v, iovcnt, off);
+#else // ndef HOST_IOS
+	res = __ios_preadv (dirfd, v, iovcnt, off);
+#endif
 	free (v);
 	return res;
 }

@@ -23,6 +23,10 @@
 #include "mph.hh" /* Don't remove or move after map.h! Works around issues with Android SDK unified headers */
 #include "map.hh"
 
+#if defined(HOST_IOS)
+#include "compat.ios.hh"
+#endif // def HOST_IOS
+
 int
 Mono_Posix_FromStat (struct Mono_Posix_Stat *from, struct stat* to)
 {
@@ -250,7 +254,12 @@ Mono_Posix_Syscall_futimens(int fd, struct Mono_Posix_Timespec *tv)
 
 	ptv = copy_utimens (_tv, tv);
 
+#if !defined(HOST_IOS)
 	return futimens (fd, ptv);
+#else // ndef HOST_IOS
+	// Available since iOS 11.0
+	return __ios_futimens (fd, ptv);
+#endif // def HOST_IOS
 }
 #endif /* def HAVE_FUTIMENS */
 
@@ -263,7 +272,12 @@ Mono_Posix_Syscall_utimensat(int dirfd, const char *pathname, struct Mono_Posix_
 
 	ptv = copy_utimens (_tv, tv);
 
+#if !defined(HOST_IOS)
 	return utimensat (dirfd, pathname, ptv, flags);
+#else // ndef HOST_IOS
+	// Available since iOS 11.0
+	return __ios_utimensat (dirfd, pathname, ptv, flags);
+#endif
 }
 #endif /* def HAVE_UTIMENSAT */
 
