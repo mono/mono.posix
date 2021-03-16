@@ -21,18 +21,15 @@ ANDROID_ABI_ARM64=arm64-v8a
 ANDROID_ABI_X86=x86
 ANDROID_ABI_X64=x86_64
 
-declare -A ANDROID_API_LEVELS
-
 #
 # NOTE: API levels must be compatible with the currently supported Xamarin.Android versions
 #
 ANDROID_ABIS="${ANDROID_ABI_ARM32} ${ANDROID_ABI_ARM64} ${ANDROID_ABI_X86} ${ANDROID_ABI_X64}"
-ANDROID_API_LEVELS=(
-	[${ANDROID_ABI_ARM32}]=16
-	[${ANDROID_ABI_ARM64}]=21
-	[${ANDROID_ABI_X86}]=16
-	[${ANDROID_ABI_X64}]=21
-)
+ANDROID_API_ARM32=16
+ANDROID_API_ARM64=21
+ANDROID_API_X86=16
+ANDROID_API_X64=21
+
 
 function die()
 {
@@ -69,6 +66,19 @@ And TARGET is one of:
   all                  build all the targets above
 EOF
 	exit 0
+}
+
+function get_android_api()
+{
+	local abi="$1"
+
+	case "${abi}" in
+		${ANDROID_ABI_ARM32}) echo ${ANDROID_API_ARM32} ;;
+		${ANDROID_ABI_ARM64}) echo ${ANDROID_API_ARM64} ;;
+		${ANDROID_ABI_X86}) echo ${ANDROID_API_X86} ;;
+		${ANDROID_ABI_X64}) echo ${ANDROID_API_X64} ;;
+		*) die "Unknown Android ABI '${abi}'"
+	esac
 }
 
 function print_build_banner()
@@ -150,7 +160,7 @@ function __build_android()
 
 	local api_level
 	for abi in ${ANDROID_ABIS}; do
-		api_level=${ANDROID_API_LEVELS[${abi}]}
+		api_level=$(get_android_api ${abi})
 		build_common android-${abi} \
 					 -DCMAKE_TOOLCHAIN_FILE="${NDK_ROOT}/build/cmake/android.toolchain.cmake" \
 					 -DANDROID_STL="none" \
