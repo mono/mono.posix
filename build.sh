@@ -9,6 +9,7 @@ LOG_DIR="${MY_DIR}/logs"
 ALL_TARGETS="host android ios wasm managed package"
 VERBOSE="no"
 JOBS=""
+REBUILD="no"
 CONFIGURATION="Release"
 USE_COLOR="ON"
 CMAKE="cmake"
@@ -52,7 +53,9 @@ Where OPTIONS are:
   -m, --cmake=PATH          use the specified cmake binary instead of the default '${CMAKE}'
   -n, --ninja=PATH          use the specified ninja binary instead of the default '${NINJA}'
   -j, --jobs=NUM            spin up at most NUM jobs
+  -r, --rebuild             rebuild from scratch
   -a, --ndk=PATH            path to the Android NDK root directory (default: ${NDK_ROOT:-UNSET})
+  -p, --abi=ABIS            comma-separated list of Android ABIs to build (default: ${ANDROID_ABIS})
   -h, --help                show help
 
 And TARGET is one of:
@@ -120,6 +123,9 @@ function build_common()
 	shift
 
 	local build_dir="${BUILD_DIR_ROOT}/${build_dir_name}-${CONFIGURATION}"
+	if [ "${REBUILD}" == "yes" -a -d "${build_dir}" ]; then
+		rm -rf "${build_dir}"
+	fi
 	install -d -m 755 "${build_dir}"
 	(cd "${build_dir}"; do_build "$@")
 }
@@ -176,7 +182,7 @@ function __build_package()
 	print_build_banner Packaging
 }
 
-TEMP=`getopt -o hvc:m:n:bj: --long help,verbose,configuration,cmake,ninja,no-color,jobs -n "$MY_NAME" -- "$@"`
+TEMP=`getopt -o hvc:m:n:bj:p:r --long help,verbose,configuration:,cmake:,ninja:,no-color,jobs:,abi:,rebuild -n "$MY_NAME" -- "$@"`
 
 if [ $? != 0 ] ; then
     die "Terminating..."
@@ -191,6 +197,8 @@ while true; do
 		-c|--configuration) CONFIGURATION="$2"; shift 2;;
 		-v|--verbose) VERBOSE="yes"; shift ;;
 		-b|--no-color) USE_COLOR=OFF; shift ;;
+		-p|--abi) ANDROID_ABIS="$(echo $2 | tr ',' ' ')"; shift 2;;
+		-r|--rebuild) REBUILD="yes"; shift;;
         -h|--help) usage; shift ;;
         --) shift ; break ;;
     esac

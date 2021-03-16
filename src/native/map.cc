@@ -3311,7 +3311,8 @@ int Mono_Posix_ToMemfdFlags (unsigned int x, unsigned int *r)
 		*r |= Mono_Posix_MemfdFlags_MFD_HUGETLB;
 #endif /* ndef MFD_HUGETLB */
 #ifdef MFD_HUGE_16GB
-	if ((x & MFD_HUGE_16GB) == MFD_HUGE_16GB)
+	// On Android the comparison is between `unsigned int` and `int`, cast hushes the warning
+	if ((x & MFD_HUGE_16GB) == static_cast<unsigned int>(MFD_HUGE_16GB))
 		*r |= Mono_Posix_MemfdFlags_MFD_HUGE_16GB;
 #endif /* ndef MFD_HUGE_16GB */
 #ifdef MFD_HUGE_16MB
