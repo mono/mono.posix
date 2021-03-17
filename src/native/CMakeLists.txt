@@ -1,4 +1,10 @@
-cmake_minimum_required(VERSION 3.18)
+if(TARGET_PLATFORM MATCHES "^catalyst")
+  set(MPH_REQUIRED_CMAKE_VERSION "3.19.5")
+else()
+  set(MPH_REQUIRED_CMAKE_VERSION "3.18")
+endif()
+
+cmake_minimum_required(VERSION ${MPH_REQUIRED_CMAKE_VERSION})
 
 set(MONO_POSIX_HELPER_VERSION_MAJOR 6)
 set(MONO_POSIX_HELPER_VERSION_MINOR 13)
@@ -24,8 +30,35 @@ project(
   LANGUAGES CXX C
   )
 
+include(CheckIncludeFileCXX)
+include(CheckCXXCompilerFlag)
+include(CheckLinkerFlag)
+include(CheckSymbolExists)
+include(CheckStructHasMember)
+include(CheckTypeSize)
+include(CheckPrototypeDefinition)
+
+if(WIN32)
+  set(CCACHE_OPTION_DEFAULT OFF)
+else()
+  set(CCACHE_OPTION_DEFAULT ON)
+endif()
+
 option(STRIP_DEBUG "Strip debugging information when linking" ON)
 option(USE_COLOR "Use color to highlight compiler diagnostics" OFF)
+option(USE_CCACHE "Use ccache, if found, to speed up recompilation" ${CCACHE_OPTION_DEFAULT})
+
+if(NOT WIN32 AND USE_CCACHE)
+  if(CMAKE_CXX_COMPILER MATCHES "/ccache/")
+    message(STATUS "ccache: compiler already uses ccache")
+  else()
+    find_program(CCACHE ccache)
+    if(CCACHE)
+      set(CMAKE_CXX_COMPILER_LAUNCHER "${CCACHE}")
+      message(STATUS "ccache: compiler will be lauched with ${CCACHE}")
+    endif()
+  endif()
+endif()
 
 if(CMAKE_BUILD_TYPE STREQUAL Debug)
   set(IS_DEBUG_BUILD True)
@@ -63,6 +96,7 @@ endif()
 set(IS_LINUX False)
 set(IS_BSD False)
 set(IS_MACOS False)
+set(IS_CATALYST False)
 set(IS_IOS False)
 set(IS_TVOS False)
 set(IS_ANDROID False)
@@ -88,9 +122,11 @@ else()
     elseif(CMAKE_SYSTEM_NAME STREQUAL tvOS)
       set(IS_TVOS True)
     elseif(CMAKE_SYSTEM_NAME STREQUAL watchOS)
-      message(FATAL "watchOS not supported")
+      message(FATAL_ERROR "watchOS not supported")
+    elseif(CMAKE_SYSTEM_NAME STREQUAL Darwin)
+      set(IS_CATALYST True)
     else()
-      message(FATAL "Unknown system when cross-compiling: ${CMAKE_SYSTEM_NAME}")
+      message(FATAL_ERROR "Unknown system when cross-compiling: ${CMAKE_SYSTEM_NAME}")
     endif()
   endif()
 
@@ -140,19 +176,11 @@ if(IS_ANDROID)
     )
 endif()
 
-if(IS_IOS OR IS_TVOS OR IS_MACOS)
+if(APPLE)
   set(HOST_MACROS
     _DARWIN_C_SOURCE
     )
 endif()
-
-include(CheckIncludeFileCXX)
-include(CheckCXXCompilerFlag)
-include(CheckLinkerFlag)
-include(CheckSymbolExists)
-include(CheckStructHasMember)
-include(CheckTypeSize)
-include(CheckPrototypeDefinition)
 
 macro(_compiler_has_flag _lang _flag)
   string(REGEX REPLACE "-|,|=" "_" _flag_name ${_flag})
@@ -230,7 +258,7 @@ set(MPH_SOURCES
   x-struct-str.cc
   )
 
-if(IS_IOS OR IS_TVOS)
+if(IS_IOS OR IS_TVOS OR IS_CATALYST)
   list(APPEND MPH_SOURCES
     compat.apple.cc
     )
@@ -367,8 +395,12 @@ if(WIN32)
   add_compile_definitions(HOST_WIN32)
 endif()
 
-if(IS_MACOS)
+if(IS_MACOS OR IS_CATALYST)
   add_compile_definitions(HOST_DARWIN)
+endif()
+
+if(IS_CATALYST)
+  add_compile_definitions(HOST_CATALYST)
 endif()
 
 if(IS_IOS)
@@ -595,7 +627,7 @@ if(IS_MACOS)
   endif()
 endif()
 
-if(IS_IOS OR IS_TVOS)
+if(IS_IOS OR IS_TVOS OR IS_CATALYST)
   add_library(
     ${MPH_LIB_NAME}
     STATIC
@@ -617,7 +649,4 @@ if(IS_MACOS)
     )
 endif()
 
-if(IS_IOS)
-  message(STATUS "iOS architectures: ${CMAKE_OSX_ARCHITECTURES}")
-endif()
 configure_file(config.h.in config.h @ONLY)

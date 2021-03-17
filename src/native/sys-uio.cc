@@ -19,9 +19,9 @@
 #include "map.hh"
 #include "mph.hh"
 
-#if defined(HOST_IOS) || defined(HOST_TVOS)
+#if defined(HOST_IOS) || defined(HOST_TVOS) || defined(HOST_CATALYST)
 #include "compat.apple.hh"
-#endif // def HOST_IOS || def HOST_TVOS
+#endif // def HOST_IOS || def HOST_TVOS || def HOST_CATALYST
 
 MPH_API_INTERNAL struct iovec*
 _mph_from_iovec_array (struct Mono_Posix_Iovec *iov, int32_t iovcnt)
@@ -95,13 +95,14 @@ Mono_Posix_Syscall_preadv (int dirfd, struct Mono_Posix_Iovec *iov, int32_t iovc
 	}
 
 	int64_t res;
-#if !defined(HOST_IOS) && !defined(HOST_TVOS)
+#if !defined(HOST_IOS) && !defined(HOST_TVOS) && !defined(HOST_CATALYST)
 	res = preadv (dirfd, v, iovcnt, off);
-#else // ndef HOST_IOS && ndef HOST_TVOS
+#else // ndef HOST_IOS && ndef HOST_TVOS && ndef HOST_CATALYST
 	// Available since iOS 11.0
 	// Available since tvOS 11.0
+	// Available since macCatalyst 14.0
 	res = __apple_preadv (dirfd, v, iovcnt, off);
-#endif // def HOST_IOS && def HOST_TVOS
+#endif // def HOST_IOS && def HOST_TVOS && def HOST_CATALYST
 	free (v);
 	return res;
 }
@@ -121,13 +122,14 @@ Mono_Posix_Syscall_pwritev (int dirfd, struct Mono_Posix_Iovec *iov, int32_t iov
 	}
 
 	int64_t res;
-#if !defined(HOST_IOS) && !defined(HOST_TVOS)
+#if !defined(HOST_IOS) && !defined(HOST_TVOS) && !defined(HOST_CATALYST)
 	res = pwritev (dirfd, v, iovcnt, off);
-#else // ndef HOST_IOS && ndef HOST_TVOS
+#else // ndef HOST_IOS && ndef HOST_TVOS ndef HOST_CATALYST
 	// Available since iOS 11.0
 	// Available since tvOS 11.0
+	// Available since macCatalyst 14.0
 	res = __apple_preadv (dirfd, v, iovcnt, off);
-#endif // def HOST_IOS && def HOST_TVOS
+#endif // def HOST_IOS && def HOST_TVOS def HOST_CATALYST
 	free (v);
 	return res;
 }
