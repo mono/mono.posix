@@ -8,6 +8,7 @@ Native code status:
 
   * Linux: **building and linking** (gcc 10.2.1, clang 11.0.1)
   * macOS: **building and linking** (Xcode 12.4, x86_64 and arm64)
+  * macCatalyst: **building and linking** ((Xcode 12.4, x86_64 and arm64)
   * iOS: **building and linking** (Xcode 12.4, arm64, armv7, armv7s,
     x86_64)
   * Windows: **not tested yet**
