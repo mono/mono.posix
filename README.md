@@ -34,11 +34,11 @@ The `src/native` directory here corresponds to `support/` in the Mono repository
   - [x] Replace Mono atomic calls with compiler intrinsics (or
         standard library calls)
   - [x] Replace glib functions with something else (e.g. `g_error`)
-  - [ ] Get rid of `void*` wherever possible
+  - [X] Get rid of `void*` wherever possible
   - [x] Test build on macOS
   - [ ] Test build on {Free,Open,Net}BSD
   - [ ] Test build on Windows
-  - [ ] Create CMake toolchain files for various target systems (`iOS`,
+  - [X] Create CMake toolchain files for various target systems (`iOS`,
         `watchOS`, `tvOS`, `WASM`)
   - [x] Migrate to standard types (e.g. `uint32_t`) instead of the glib
         ones
