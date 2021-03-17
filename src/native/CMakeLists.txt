@@ -14,7 +14,7 @@ endif()
 # These files MUST be included before the `project` command
 #
 include(${CMAKE_CURRENT_LIST_DIR}/../../cmake/toolchain.android.cmake)
-include(${CMAKE_CURRENT_LIST_DIR}/../../cmake/toolchain.ios.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/../../cmake/toolchain.apple.cmake)
 
 project(
   MonoPosixHelper
@@ -230,9 +230,9 @@ set(MPH_SOURCES
   x-struct-str.cc
   )
 
-if(IS_IOS)
+if(IS_IOS OR IS_TVOS)
   list(APPEND MPH_SOURCES
-    compat.ios.cc
+    compat.apple.cc
     )
 endif()
 
@@ -595,7 +595,7 @@ if(IS_MACOS)
   endif()
 endif()
 
-if(IS_IOS)
+if(IS_IOS OR IS_TVOS)
   add_library(
     ${MPH_LIB_NAME}
     STATIC

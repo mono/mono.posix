@@ -6,7 +6,7 @@ OS=$(uname -s)
 BUILD_DIR_ROOT="${MY_DIR}/build"
 NATIVE_SOURCE_DIR="${MY_DIR}/src/native"
 LOG_DIR="${MY_DIR}/logs"
-ALL_TARGETS="host android ios wasm managed package"
+ALL_TARGETS="host android ios tvos wasm managed package"
 VERBOSE="no"
 JOBS=""
 REBUILD="no"
@@ -19,6 +19,7 @@ NDK_ROOT="${ANDROID_NDK_HOME:-${ANDROID_NDK_ROOT}}"
 
 ANDROID_ABIS="arm32 arm64 x86 x64"
 IOS_ABIS="armv7 armv7s arm64 simx86 simarm64"
+TVOS_ABIS="arm64 simx86"
 
 function die()
 {
@@ -170,6 +171,17 @@ function __build_ios()
 	for abi in ${ABIS:-${IOS_ABIS}}; do
 		abi_lower=$(echo ${abi} | tr A-Z a-z)
 		build_common ios-${abi_lower} -DTARGET_PLATFORM=ios-${abi_lower}
+	done
+}
+
+function __build_tvos()
+{
+	print_build_banner_native tvOS
+
+	local abi_lower
+	for abi in ${ABIS:-${TVOS_ABIS}}; do
+		abi_lower=$(echo ${abi} | tr A-Z a-z)
+		build_common tvos-${abi_lower} -DTARGET_PLATFORM=tvos-${abi_lower}
 	done
 }
 

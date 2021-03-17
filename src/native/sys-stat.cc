@@ -23,9 +23,9 @@
 #include "mph.hh" /* Don't remove or move after map.h! Works around issues with Android SDK unified headers */
 #include "map.hh"
 
-#if defined(HOST_IOS)
-#include "compat.ios.hh"
-#endif // def HOST_IOS
+#if defined(HOST_IOS) || defined(HOST_TVOS)
+#include "compat.apple.hh"
+#endif // def HOST_IOS || def HOST_TVOS
 
 int
 Mono_Posix_FromStat (struct Mono_Posix_Stat *from, struct stat* to)
@@ -254,12 +254,13 @@ Mono_Posix_Syscall_futimens(int fd, struct Mono_Posix_Timespec *tv)
 
 	ptv = copy_utimens (_tv, tv);
 
-#if !defined(HOST_IOS)
+#if !defined(HOST_IOS) && !defined(HOST_TVOS)
 	return futimens (fd, ptv);
-#else // ndef HOST_IOS
+#else // ndef HOST_IOS && ndef HOST_TVOS
 	// Available since iOS 11.0
-	return __ios_futimens (fd, ptv);
-#endif // def HOST_IOS
+	// Available since tvOS 11.0
+	return __apple_futimens (fd, ptv);
+#endif // def HOST_IOS && def HOST_TVOS
 }
 #endif /* def HAVE_FUTIMENS */
 
@@ -272,12 +273,13 @@ Mono_Posix_Syscall_utimensat(int dirfd, const char *pathname, struct Mono_Posix_
 
 	ptv = copy_utimens (_tv, tv);
 
-#if !defined(HOST_IOS)
+#if !defined(HOST_IOS) && !defined(HOST_TVOS)
 	return utimensat (dirfd, pathname, ptv, flags);
-#else // ndef HOST_IOS
+#else // ndef HOST_IOS && ndef HOST_TVOS
 	// Available since iOS 11.0
-	return __ios_utimensat (dirfd, pathname, ptv, flags);
-#endif
+	// Available since tvOS 11.0
+	return __apple_utimensat (dirfd, pathname, ptv, flags);
+#endif // def HOST_IOS && def HOST_TVOS
 }
 #endif /* def HAVE_UTIMENSAT */
 
