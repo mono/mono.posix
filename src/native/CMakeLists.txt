@@ -44,6 +44,7 @@ endif()
 option(STRIP_DEBUG "Strip debugging information when linking" ON)
 option(USE_COLOR "Use color to highlight compiler diagnostics" OFF)
 option(USE_CCACHE "Use ccache, if found, to speed up recompilation" ${CCACHE_OPTION_DEFAULT})
+option(USE_CONSERVATIVE_OPTIMIZATION "Use -O2 to optimize Release builds (instead of -O3)" ON)
 
 if(NOT WIN32 AND USE_CCACHE)
   if(CMAKE_CXX_COMPILER MATCHES "/ccache/")
@@ -316,6 +317,8 @@ endif()
 # Let CMake set the default optimization flag for Release builds
 if(IS_DEBUG_BUILD)
   list(APPEND LOCAL_COMPILER_ARGS -O0)
+elseif(USE_CONSERVATIVE_OPTIMIZATION)
+  list(APPEND LOCAL_COMPILER_ARGS -O2)
 endif()
 
 if(UNIX)
@@ -636,6 +639,18 @@ else()
     SHARED
     ${MPH_SOURCES}
     )
+
+  add_library(
+    "${MPH_LIB_NAME}-static"
+    STATIC
+    ${MPH_SOURCES}
+    )
+
+  set_target_properties(
+    "${MPH_LIB_NAME}-static" PROPERTIES
+    OUTPUT_NAME "${MPH_LIB_NAME}"
+    POSITION_INDEPENDENT_CODE True
+    )
 endif()
 
 if(IS_MACOS)
@@ -643,6 +658,28 @@ if(IS_MACOS)
     ${MPH_LIB_NAME}
     PROPERTIES
     OSX_ARCHITECTURES "${MPH_OSX_ARCHITECTURES}"
+    )
+endif()
+
+#
+# Place debug info in separate files, if possible
+#
+if(IS_LINUX OR IS_ANDROID)
+  if(IS_LINUX)
+    set(OBJCOPY "objcopy")
+    set(STRIP "strip")
+  else()
+    set(OBJCOPY "${ANDROID_TOOLCHAIN_ROOT}/bin/llvm-objcopy${ANDROID_TOOLCHAIN_SUFFIX}")
+    set(STRIP "${ANDROID_STRIP}")
+  endif()
+
+  add_custom_command(
+    TARGET ${MPH_LIB_NAME}
+    POST_BUILD
+    WORKING_DIRECTORY "$<TARGET_FILE_DIR:${MPH_LIB_NAME}>"
+    COMMAND ${OBJCOPY} --only-keep-debug "$<TARGET_FILE_NAME:${MPH_LIB_NAME}>" "$<TARGET_FILE_NAME:${MPH_LIB_NAME}>.debug"
+    COMMAND ${STRIP} --strip-debug --strip-unneeded "$<TARGET_FILE_NAME:${MPH_LIB_NAME}>"
+    COMMAND ${OBJCOPY} --add-gnu-debuglink="$<TARGET_FILE_NAME:${MPH_LIB_NAME}>.debug" "$<TARGET_FILE_NAME:${MPH_LIB_NAME}>"
     )
 endif()
 

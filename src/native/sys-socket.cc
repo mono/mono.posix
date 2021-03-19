@@ -386,25 +386,33 @@ class SockAddr final
 public:
 	explicit SockAddr (Mono_Posix__SockaddrHeader* address) noexcept
 	{
+		// fprintf (stdout, "%s\n", __PRETTY_FUNCTION__);
+		// fprintf (stdout, "  address == %p\n", address);
 		if (address == nullptr || !get_addrlen (address, addrlen)) {
+			// fprintf (stdout, "  bail #1\n");
 			return;
 		}
 
 		if (address->type == Mono_Posix_SockaddrType_SockaddrStorage) {
 			// ugly...
+			// fprintf (stdout, "  option #1\n");
 			addr = reinterpret_cast<sockaddr*> (reinterpret_cast<Mono_Posix__SockaddrDynamic*>(address)->data);
 		} else if (address->type == Mono_Posix_SockaddrType_SockaddrUn) {
+			// fprintf (stdout, "  option #2\n");
 			/* Use local_storage for up to 2048 bytes, use malloc() otherwise */
 			need_free = addrlen > MAX_ADDRLEN;
 			if (addrlen > 0) {
 				// Don't allocate otherwise, malloc takes size_t and if socklen_t is signed, it could
 				// allocate a huge block of memory
 				addr = reinterpret_cast<sockaddr*>(need_free ? malloc (addrlen) : local_storage);
-			}
+			}// } else
+			// 	fprintf (stdout, "  bail #2\n");
 		} else {
+			// fprintf (stdout, "  option #3\n");
 			addr = reinterpret_cast<sockaddr*>(local_storage);
 		}
 
+		// fprintf (stdout, "  addr == %p\n", addr);
 		valid = addr != nullptr;
 	}
 
@@ -642,12 +650,19 @@ Mono_Posix_Syscall_recvmsg (int socket, struct Mono_Posix_Syscall__Msghdr* messa
 int64_t
 Mono_Posix_Syscall_sendmsg (int socket, struct Mono_Posix_Syscall__Msghdr* message, struct Mono_Posix__SockaddrHeader* address, int flags)
 {
+	// fprintf (stdout, "%s\n", __PRETTY_FUNCTION__);
+	// fprintf (stdout, "  socket == %d\n", socket);
+	// fprintf (stdout, "  message == %p\n", message);
+	// fprintf (stdout, "  address == %p\n", address);
+	// fprintf (stdout, "  flags == %d\n", flags);
 	SockAddr sock (address);
 	if (!sock.is_valid ()) {
+		// fprintf (stdout, "  Invalid socket\n");
 		return -1;
 	}
 
 	if (Mono_Posix_FromSockaddr (address, sock.to_sockaddr ()) != 0) {
+		// fprintf (stdout, "  Failed to read from sockaddr\n");
 		return -1;
 	}
 
@@ -662,7 +677,7 @@ Mono_Posix_Syscall_sendmsg (int socket, struct Mono_Posix_Syscall__Msghdr* messa
 	hdr.msg_iov = _mph_from_iovec_array (message->msg_iov, message->msg_iovlen);
 
 	int r = sendmsg (socket, &hdr, flags);
-
+	// fprintf (stdout, "  sendmsg returned %d\n", r);
 	free (hdr.msg_iov);
 	return r;
 }
