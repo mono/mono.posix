@@ -3,13 +3,16 @@ MY_NAME=$(basename "$0")
 TRUE_PATH=$(readlink "$0" || echo "$0")
 MY_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 OS=$(uname -s)
+OS_LOWER=$(echo ${OS} | tr A-Z a-z)
 BUILD_DIR_ROOT="${MY_DIR}/build"
 NATIVE_SOURCE_DIR="${MY_DIR}/src/native"
-LOG_DIR="${MY_DIR}/logs"
-ALL_TARGETS="host android ios tvos catalyst wasm managed package"
+LOG_DIR="${MY_DIR}/build/logs"
+ALL_TARGETS="host android ios tvos catalyst wasm managed test package"
 VERBOSE="no"
 JOBS=""
 REBUILD="no"
+MANAGED_VERBOSITY="quiet"
+MANAGED_VERBOSITY_VERBOSE="detailed"
 CONFIGURATION="Release"
 USE_COLOR="ON"
 CMAKE="cmake"
@@ -21,6 +24,13 @@ ANDROID_ABIS="arm32 arm64 x86 x64"
 IOS_ABIS="armv7 armv7s arm64 simx86 simarm64"
 TVOS_ABIS="arm64 simx86"
 CATALYST_ABIS="arm64 x64"
+MONO_POSIX_FRAMEWORKS="netstandard2.0 netcoreapp3.1 net6.0 "
+MONO_POSIX_TEST_FRAMEWORKS="netcoreapp3.1 net6.0"
+
+MANAGED_BUILT="no"
+HOST_BUILT="no"
+HOST_BUILD_NAME="host-${OS_LOWER}"
+MANAGED_OUTPUT_DIR="${BUILD_DIR_ROOT}/managed"
 
 function die()
 {
@@ -38,6 +48,11 @@ Where OPTIONS are:
   -c, --configuration NAME  build in configuration 'NAME' (Release or Debug, default is ${CONFIGURATION})
   -b, --no-color            do not use color for native compiler diagnostics
   -v, --verbose             make the build verbose
+  -V, --managed-verbosity   managed build/test verbosity. Defaults to '${MANAGED_VERBOSITY}' for normal builds
+                            and '${MANAGED_VERBOSITY_VERBOSE}' for verbose ('-v') builds. Available values:
+
+                               q[uiet], m[inimal], n[ormal], d[etailed], and diag[nostic]
+
   -m, --cmake PATH          use the specified cmake binary instead of the default '${CMAKE}'
   -n, --ninja PATH          use the specified ninja binary instead of the default '${NINJA}'
   -x, --xcodebuild PATH     use the specified xcodebuild binary instead of the default '${XCODEBUILD}'
@@ -61,6 +76,7 @@ And TARGET is one of:
   catalyst             build native library for macOS Catalyst
   wasm                 build native library for WASM
   managed              build the managed library
+  test                 run the tests on the host OS
   package              package built artifacts into nugets
   all                  build all the targets above
 EOF
@@ -69,7 +85,11 @@ EOF
 
 function print_build_banner()
 {
+	echo
+	echo "*************************************************************"
 	echo "$@"
+	echo "*************************************************************"
+	echo
 }
 
 function print_build_banner_native()
@@ -121,6 +141,14 @@ function do_build()
 	"${make_program}" ${verbose} ${jobs}
 }
 
+function get_build_dir()
+{
+	local build_dir_name="${1}"
+	local config_lower=$(echo ${CONFIGURATION} | tr A-Z a-z)
+
+	echo "${BUILD_DIR_ROOT}/${build_dir_name}-${config_lower}"
+}
+
 function build_common()
 {
 	local build_dir_name="${1}"
@@ -131,8 +159,7 @@ function build_common()
 
 	shift
 
-	local config_lower=$(echo ${CONFIGURATION} | tr A-Z a-z)
-	local build_dir="${BUILD_DIR_ROOT}/${build_dir_name}-${config_lower}"
+	local build_dir="$(get_build_dir "${build_dir_name}")"
 	if [ "${REBUILD}" == "yes" -a -d "${build_dir}" ]; then
 		rm -rf "${build_dir}"
 	fi
@@ -142,9 +169,10 @@ function build_common()
 
 function __build_host()
 {
-	local OS_LOWER=$(echo ${OS} | tr A-Z a-z)
 	print_build_banner_native "${OS}"
-	build_common host-${OS_LOWER} -DTARGET_PLATFORM=host-${OS_LOWER}
+	build_common ${HOST_BUILD_NAME} -DTARGET_PLATFORM=host-${OS_LOWER}
+
+	HOST_BUILT="yes"
 }
 
 function __build_android()
@@ -208,7 +236,64 @@ function __build_wasm()
 
 function __build_managed()
 {
-	print_build_banner Building managed library
+	local verbosity
+
+	if [ "${VERBOSE}" == "yes" ]; then
+		verbosity="detailed"
+	else
+		verbosity="quiet"
+	fi
+
+	for framework in ${MONO_POSIX_FRAMEWORKS}; do
+		print_build_banner Building managed library for framework ${framework}
+		dotnet build \
+			   -f "${framework}" \
+			   --configuration "${CONFIGURATION}" \
+			   --verbosity "${MANAGED_BUILD_VERBOSITY}" \
+			   Mono.Posix.sln \
+			   "/bl:LogFile=${LOG_DIR}/Mono.Posix-build-${framework}.binlog"
+	done
+
+	for framework in ${MONO_POSIX_TEST_FRAMEWORKS}; do
+		print_build_banner Building managed tests for framework ${framework}
+		dotnet build \
+			   -f "${framework}" \
+			   --configuration "${CONFIGURATION}" \
+			   --verbosity "${MANAGED_BUILD_VERBOSITY}" \
+			   Mono.Posix.Test.sln \
+			   "/bl:LogFile=${LOG_DIR}/Mono.Posix.Test-build-${framework}.binlog"
+	done
+
+	MANAGED_BUILT="yes"
+}
+
+function __build_test()
+{
+	if [ "${HOST_BUILT}" == "no" ]; then
+		__build_host
+	fi
+
+	if [ "${MANAGED_BUILT}" == "no" ]; then
+		__build_managed
+	fi
+
+	local verbose=""
+	if [ "${VERBOSE}" == "yes" ]; then
+		verbose="-v d"
+	fi
+
+	local host_build_dir="$(get_build_dir "${HOST_BUILD_NAME}")"
+	local managed_top_dir="${MANAGED_OUTPUT_DIR}/${CONFIGURATION}"
+	for framework in ${MONO_POSIX_TEST_FRAMEWORKS}; do
+		print_build_banner Running tests for framework ${framework}
+		cp "${host_build_dir}/lib"/libMonoPosixHelper.* "${managed_top_dir}/${framework}"
+		dotnet test ${verbose} \
+			   -f "${framework}" \
+			   --verbosity "${MANAGED_BUILD_VERBOSITY}" \
+			   --configuration "${CONFIGURATION}" \
+			   --logger "trx;LogFileName=${LOG_DIR}/Mono.Posix.Test-${framework}.trx" \
+			   Mono.Posix.Test.sln
+	done
 }
 
 function __build_package()
@@ -223,6 +308,7 @@ function missing_argument()
 
 POSITIONAL_ARGS=""
 ABIS=""
+MANAGED_BUILD_VERBOSITY=""
 while (( "$#" )); do
     case "$1" in
 		-n|--ninja)
@@ -279,6 +365,15 @@ while (( "$#" )); do
 			fi
 			;;
 
+		-V|--managed-verbosity)
+			if [ -n "$2" ] && [ ${2:0:1} != "-" ]; then
+				MANAGED_BUILD_VERBOSITY="$(echo $2 | tr ',' ' ')";
+				shift 2
+			else
+				missing_argument "$1"
+			fi
+			;;
+
 		-v|--verbose) VERBOSE="yes"; shift ;;
 
 		-b|--no-color) USE_COLOR=OFF; shift ;;
@@ -303,13 +398,26 @@ if [ -z "${NINJA}" ]; then
 	die ninja binary must be specified
 fi
 
+if [ -z "${MANAGED_BUILD_VERBOSITY}" ]; then
+	if [ "${VERBOSE}" == "no" ]; then
+		MANAGED_BUILD_VERBOSITY="${MANAGED_VERBOSITY}"
+	else
+		MANAGED_BUILD_VERBOSITY="${MANAGED_VERBOSITY_VERBOSE}"
+	fi
+fi
+
 if [ $# -eq 0 ]; then
 	TARGET="host"
 else
-	TARGET=${1}
-	if [ "${TARGET}" == "all" ]; then
-		TARGET="${ALL_TARGETS}"
-	fi
+	TARGET=""
+	for t in "${@}"; do
+		if [ "${t}" == "all" ]; then
+			TARGET="${ALL_TARGETS}"
+			break
+		fi
+
+		TARGET="${TARGET} ${t}"
+	done
 fi
 
 for T in $TARGET; do

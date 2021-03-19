@@ -309,6 +309,7 @@ public class UnixEncoding : Encoding
 		}
 	}
 
+	[CLSCompliant(false)]
 	public unsafe override int GetBytes(char* chars, int charCount, byte* bytes, int byteCount)
 	{
 		if ((bytes == null && byteCount != 0) || (chars == null && charCount != 0))

@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFrameworks>netstandard2.0;netcoreapp3.1;net6.0;</TargetFrameworks>
+    <AssemblyName>Mono.Posix</AssemblyName>
+    <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
+  </PropertyGroup>
+
+  <Import Project="Mono.Posix.Common.props" />
+
+  <ItemGroup>
+    <Compile Include="./Assembly/**/*.cs" />
+    <Compile Include="./Mono.Posix/**/*.cs" />
+    <Compile Include="./Mono.Unix/**/*.cs" />
+    <Compile Include="./Mono.Unix.Native/**/*.cs" />
+    <Compile Include="./common/Locale.cs" />
+    <Compile Remove="./Mono.Unix.Native/CdeclFunction.cs" />
+  </ItemGroup>
+</Project>

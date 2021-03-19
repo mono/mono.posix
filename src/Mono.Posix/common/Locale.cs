@@ -1,13 +1,15 @@
 //
-// AssemblyInfo.cs
+// Locale.cs
 //
 // Author:
+//   Miguel de Icaza (miguel@ximian.com)
 //   Andreas Nahr (ClassDevelopment@A-SoftTech.com)
 //
-// (C) 2003 Ximian, Inc.  http://www.ximian.com
-// (C) 2004 Novell (http://www.novell.com)
+// (C) 2001 - 2003 Ximian, Inc (http://www.ximian.com)
 //
 
+//
+// Copyright (C) 2004 Novell, Inc (http://www.novell.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining
 // a copy of this software and associated documentation files (the
@@ -30,30 +32,20 @@
 //
 
 using System;
-using System.Reflection;
-using System.Runtime.InteropServices;
-using System.Security.Permissions;
 
-//[assembly: AssemblyVersion ("6.13.0.0")]
-[assembly: AssemblyTitle("Mono.Posix.dll")]
+internal sealed class Locale {
 
-[assembly: AssemblyDescription("Unix Integration Classes")]
+	private Locale ()
+	{
+	}
 
-[assembly: CLSCompliant (true)]
-[assembly: ComVisible (false)]
+	public static string GetText (string msg)
+	{
+		return msg;
+	}
 
-/*
- * TODO:
- * 
- * Anything implementing IDisposable should derive from MarshalByRefObject.
- * This is for remoting situations (e.g. across AppDomains).
- * Impacts UnixClient, UnixListener.
- * 
- * UnixPath.InvalidPathChars should be const, not readonly.
- * 
- * Mono.Remoting.Channels.Unix.UnixChannel.CreateMessageSink should have a LinkDemand
- * idential to IChannelSender's CreateMessageSink LinkDemand.
- * Repeat for all other members of UnixChannel, UnixClient, UnixServer.
- * 
- * Override .Equals and the == operator for all structures.
- */
+	public static string GetText (string fmt, params object [] args)
+	{
+		return String.Format (fmt, args);
+	}
+}

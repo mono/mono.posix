@@ -53,7 +53,10 @@ namespace Mono.Unix {
 		{
 			if (file == null)
 				throw new ArgumentNullException ("file");
-			int r = Native.Syscall.posix_fadvise (file.Handle.ToInt32(), offset, len,
+			if (file.SafeFileHandle.IsInvalid) {
+				throw new InvalidOperationException ("File handle is invalid");
+			}
+			int r = Native.Syscall.posix_fadvise (file.SafeFileHandle.DangerousGetHandle ().ToInt32(), offset, len,
 				(Native.PosixFadviseAdvice) pattern);
 			UnixMarshal.ThrowExceptionForLastErrorIf (r);
 		}

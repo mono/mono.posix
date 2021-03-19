@@ -11,14 +11,40 @@ Native code status:
   * macCatalyst: **building and linking** ((Xcode 12.4, x86_64 and arm64)
   * iOS: **building and linking** (Xcode 12.4, arm64, armv7, armv7s,
     x86_64)
-  * Windows: **not tested yet**
+  * Windows: native code will get a separate implementation on Windows
+    at some point. This is because Windows POSIX support is very
+    minimal and very different to Unix systems, requiring a lot of
+    workarounds, conditional code etc, making the Unix code hard to
+    read and follow.
   * BSD: **not tested yet**
 
 Managed code status:
 
-  **not started**
+  * `Mono.Posix` builds for
+    * `net6.0`
+	* `netcoreapp3.1`
+	* `netstandard2.0`
+  * `Mono.Posix.Test` builds for
+    * `net6.0`
+    * `netcoreapp3.1`
+
+A number of tests fail at this point.
 
 # Mono.Posix standalone repository
+
+## Build requirements
+
+  * All platforms
+    * `dotnet` (6.*)
+	* `cmake` (3.18 at the minimum, 3.19.5 if building for macCatalyst
+      on macOS)
+    * `ninja` (any version supported by `cmake`)
+	* Android NDK (r21 or newer)
+	* C++ compiler with support for the C++17 standard
+  * macOS
+    * Xcode 12 (with support for Apple silicon)
+  * Linux
+    * `gcc` or `clang` compilers
 
 ## Source imports
 
@@ -37,7 +63,7 @@ The `src/native` directory here corresponds to `support/` in the Mono repository
   - [X] Get rid of `void*` wherever possible
   - [x] Test build on macOS
   - [ ] Test build on {Free,Open,Net}BSD
-  - [ ] Test build on Windows
+  - [X] Test build on Windows (not working atm)
   - [X] Create CMake toolchain files for various target systems (`iOS`,
         `watchOS`, `tvOS`, `WASM`)
   - [x] Migrate to standard types (e.g. `uint32_t`) instead of the glib
@@ -47,7 +73,7 @@ The `src/native` directory here corresponds to `support/` in the Mono repository
   - [x] Migrate to `<limits>` instead of the glib macros
   - [ ] Review what POSIX APIs are missing
   - [ ] Add OS-specific calls (in namespace per OS)
-  - [ ] Migrate managed build to a dotnet SDK project (netstandard and
+  - [X] Migrate managed build to a dotnet SDK project (netstandard and
         netcore)
   - [ ] Write new map generation utility to replace
         `create-native-map`, possibly based on

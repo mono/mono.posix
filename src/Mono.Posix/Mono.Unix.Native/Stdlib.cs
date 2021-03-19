@@ -309,7 +309,7 @@ namespace Mono.Unix.Native {
 	public delegate void SignalHandler (int signal);
 
 
-#if !NETSTANDARD2_0
+#if !NETSTANDARD2_0 && !NET6
 	internal class XPrintfFunctions
 	{
 		internal delegate object XPrintf (object[] parameters);
@@ -777,7 +777,7 @@ namespace Mono.Unix.Native {
 			return sys_fprintf (stream, "%s", message);
 		}
 
-#if !NETSTANDARD2_0
+#if !NETSTANDARD2_0 && !NET6
 		[Obsolete ("Not necessarily portable due to cdecl restrictions.\n" +
 				"Use fprintf (IntPtr, string) instead.")]
 		public static int fprintf (IntPtr stream, string format, params object[] parameters)
@@ -801,7 +801,7 @@ namespace Mono.Unix.Native {
 			return sys_printf ("%s", message);
 		}
 
-#if !NETSTANDARD2_0
+#if !NETSTANDARD2_0 && !NET6
 		[Obsolete ("Not necessarily portable due to cdecl restrictions.\n" +
 				"Use printf (string) instead.")]
 		public static int printf (string format, params object[] parameters)
@@ -833,7 +833,7 @@ namespace Mono.Unix.Native {
 			return sys_snprintf (s, (ulong) s.Capacity, "%s", message);
 		}
 
-#if !NETSTANDARD2_0
+#if !NETSTANDARD2_0 && !NET6
 		[CLSCompliant (false)]
 		[Obsolete ("Not necessarily portable due to cdecl restrictions.\n" +
 				"Use snprintf (StringBuilder, string) instead.")]

@@ -26,7 +26,7 @@ namespace MonoTests.System.IO
 		static string TempFolder;
 		static readonly char DSC = Path.DirectorySeparatorChar;
 
-		[TestFixtureSetUp]
+		[OneTimeSetUp]
 		public void FixtureSetUp ()
 		{
 			try {
