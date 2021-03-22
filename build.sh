@@ -170,7 +170,13 @@ function build_common()
 function __build_host()
 {
 	print_build_banner_native "${OS}"
-	build_common ${HOST_BUILD_NAME} -DTARGET_PLATFORM=host-${OS_LOWER}
+
+	if [ "${OS}" == "Darwin" ]; then
+		build_common ${HOST_BUILD_NAME}-x64 -DTARGET_PLATFORM=host-${OS_LOWER}-x64
+		build_common ${HOST_BUILD_NAME}-arm64 -DTARGET_PLATFORM=host-${OS_LOWER}-arm64
+	else
+		build_common ${HOST_BUILD_NAME} -DTARGET_PLATFORM=host-${OS_LOWER}
+	fi
 
 	HOST_BUILT="yes"
 }

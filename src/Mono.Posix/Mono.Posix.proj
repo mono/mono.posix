@@ -37,8 +37,18 @@
       <HasSharedLibrary>true</HasSharedLibrary>
     </_NativeLib>
 
-    <_NativeLib Include="host-darwin">
+    <_NativeLib Include="host-darwin-x64">
       <PackagePath>runtimes/osx-x64/native</PackagePath>
+      <LibraryPrefix>$(_DarwinLibraryPrefix)</LibraryPrefix>
+      <SharedSuffix>$(_DarwinSharedNativeLibrarySuffix)</SharedSuffix>
+      <StaticSuffix>$(_DarwinStaticNativeLibrarySuffix)</StaticSuffix>
+      <DebugSuffix>$(_DarwinDebugNativeLibrarySuffix)</DebugSuffix>
+      <HasDebugLibrary>$(_DarwinHasDebugNativeLibrary)</HasDebugLibrary>
+      <HasSharedLibrary>true</HasSharedLibrary>
+    </_NativeLib>
+
+    <_NativeLib Include="host-darwin-arm64">
+      <PackagePath>runtimes/osx-arm64/native</PackagePath>
       <LibraryPrefix>$(_DarwinLibraryPrefix)</LibraryPrefix>
       <SharedSuffix>$(_DarwinSharedNativeLibrarySuffix)</SharedSuffix>
       <StaticSuffix>$(_DarwinStaticNativeLibrarySuffix)</StaticSuffix>

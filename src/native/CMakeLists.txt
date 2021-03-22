@@ -616,12 +616,12 @@ if(IS_MACOS)
   endif()
 
   unset(MPH_OSX_ARCHITECTURES)
-  if(SDK_SUPPORTS_ARM64)
+  if(SDK_SUPPORTS_ARM64 AND MACOS_ARM64)
     message(STATUS "SDK at ${XCODE_DEVELOPER_PATH} supports creation of ARM64 binaries")
     list(APPEND MPH_OSX_ARCHITECTURES "arm64")
   endif()
 
-  if(SDK_SUPPORTS_X86_64)
+  if(SDK_SUPPORTS_X86_64 AND MACOS_X64)
     message(STATUS "SDK at ${XCODE_DEVELOPER_PATH} supports creation of X86_64 binaries")
     list(APPEND MPH_OSX_ARCHITECTURES "x86_64")
   endif()
@@ -656,6 +656,12 @@ endif()
 if(IS_MACOS)
   set_target_properties(
     ${MPH_LIB_NAME}
+    PROPERTIES
+    OSX_ARCHITECTURES "${MPH_OSX_ARCHITECTURES}"
+    )
+
+  set_target_properties(
+    "${MPH_LIB_NAME}-static"
     PROPERTIES
     OSX_ARCHITECTURES "${MPH_OSX_ARCHITECTURES}"
     )
