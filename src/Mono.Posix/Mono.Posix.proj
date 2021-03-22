@@ -10,71 +10,187 @@
     </BeforePack>
   </PropertyGroup>
 
+  <PropertyGroup>
+    <_LinuxLibraryPrefix>lib</_LinuxLibraryPrefix>
+    <_LinuxSharedNativeLibrarySuffix>so</_LinuxSharedNativeLibrarySuffix>
+    <_LinuxStaticNativeLibrarySuffix>a</_LinuxStaticNativeLibrarySuffix>
+    <_LinuxDebugNativeLibrarySuffix>$(_LinuxSharedNativeLibrarySuffix).debug</_LinuxDebugNativeLibrarySuffix>
+    <_LinuxHasDebugNativeLibrary>true</_LinuxHasDebugNativeLibrary>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <_DarwinLibraryPrefix>lib</_DarwinLibraryPrefix>
+    <_DarwinSharedNativeLibrarySuffix>dylib</_DarwinSharedNativeLibrarySuffix>
+    <_DarwinStaticNativeLibrarySuffix>a</_DarwinStaticNativeLibrarySuffix>
+    <_DarwinDebugNativeLibrarySuffix></_DarwinDebugNativeLibrarySuffix>
+    <_DarwinHasDebugNativeLibrary>false</_DarwinHasDebugNativeLibrary>
+  </PropertyGroup>
+
   <ItemGroup>
     <_NativeLib Include="host-linux">
       <PackagePath>runtimes/linux-x64/native</PackagePath>
+      <LibraryPrefix>$(_LinuxLibraryPrefix)</LibraryPrefix>
+      <SharedSuffix>$(_LinuxSharedNativeLibrarySuffix)</SharedSuffix>
+      <StaticSuffix>$(_LinuxStaticNativeLibrarySuffix)</StaticSuffix>
+      <DebugSuffix>$(_LinuxDebugNativeLibrarySuffix)</DebugSuffix>
+      <HasDebugLibrary>$(_LinuxHasDebugNativeLibrary)</HasDebugLibrary>
+      <HasSharedLibrary>true</HasSharedLibrary>
     </_NativeLib>
 
     <_NativeLib Include="host-darwin">
       <PackagePath>runtimes/osx-x64/native</PackagePath>
+      <LibraryPrefix>$(_DarwinLibraryPrefix)</LibraryPrefix>
+      <SharedSuffix>$(_DarwinSharedNativeLibrarySuffix)</SharedSuffix>
+      <StaticSuffix>$(_DarwinStaticNativeLibrarySuffix)</StaticSuffix>
+      <DebugSuffix>$(_DarwinDebugNativeLibrarySuffix)</DebugSuffix>
+      <HasDebugLibrary>$(_DarwinHasDebugNativeLibrary)</HasDebugLibrary>
+      <HasSharedLibrary>true</HasSharedLibrary>
     </_NativeLib>
 
     <_NativeLib Include="android-arm32">
       <PackagePath>runtimes/android-arm/native</PackagePath>
+      <LibraryPrefix>$(_LinuxLibraryPrefix)</LibraryPrefix>
+      <SharedSuffix>$(_LinuxSharedNativeLibrarySuffix)</SharedSuffix>
+      <StaticSuffix>$(_LinuxStaticNativeLibrarySuffix)</StaticSuffix>
+      <DebugSuffix>$(_LinuxDebugNativeLibrarySuffix)</DebugSuffix>
+      <HasDebugLibrary>$(_LinuxHasDebugNativeLibrary)</HasDebugLibrary>
+      <HasSharedLibrary>true</HasSharedLibrary>
     </_NativeLib>
 
     <_NativeLib Include="android-arm64">
       <PackagePath>runtimes/android-arm64/native</PackagePath>
+      <LibraryPrefix>$(_LinuxLibraryPrefix)</LibraryPrefix>
+      <SharedSuffix>$(_LinuxSharedNativeLibrarySuffix)</SharedSuffix>
+      <StaticSuffix>$(_LinuxStaticNativeLibrarySuffix)</StaticSuffix>
+      <DebugSuffix>$(_LinuxDebugNativeLibrarySuffix)</DebugSuffix>
+      <HasDebugLibrary>$(_LinuxHasDebugNativeLibrary)</HasDebugLibrary>
+      <HasSharedLibrary>true</HasSharedLibrary>
     </_NativeLib>
 
     <_NativeLib Include="android-x86">
       <PackagePath>runtimes/android-x86/native</PackagePath>
+      <LibraryPrefix>$(_LinuxLibraryPrefix)</LibraryPrefix>
+      <SharedSuffix>$(_LinuxSharedNativeLibrarySuffix)</SharedSuffix>
+      <StaticSuffix>$(_LinuxStaticNativeLibrarySuffix)</StaticSuffix>
+      <DebugSuffix>$(_LinuxDebugNativeLibrarySuffix)</DebugSuffix>
+      <HasDebugLibrary>$(_LinuxHasDebugNativeLibrary)</HasDebugLibrary>
+      <HasSharedLibrary>true</HasSharedLibrary>
     </_NativeLib>
 
     <_NativeLib Include="android-x64">
       <PackagePath>runtimes/android-x86_64/native</PackagePath>
+      <LibraryPrefix>$(_LinuxLibraryPrefix)</LibraryPrefix>
+      <SharedSuffix>$(_LinuxSharedNativeLibrarySuffix)</SharedSuffix>
+      <StaticSuffix>$(_LinuxStaticNativeLibrarySuffix)</StaticSuffix>
+      <DebugSuffix>$(_LinuxDebugNativeLibrarySuffix)</DebugSuffix>
+      <HasDebugLibrary>$(_LinuxHasDebugNativeLibrary)</HasDebugLibrary>
+      <HasSharedLibrary>true</HasSharedLibrary>
     </_NativeLib>
 
     <_NativeLib Include="catalyst-arm64">
       <PackagePath>runtimes/maccatalyst-arm64/native</PackagePath>
+      <LibraryPrefix>$(_DarwinLibraryPrefix)</LibraryPrefix>
+      <SharedSuffix>$(_DarwinSharedNativeLibrarySuffix)</SharedSuffix>
+      <StaticSuffix>$(_DarwinStaticNativeLibrarySuffix)</StaticSuffix>
+      <DebugSuffix>$(_DarwinDebugNativeLibrarySuffix)</DebugSuffix>
+      <HasDebugLibrary>$(_DarwinHasDebugNativeLibrary)</HasDebugLibrary>
+      <HasSharedLibrary>false</HasSharedLibrary>
     </_NativeLib>
 
     <_NativeLib Include="catalyst-x64">
       <PackagePath>runtimes/maccatalyst-x64/native</PackagePath>
+      <LibraryPrefix>$(_DarwinLibraryPrefix)</LibraryPrefix>
+      <SharedSuffix>$(_DarwinSharedNativeLibrarySuffix)</SharedSuffix>
+      <StaticSuffix>$(_DarwinStaticNativeLibrarySuffix)</StaticSuffix>
+      <DebugSuffix>$(_DarwinDebugNativeLibrarySuffix)</DebugSuffix>
+      <HasDebugLibrary>$(_DarwinHasDebugNativeLibrary)</HasDebugLibrary>
+      <HasSharedLibrary>false</HasSharedLibrary>
     </_NativeLib>
 
     <_NativeLib Include="ios-arm64">
       <PackagePath>runtimes/ios-arm64/native</PackagePath>
+      <LibraryPrefix>$(_DarwinLibraryPrefix)</LibraryPrefix>
+      <SharedSuffix>$(_DarwinSharedNativeLibrarySuffix)</SharedSuffix>
+      <StaticSuffix>$(_DarwinStaticNativeLibrarySuffix)</StaticSuffix>
+      <DebugSuffix>$(_DarwinDebugNativeLibrarySuffix)</DebugSuffix>
+      <HasDebugLibrary>$(_DarwinHasDebugNativeLibrary)</HasDebugLibrary>
+      <HasSharedLibrary>false</HasSharedLibrary>
     </_NativeLib>
 
     <_NativeLib Include="ios-armv7">
       <PackagePath>runtimes/ios-armv7/native</PackagePath>
+      <LibraryPrefix>$(_DarwinLibraryPrefix)</LibraryPrefix>
+      <SharedSuffix>$(_DarwinSharedNativeLibrarySuffix)</SharedSuffix>
+      <StaticSuffix>$(_DarwinStaticNativeLibrarySuffix)</StaticSuffix>
+      <DebugSuffix>$(_DarwinDebugNativeLibrarySuffix)</DebugSuffix>
+      <HasDebugLibrary>$(_DarwinHasDebugNativeLibrary)</HasDebugLibrary>
+      <HasSharedLibrary>false</HasSharedLibrary>
     </_NativeLib>
 
     <_NativeLib Include="ios-armv7s">
       <PackagePath>runtimes/ios-armv7s/native</PackagePath>
+      <LibraryPrefix>$(_DarwinLibraryPrefix)</LibraryPrefix>
+      <SharedSuffix>$(_DarwinSharedNativeLibrarySuffix)</SharedSuffix>
+      <StaticSuffix>$(_DarwinStaticNativeLibrarySuffix)</StaticSuffix>
+      <DebugSuffix>$(_DarwinDebugNativeLibrarySuffix)</DebugSuffix>
+      <HasDebugLibrary>$(_DarwinHasDebugNativeLibrary)</HasDebugLibrary>
+      <HasSharedLibrary>false</HasSharedLibrary>
     </_NativeLib>
 
     <_NativeLib Include="ios-simarm64">
       <PackagePath>runtimes/ios-simarm64/native</PackagePath>
+      <LibraryPrefix>$(_DarwinLibraryPrefix)</LibraryPrefix>
+      <SharedSuffix>$(_DarwinSharedNativeLibrarySuffix)</SharedSuffix>
+      <StaticSuffix>$(_DarwinStaticNativeLibrarySuffix)</StaticSuffix>
+      <DebugSuffix>$(_DarwinDebugNativeLibrarySuffix)</DebugSuffix>
+      <HasDebugLibrary>$(_DarwinHasDebugNativeLibrary)</HasDebugLibrary>
+      <HasSharedLibrary>false</HasSharedLibrary>
     </_NativeLib>
 
     <_NativeLib Include="ios-simx86">
       <PackagePath>runtimes/ios-simx64/native</PackagePath>
+      <LibraryPrefix>$(_DarwinLibraryPrefix)</LibraryPrefix>
+      <SharedSuffix>$(_DarwinSharedNativeLibrarySuffix)</SharedSuffix>
+      <StaticSuffix>$(_DarwinStaticNativeLibrarySuffix)</StaticSuffix>
+      <DebugSuffix>$(_DarwinDebugNativeLibrarySuffix)</DebugSuffix>
+      <HasDebugLibrary>$(_DarwinHasDebugNativeLibrary)</HasDebugLibrary>
+      <HasSharedLibrary>false</HasSharedLibrary>
     </_NativeLib>
 
     <_NativeLib Include="tvos-arm64">
       <PackagePath>runtimes/tvos-arm64/native</PackagePath>
+      <LibraryPrefix>$(_DarwinLibraryPrefix)</LibraryPrefix>
+      <SharedSuffix>$(_DarwinSharedNativeLibrarySuffix)</SharedSuffix>
+      <StaticSuffix>$(_DarwinStaticNativeLibrarySuffix)</StaticSuffix>
+      <DebugSuffix>$(_DarwinDebugNativeLibrarySuffix)</DebugSuffix>
+      <HasDebugLibrary>$(_DarwinHasDebugNativeLibrary)</HasDebugLibrary>
+      <HasSharedLibrary>false</HasSharedLibrary>
     </_NativeLib>
 
     <_NativeLib Include="tvos-simx86">
       <PackagePath>runtimes/tvos-simx64/native</PackagePath>
+      <LibraryPrefix>$(_DarwinLibraryPrefix)</LibraryPrefix>
+      <SharedSuffix>$(_DarwinSharedNativeLibrarySuffix)</SharedSuffix>
+      <StaticSuffix>$(_DarwinStaticNativeLibrarySuffix)</StaticSuffix>
+      <DebugSuffix>$(_DarwinDebugNativeLibrarySuffix)</DebugSuffix>
+      <HasDebugLibrary>$(_DarwinHasDebugNativeLibrary)</HasDebugLibrary>
+      <HasSharedLibrary>false</HasSharedLibrary>
     </_NativeLib>
   </ItemGroup>
 
   <Target Name="_GetNativeLibraries">
     <ItemGroup>
-      <Content Include="$(BuildDirTop)/%(_NativeLib.Identity)-$(NativeConfiguration)/lib/libMonoPosixHelper.*">
+      <Content Include="$(BuildDirTop)/%(_NativeLib.Identity)-$(NativeConfiguration)/lib/%(_NativeLib.LibraryPrefix)MonoPosixHelper.%(_NativeLib.SharedSuffix)"
+               Condition=" '%(_NativeLib.HasSharedLibrary)' == 'true' ">
+        <PackagePath>%(_NativeLib.PackagePath)</PackagePath>
+      </Content>
+
+      <Content Include="$(BuildDirTop)/%(_NativeLib.Identity)-$(NativeConfiguration)/lib/%(_NativeLib.LibraryPrefix)MonoPosixHelper.%(_NativeLib.DebugSuffix)"
+               Condition=" '%(_NativeLib.HasDebugLibrary)' == 'true' ">
+        <PackagePath>%(_NativeLib.PackagePath)</PackagePath>
+      </Content>
+
+      <Content Include="$(BuildDirTop)/%(_NativeLib.Identity)-$(NativeConfiguration)/lib/%(_NativeLib.LibraryPrefix)MonoPosixHelper.%(_NativeLib.StaticSuffix)">
         <PackagePath>%(_NativeLib.PackagePath)</PackagePath>
       </Content>
     </ItemGroup>
