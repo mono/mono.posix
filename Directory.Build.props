@@ -1,5 +1,6 @@
 <Project>
   <PropertyGroup>
     <ProductVersion>7.0.0</ProductVersion>
+    <ProductSuffix>alpha</ProductSuffix>
   </PropertyGroup>
 </Project>

@@ -34,10 +34,7 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Security.Permissions;
 
-//[assembly: AssemblyVersion ("6.13.0.0")]
 [assembly: AssemblyTitle("Mono.Posix.dll")]
-
-[assembly: AssemblyDescription("Unix Integration Classes")]
 
 [assembly: CLSCompliant (true)]
 [assembly: ComVisible (false)]

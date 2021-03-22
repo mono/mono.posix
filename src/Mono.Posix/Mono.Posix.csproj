@@ -6,6 +6,7 @@
   </PropertyGroup>
 
   <Import Project="Mono.Posix.Common.props" />
+  <Import Project="Mono.Posix.proj" />
 
   <ItemGroup>
     <Compile Include="./Assembly/**/*.cs" />
