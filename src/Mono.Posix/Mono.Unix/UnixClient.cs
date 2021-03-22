@@ -87,7 +87,7 @@ namespace Mono.Unix {
 				return new PeerCred (client);
 			}
 		}
-        
+
 		public LingerOption LingerState {
 			get {
 				CheckDisposed ();
@@ -115,7 +115,7 @@ namespace Mono.Unix {
 							SocketOptionName.ReceiveBuffer, value);
 			}
 		}
-            
+
 		public int ReceiveTimeout {
 			get {
 				CheckDisposed ();
@@ -129,7 +129,7 @@ namespace Mono.Unix {
 							SocketOptionName.ReceiveTimeout, value);
 			}
 		}
-        
+
 		public int SendBufferSize {
 			get {
 				CheckDisposed ();
@@ -143,7 +143,7 @@ namespace Mono.Unix {
 							SocketOptionName.SendBuffer, value);
 			}
 		}
-        
+
 		public int SendTimeout {
 			get {
 				CheckDisposed ();
@@ -157,26 +157,26 @@ namespace Mono.Unix {
 							SocketOptionName.SendTimeout, value);
 			}
 		}
-        
+
 		public void Close ()
 		{
 			CheckDisposed ();
 			Dispose ();
 		}
-        
+
 		public void Connect (UnixEndPoint remoteEndPoint)
 		{
 			CheckDisposed ();
 			client.Connect (remoteEndPoint);
 			stream = new NetworkStream (client, true);
 		}
-        
+
 		public void Connect (string path)
 		{
 			CheckDisposed ();
 			Connect (new UnixEndPoint (path));
 		}
-        
+
 		public void Dispose ()
 		{
 			Dispose (true);
@@ -214,12 +214,12 @@ namespace Mono.Unix {
 
 			return stream;
 		}
-        
+
 		void CheckDisposed ()
 		{
 			if (disposed)
 				throw new ObjectDisposedException (GetType().FullName);
-		}        
+		}
 
 		~UnixClient ()
 		{

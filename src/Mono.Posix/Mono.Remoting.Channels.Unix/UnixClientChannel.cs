@@ -38,97 +38,97 @@ using System.Threading;
 
 namespace Mono.Remoting.Channels.Unix
 {
-    public class UnixClientChannel : IChannelSender, IChannel
-    {
-        int priority = 1;                    
-        string name = "unix";
-        IClientChannelSinkProvider _sinkProvider;
-        
-        public UnixClientChannel ()
-        {
-            _sinkProvider = new UnixBinaryClientFormatterSinkProvider ();
-            _sinkProvider.Next = new UnixClientTransportSinkProvider ();
-        }
+	public class UnixClientChannel : IChannelSender, IChannel
+	{
+		int priority = 1;
+		string name = "unix";
+		IClientChannelSinkProvider _sinkProvider;
 
-        public UnixClientChannel (IDictionary properties, IClientChannelSinkProvider sinkProvider)
-        {
-            object val = properties ["name"];
-            if (val != null) name = val as string;
-            
-            val = properties ["priority"];
-            if (val != null) priority = Convert.ToInt32 (val);
-            
-            if (sinkProvider != null)
-            {
-                _sinkProvider = sinkProvider;
+		public UnixClientChannel ()
+		{
+			_sinkProvider = new UnixBinaryClientFormatterSinkProvider ();
+			_sinkProvider.Next = new UnixClientTransportSinkProvider ();
+		}
 
-                // add the unix provider at the end of the chain
-                IClientChannelSinkProvider prov = sinkProvider;
-                while (prov.Next != null) prov = prov.Next;
-                prov.Next = new UnixClientTransportSinkProvider ();
+		public UnixClientChannel (IDictionary properties, IClientChannelSinkProvider sinkProvider)
+		{
+			object val = properties ["name"];
+			if (val != null) name = val as string;
 
-                // Note: a default formatter is added only when
-                // no sink providers are specified in the config file.
-            }
-            else
-            {
-                _sinkProvider = new UnixBinaryClientFormatterSinkProvider ();
-                _sinkProvider.Next = new UnixClientTransportSinkProvider ();
-            }
+			val = properties ["priority"];
+			if (val != null) priority = Convert.ToInt32 (val);
 
-        }
+			if (sinkProvider != null)
+			{
+				_sinkProvider = sinkProvider;
 
-        public UnixClientChannel (string name, IClientChannelSinkProvider sinkProvider)
-        {
-            this.name = name;
-            _sinkProvider = sinkProvider;
+				// add the unix provider at the end of the chain
+				IClientChannelSinkProvider prov = sinkProvider;
+				while (prov.Next != null) prov = prov.Next;
+				prov.Next = new UnixClientTransportSinkProvider ();
 
-            // add the unix provider at the end of the chain
-            IClientChannelSinkProvider prov = sinkProvider;
-            while (prov.Next != null) prov = prov.Next;
-            prov.Next = new UnixClientTransportSinkProvider ();
-        }
-        
-        public string ChannelName
-        {
-            get {
-                return name;
-            }
-        }
+				// Note: a default formatter is added only when
+				// no sink providers are specified in the config file.
+			}
+			else
+			{
+				_sinkProvider = new UnixBinaryClientFormatterSinkProvider ();
+				_sinkProvider.Next = new UnixClientTransportSinkProvider ();
+			}
 
-        public int ChannelPriority
-        {
-            get {
-                return priority;
-            }
-        }
+		}
 
-        public IMessageSink CreateMessageSink (string url,
-                                               object remoteChannelData,
-                                               out string objectURI)
-        {
-            if (url != null && Parse (url, out objectURI) != null)
-                return (IMessageSink) _sinkProvider.CreateSink (this, url, remoteChannelData);
-                                                                                
-            if (remoteChannelData != null) {
-                IChannelDataStore ds = remoteChannelData as IChannelDataStore;
-                if (ds != null && ds.ChannelUris.Length > 0)
-                    url = ds.ChannelUris [0];
-                else {
-                    objectURI = null;
-                    return null;
-                }
-            }
-            
-            if (Parse (url, out objectURI) == null)
-                return null;
+		public UnixClientChannel (string name, IClientChannelSinkProvider sinkProvider)
+		{
+			this.name = name;
+			_sinkProvider = sinkProvider;
 
-            return (IMessageSink) _sinkProvider.CreateSink (this, url, remoteChannelData);
-        }
+			// add the unix provider at the end of the chain
+			IClientChannelSinkProvider prov = sinkProvider;
+			while (prov.Next != null) prov = prov.Next;
+			prov.Next = new UnixClientTransportSinkProvider ();
+		}
 
-        public string Parse (string url, out string objectURI)
-        {
-            return UnixChannel.ParseUnixURL (url, out objectURI);
-        }
-    }
+		public string ChannelName
+		{
+			get {
+				return name;
+			}
+		}
+
+		public int ChannelPriority
+		{
+			get {
+				return priority;
+			}
+		}
+
+		public IMessageSink CreateMessageSink (string url,
+		                                       object remoteChannelData,
+		                                       out string objectURI)
+		{
+			if (url != null && Parse (url, out objectURI) != null)
+				return (IMessageSink) _sinkProvider.CreateSink (this, url, remoteChannelData);
+
+			if (remoteChannelData != null) {
+				IChannelDataStore ds = remoteChannelData as IChannelDataStore;
+				if (ds != null && ds.ChannelUris.Length > 0)
+					url = ds.ChannelUris [0];
+				else {
+					objectURI = null;
+					return null;
+				}
+			}
+
+			if (Parse (url, out objectURI) == null)
+				return null;
+
+			return (IMessageSink) _sinkProvider.CreateSink (this, url, remoteChannelData);
+		}
+
+		public string Parse (string url, out string objectURI)
+		{
+			return UnixChannel.ParseUnixURL (url, out objectURI);
+		}
+	}
 }

@@ -60,12 +60,12 @@ namespace Mono.Unix {
 			server.Bind (ep);
 			savedEP = server.LocalEndPoint;
 		}
-        
+
 		public UnixListener (string path)
 		{
 			if (!Directory.Exists (Path.GetDirectoryName (path)))
 				Directory.CreateDirectory (Path.GetDirectoryName (path));
-            
+
 			Init (new UnixEndPoint (path));
 		}
 
@@ -76,15 +76,15 @@ namespace Mono.Unix {
 
 			Init (localEndPoint);
 		}
-        
+
 		public EndPoint LocalEndpoint {
 			get { return savedEP; }
 		}
-        
+
 		protected Socket Server {
 			get { return server; }
 		}
-        
+
 		public Socket AcceptSocket ()
 		{
 			CheckDisposed ();
@@ -93,7 +93,7 @@ namespace Mono.Unix {
 
 			return server.Accept ();
 		}
-        
+
 		public UnixClient AcceptUnixClient ()
 		{
 			CheckDisposed ();
@@ -102,12 +102,12 @@ namespace Mono.Unix {
 
 			return new UnixClient (AcceptSocket ());
 		}
-        
+
 		~UnixListener ()
 		{
 			Dispose (false);
 		}
-    
+
 		public bool Pending ()
 		{
 			CheckDisposed ();
@@ -116,12 +116,12 @@ namespace Mono.Unix {
 
 			return server.Poll (1000, SelectMode.SelectRead);
 		}
-        
+
 		public void Start ()
 		{
 			Start (5);
 		}
-        
+
 		public void Start (int backlog)
 		{
 			CheckDisposed ();
@@ -162,12 +162,12 @@ namespace Mono.Unix {
 
 			disposed = true;
 		}
-        
+
 		void CheckDisposed ()
 		{
 			if (disposed)
 				throw new ObjectDisposedException (GetType().FullName);
-		}        
+		}
 	}
 
 }

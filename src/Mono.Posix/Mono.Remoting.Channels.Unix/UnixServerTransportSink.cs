@@ -37,100 +37,100 @@ using System.Runtime.Remoting.Channels;
 
 namespace Mono.Remoting.Channels.Unix
 {
-    internal class UnixServerTransportSink : IServerChannelSink, IChannelSinkBase
-    {
-        IServerChannelSink next_sink;
-        
-        public UnixServerTransportSink (IServerChannelSink next)
-        {
-            next_sink = next;
-        }
-        
-        public IServerChannelSink NextChannelSink 
-        {
-            get 
-            {
-                return next_sink;
-            }
-        }
+	internal class UnixServerTransportSink : IServerChannelSink, IChannelSinkBase
+	{
+		IServerChannelSink next_sink;
 
-        public IDictionary Properties 
-        {
-            get 
-            {
-                if (next_sink != null) return next_sink.Properties;
-                else return null;
-            }
-        }
+		public UnixServerTransportSink (IServerChannelSink next)
+		{
+			next_sink = next;
+		}
 
-        public void AsyncProcessResponse (IServerResponseChannelSinkStack sinkStack, object state,
-                                          IMessage msg, ITransportHeaders headers, Stream responseStream)
-        {
-            ClientConnection connection = (ClientConnection)state;
-            NetworkStream stream = new NetworkStream (connection.Client);
-            UnixMessageIO.SendMessageStream (stream, responseStream, headers, connection.Buffer);
-            stream.Flush ();
-            stream.Close ();
-        }
+		public IServerChannelSink NextChannelSink
+		{
+			get
+			{
+				return next_sink;
+			}
+		}
 
-        public Stream GetResponseStream (IServerResponseChannelSinkStack sinkStack, object state,
-                                         IMessage msg, ITransportHeaders headers)
-        {
-            return null;
-        }
-        
-        public ServerProcessing ProcessMessage (IServerChannelSinkStack sinkStack,
-                                                IMessage requestMsg,
-                                                ITransportHeaders requestHeaders,
-                                                Stream requestStream,
-                                                out IMessage responseMsg,
-                                                out ITransportHeaders responseHeaders,
-                                                out Stream responseStream)
-        {
-            // this is the first sink, and UnixServerChannel does not call it.
-            throw new NotSupportedException ();
-        }
+		public IDictionary Properties
+		{
+			get
+			{
+				if (next_sink != null) return next_sink.Properties;
+				else return null;
+			}
+		}
 
-        internal void InternalProcessMessage (ClientConnection connection, Stream stream)
-        {
-            // Reads the headers and the request stream
+		public void AsyncProcessResponse (IServerResponseChannelSinkStack sinkStack, object state,
+		                                  IMessage msg, ITransportHeaders headers, Stream responseStream)
+		{
+			ClientConnection connection = (ClientConnection)state;
+			NetworkStream stream = new NetworkStream (connection.Client);
+			UnixMessageIO.SendMessageStream (stream, responseStream, headers, connection.Buffer);
+			stream.Flush ();
+			stream.Close ();
+		}
 
-            Stream requestStream;
-            ITransportHeaders requestHeaders;
+		public Stream GetResponseStream (IServerResponseChannelSinkStack sinkStack, object state,
+		                                 IMessage msg, ITransportHeaders headers)
+		{
+			return null;
+		}
 
-            requestStream = UnixMessageIO.ReceiveMessageStream (stream, out requestHeaders, connection.Buffer);
+		public ServerProcessing ProcessMessage (IServerChannelSinkStack sinkStack,
+		                                        IMessage requestMsg,
+		                                        ITransportHeaders requestHeaders,
+		                                        Stream requestStream,
+		                                        out IMessage responseMsg,
+		                                        out ITransportHeaders responseHeaders,
+		                                        out Stream responseStream)
+		{
+			// this is the first sink, and UnixServerChannel does not call it.
+			throw new NotSupportedException ();
+		}
+
+		internal void InternalProcessMessage (ClientConnection connection, Stream stream)
+		{
+			// Reads the headers and the request stream
+
+			Stream requestStream;
+			ITransportHeaders requestHeaders;
+
+			requestStream = UnixMessageIO.ReceiveMessageStream (stream, out requestHeaders, connection.Buffer);
 
 /*            try {
-                PeerCred cred = connection.Client.PeerCredential;
-                requestHeaders["__uid"] = cred.UserID;
-            } catch (Exception e) {
-                Console.WriteLine ("Couldn't get the peer cred: " + e);
-            }
+              PeerCred cred = connection.Client.PeerCredential;
+              requestHeaders["__uid"] = cred.UserID;
+              } catch (Exception e) {
+              Console.WriteLine ("Couldn't get the peer cred: " + e);
+              }
 */
-            // Pushes the connection object together with the sink. This information
-            // will be used for sending the response in an async call.
+			// Pushes the connection object together with the sink. This information
+			// will be used for sending the response in an async call.
 
-            ServerChannelSinkStack sinkStack = new ServerChannelSinkStack();
-            sinkStack.Push(this, connection);
+			ServerChannelSinkStack sinkStack = new ServerChannelSinkStack();
+			sinkStack.Push(this, connection);
 
-            ITransportHeaders responseHeaders;
-            Stream responseStream;
-            IMessage responseMsg;
+			ITransportHeaders responseHeaders;
+			Stream responseStream;
+			IMessage responseMsg;
 
-            ServerProcessing proc = next_sink.ProcessMessage(sinkStack, null, requestHeaders, requestStream, out responseMsg, out responseHeaders, out responseStream);
+			ServerProcessing proc = next_sink.ProcessMessage(sinkStack, null, requestHeaders, requestStream, out responseMsg, out responseHeaders, out responseStream);
 
-            switch (proc)
-            {
-            case ServerProcessing.Complete:
-                UnixMessageIO.SendMessageStream (stream, responseStream, responseHeaders, connection.Buffer);
-                stream.Flush ();
-                break;
+			switch (proc)
+			{
+				case ServerProcessing.Complete:
+					UnixMessageIO.SendMessageStream (stream, responseStream, responseHeaders, connection.Buffer);
+					stream.Flush ();
+					break;
 
-            case ServerProcessing.Async:
-            case ServerProcessing.OneWay:
-                break;
-            }
-        }
-    }
+				case ServerProcessing.Async:
+				case ServerProcessing.OneWay:
+					break;
+			}
+		}
+	}
 }
 

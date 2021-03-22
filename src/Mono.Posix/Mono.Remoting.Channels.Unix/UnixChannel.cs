@@ -36,96 +36,96 @@ using System.Text.RegularExpressions;
 
 namespace Mono.Remoting.Channels.Unix
 {
-    public class UnixChannel : IChannelReceiver, IChannel, IChannelSender
-    {
-        private UnixClientChannel _clientChannel;
-        private UnixServerChannel _serverChannel = null;
-        private string _name = "unix";
-        private int _priority = 1;
+	public class UnixChannel : IChannelReceiver, IChannel, IChannelSender
+	{
+		private UnixClientChannel _clientChannel;
+		private UnixServerChannel _serverChannel = null;
+		private string _name = "unix";
+		private int _priority = 1;
     
-        public UnixChannel (): this (null)
-        {
-        }
+		public UnixChannel (): this (null)
+		{
+		}
 
-        public UnixChannel (string path)
-        {
-            Hashtable ht = new Hashtable();
-            ht["path"] = path;
-            Init(ht, null, null);
-        }
+		public UnixChannel (string path)
+		{
+			Hashtable ht = new Hashtable();
+			ht["path"] = path;
+			Init(ht, null, null);
+		}
 
-        void Init (IDictionary properties, IClientChannelSinkProvider clientSink, IServerChannelSinkProvider serverSink)
-        {
-            _clientChannel = new UnixClientChannel (properties,clientSink);
+		void Init (IDictionary properties, IClientChannelSinkProvider clientSink, IServerChannelSinkProvider serverSink)
+		{
+			_clientChannel = new UnixClientChannel (properties,clientSink);
 
-            if(properties["path"] != null)
-                _serverChannel = new UnixServerChannel(properties, serverSink);
+			if(properties["path"] != null)
+				_serverChannel = new UnixServerChannel(properties, serverSink);
             
-            object val = properties ["name"];
-            if (val != null) _name = val as string;
+			object val = properties ["name"];
+			if (val != null) _name = val as string;
             
-            val = properties ["priority"];
-            if (val != null) _priority = Convert.ToInt32 (val);
-        }
+			val = properties ["priority"];
+			if (val != null) _priority = Convert.ToInt32 (val);
+		}
 
 
-        public UnixChannel (IDictionary properties,
-                            IClientChannelSinkProvider clientSinkProvider,
-                            IServerChannelSinkProvider serverSinkProvider)
-        {
-            Init (properties, clientSinkProvider, serverSinkProvider);
-        }
+		public UnixChannel (IDictionary properties,
+		                    IClientChannelSinkProvider clientSinkProvider,
+		                    IServerChannelSinkProvider serverSinkProvider)
+		{
+			Init (properties, clientSinkProvider, serverSinkProvider);
+		}
 
-        public IMessageSink CreateMessageSink(string url, object remoteChannelData, out string objectURI)
-        {
-            return _clientChannel.CreateMessageSink(url, remoteChannelData, out objectURI);
-        }
+		public IMessageSink CreateMessageSink(string url, object remoteChannelData, out string objectURI)
+		{
+			return _clientChannel.CreateMessageSink(url, remoteChannelData, out objectURI);
+		}
 
-        public string ChannelName
-        {
-            get { return _name; }
-        }
+		public string ChannelName
+		{
+			get { return _name; }
+		}
 
-        public int ChannelPriority
-        {
-            get { return _priority; }
-        }
+		public int ChannelPriority
+		{
+			get { return _priority; }
+		}
 
-        public void StartListening (object data)
-        {
-            if (_serverChannel != null) _serverChannel.StartListening (data);
-        }
+		public void StartListening (object data)
+		{
+			if (_serverChannel != null) _serverChannel.StartListening (data);
+		}
         
-        public void StopListening (object data)
-        {
-            if (_serverChannel != null) _serverChannel.StopListening(data);
-        }
+		public void StopListening (object data)
+		{
+			if (_serverChannel != null) _serverChannel.StopListening(data);
+		}
 
-        public string[] GetUrlsForUri (string uri)
-        {
-            if (_serverChannel != null) return _serverChannel.GetUrlsForUri(uri);
-            else return null;
-        }
+		public string[] GetUrlsForUri (string uri)
+		{
+			if (_serverChannel != null) return _serverChannel.GetUrlsForUri(uri);
+			else return null;
+		}
 
-        public object ChannelData
-        {
-            get 
-            {
-                if (_serverChannel != null) return _serverChannel.ChannelData;
-                else return null;
-            }
-        }
+		public object ChannelData
+		{
+			get
+			{
+				if (_serverChannel != null) return _serverChannel.ChannelData;
+				else return null;
+			}
+		}
 
-        public string Parse (string url, out string objectURI)
-        {
-            return UnixChannel.ParseUnixURL (url, out objectURI);
-        }
+		public string Parse (string url, out string objectURI)
+		{
+			return UnixChannel.ParseUnixURL (url, out objectURI);
+		}
 
-        internal static string ParseUnixURL (string url, out string objectURI)
-        {
-            // format: "unix:///path/to/unix/socket?/path/to/object"
+		internal static string ParseUnixURL (string url, out string objectURI)
+		{
+			// format: "unix:///path/to/unix/socket?/path/to/object"
 			
-            objectURI = null;
+			objectURI = null;
 			
 			if (!url.StartsWith ("unix://")) return null;
 			
@@ -134,10 +134,10 @@ namespace Mono.Remoting.Channels.Unix
 			
 			objectURI = url.Substring (i+1);
 			
-            if (objectURI.Length == 0)
-                objectURI = null;
+			if (objectURI.Length == 0)
+				objectURI = null;
 				
 			return url.Substring (7, i - 7);
-        }
-    }
+		}
+	}
 }

@@ -33,30 +33,30 @@ using System.Runtime.Remoting.Channels;
 
 namespace Mono.Remoting.Channels.Unix
 {
-    internal class UnixClientTransportSinkProvider : IClientChannelSinkProvider
-    {
-        public UnixClientTransportSinkProvider ()
-        {
-            // what should we do here ?
-        }
+	internal class UnixClientTransportSinkProvider : IClientChannelSinkProvider
+	{
+		public UnixClientTransportSinkProvider ()
+		{
+			// what should we do here ?
+		}
 
-        public IClientChannelSinkProvider Next
-        {
-            get 
-            {
-                return null;
-            }
+		public IClientChannelSinkProvider Next
+		{
+			get
+			{
+				return null;
+			}
 
-            set 
-            {
-                // ignore, we are always the last in the chain 
-            }
-        }
+			set
+			{
+				// ignore, we are always the last in the chain
+			}
+		}
 
-        public IClientChannelSink CreateSink (IChannelSender channel, string url,
-                                              object remoteChannelData)
-        {
-            return new UnixClientTransportSink (url);
-        }
-    }
+		public IClientChannelSink CreateSink (IChannelSender channel, string url,
+		                                      object remoteChannelData)
+		{
+			return new UnixClientTransportSink (url);
+		}
+	}
 }

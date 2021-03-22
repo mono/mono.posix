@@ -41,258 +41,258 @@ using Mono.Unix;
 
 namespace Mono.Remoting.Channels.Unix
 {
-    public class UnixServerChannel : IChannelReceiver, IChannel
-    {
-        string path = null;
-        string name = "unix";
+	public class UnixServerChannel : IChannelReceiver, IChannel
+	{
+		string path = null;
+		string name = "unix";
 
-        int priority = 1;
-        bool supressChannelData = false;
-        
-        Thread server_thread = null;
-        UnixListener listener;
-        UnixServerTransportSink sink;
-        ChannelDataStore channel_data;
-        int _maxConcurrentConnections = 100;
-        ArrayList _activeConnections = new ArrayList();
-        
-        
-        void Init (IServerChannelSinkProvider serverSinkProvider) 
-        {
-            if (serverSinkProvider == null) 
-            {
-                serverSinkProvider = new UnixBinaryServerFormatterSinkProvider ();
-            }
-            
-            // Gets channel data from the chain of channel providers
+		int priority = 1;
+		bool supressChannelData = false;
 
-            channel_data = new ChannelDataStore (null);
-            IServerChannelSinkProvider provider = serverSinkProvider;
-            while (provider != null)
-            {
-                provider.GetChannelData(channel_data);
-                provider = provider.Next;
-            }
+		Thread server_thread = null;
+		UnixListener listener;
+		UnixServerTransportSink sink;
+		ChannelDataStore channel_data;
+		int _maxConcurrentConnections = 100;
+		ArrayList _activeConnections = new ArrayList();
 
-            // Creates the sink chain that will process all incoming messages
 
-            IServerChannelSink next_sink = ChannelServices.CreateServerChannelSinkChain (serverSinkProvider, this);
-            sink = new UnixServerTransportSink (next_sink);
-            
-            StartListening (null);
-        }
-        
-        public UnixServerChannel (string path)
-        {
-            this.path = path;
-            Init (null);
-        }
+		void Init (IServerChannelSinkProvider serverSinkProvider)
+		{
+			if (serverSinkProvider == null)
+			{
+				serverSinkProvider = new UnixBinaryServerFormatterSinkProvider ();
+			}
 
-        public UnixServerChannel (IDictionary properties,
-                                  IServerChannelSinkProvider serverSinkProvider)
-        {
-            foreach(DictionaryEntry property in properties)
-            {
-                switch((string)property.Key)
-                {
-                case "path":
-                    path = property.Value as string;
-                    break;
-                case "priority":
-                    priority = Convert.ToInt32(property.Value);
-                    break;
-                case "supressChannelData":
-                    supressChannelData = Convert.ToBoolean (property.Value);
-                    break;
-                }
-            }            
-            Init (serverSinkProvider);
-        }
+			// Gets channel data from the chain of channel providers
 
-        public UnixServerChannel (string name, string path,
-                                  IServerChannelSinkProvider serverSinkProvider)
-        {
-            this.name = name;
-            this.path = path;
-            Init (serverSinkProvider);
-        }
-        
-        public UnixServerChannel (string name, string path)
-        {
-            this.name = name;
-            this.path = path;
-            Init (null);
-        }
-        
-        public object ChannelData
-        {
-            get {
-                if (supressChannelData) return null;
-                else return channel_data;
-            }
-        }
+			channel_data = new ChannelDataStore (null);
+			IServerChannelSinkProvider provider = serverSinkProvider;
+			while (provider != null)
+			{
+				provider.GetChannelData(channel_data);
+				provider = provider.Next;
+			}
 
-        public string ChannelName
-        {
-            get {
-                return name;
-            }
-        }
+			// Creates the sink chain that will process all incoming messages
 
-        public int ChannelPriority
-        {
-            get {
-                return priority;
-            }
-        }
+			IServerChannelSink next_sink = ChannelServices.CreateServerChannelSinkChain (serverSinkProvider, this);
+			sink = new UnixServerTransportSink (next_sink);
 
-        public string GetChannelUri ()
-        {
-            return "unix://" + path;
-        }
-        
-        public string[] GetUrlsForUri (string uri)
-        {
-            if (!uri.StartsWith ("/")) uri = "/" + uri;
+			StartListening (null);
+		}
 
-            string [] chnl_uris = channel_data.ChannelUris;
-            string [] result = new String [chnl_uris.Length];
+		public UnixServerChannel (string path)
+		{
+			this.path = path;
+			Init (null);
+		}
 
-            for (int i = 0; i < chnl_uris.Length; i++) 
-                result [i] = chnl_uris [i] + "?" + uri;
-            
-            return result;
-        }
+		public UnixServerChannel (IDictionary properties,
+		                          IServerChannelSinkProvider serverSinkProvider)
+		{
+			foreach(DictionaryEntry property in properties)
+			{
+				switch((string)property.Key)
+				{
+					case "path":
+						path = property.Value as string;
+						break;
+					case "priority":
+						priority = Convert.ToInt32(property.Value);
+						break;
+					case "supressChannelData":
+						supressChannelData = Convert.ToBoolean (property.Value);
+						break;
+				}
+			}
+			Init (serverSinkProvider);
+		}
 
-        public string Parse (string url, out string objectURI)
-        {
-            return UnixChannel.ParseUnixURL (url, out objectURI);
-        }
+		public UnixServerChannel (string name, string path,
+		                          IServerChannelSinkProvider serverSinkProvider)
+		{
+			this.name = name;
+			this.path = path;
+			Init (serverSinkProvider);
+		}
 
-        void WaitForConnections ()
-        {
-            try
-            {
-                while (true) 
-                {
-                    Socket client = listener.AcceptSocket ();
-                    CreateListenerConnection (client);
-                }
-            }
-            catch
-            {}
-        }
+		public UnixServerChannel (string name, string path)
+		{
+			this.name = name;
+			this.path = path;
+			Init (null);
+		}
 
-        internal void CreateListenerConnection (Socket client)
-        {
-            lock (_activeConnections)
-                {
-                    if (_activeConnections.Count >= _maxConcurrentConnections)
-                        Monitor.Wait (_activeConnections);
+		public object ChannelData
+		{
+			get {
+				if (supressChannelData) return null;
+				else return channel_data;
+			}
+		}
 
-                    if (server_thread == null) return;    // Server was stopped while waiting
+		public string ChannelName
+		{
+			get {
+				return name;
+			}
+		}
 
-                    ClientConnection reader = new ClientConnection (this, client, sink);
-                    Thread thread = new Thread (new ThreadStart (reader.ProcessMessages));
-                    thread.Start();
-                    thread.IsBackground = true;
-                    _activeConnections.Add (thread);
-                }
-        }
+		public int ChannelPriority
+		{
+			get {
+				return priority;
+			}
+		}
 
-        internal void ReleaseConnection (Thread thread)
-        {
-            lock (_activeConnections)
-                {
-                    _activeConnections.Remove (thread);
-                    Monitor.Pulse (_activeConnections);
-                }
-        }
-        
-        public void StartListening (object data)
-        {
-            listener = new UnixListener (path);
-            Mono.Unix.Native.Syscall.chmod (path,
-                                     Mono.Unix.Native.FilePermissions.S_IRUSR |
-                                     Mono.Unix.Native.FilePermissions.S_IWUSR |
-                                     Mono.Unix.Native.FilePermissions.S_IRGRP |
-                                     Mono.Unix.Native.FilePermissions.S_IWGRP |
-                                     Mono.Unix.Native.FilePermissions.S_IROTH |
-                                     Mono.Unix.Native.FilePermissions.S_IWOTH);
+		public string GetChannelUri ()
+		{
+			return "unix://" + path;
+		}
 
-            if (server_thread == null) 
-            {
-                listener.Start ();
-                
-                string[] uris = new String [1];
-                uris = new String [1];
-                uris [0] = GetChannelUri ();
-                channel_data.ChannelUris = uris;
+		public string[] GetUrlsForUri (string uri)
+		{
+			if (!uri.StartsWith ("/")) uri = "/" + uri;
 
-                server_thread = new Thread (new ThreadStart (WaitForConnections));
-                server_thread.IsBackground = true;
-                server_thread.Start ();
-            }
-        }
+			string [] chnl_uris = channel_data.ChannelUris;
+			string [] result = new String [chnl_uris.Length];
 
-        public void StopListening (object data)
-        {
-            if (server_thread == null) return;
+			for (int i = 0; i < chnl_uris.Length; i++)
+				result [i] = chnl_uris [i] + "?" + uri;
 
-            lock (_activeConnections)
-                {
-                    server_thread.Abort ();
-                    server_thread = null;
-                    listener.Stop ();
+			return result;
+		}
 
-                    foreach (Thread thread in _activeConnections)
-                        thread.Abort();
+		public string Parse (string url, out string objectURI)
+		{
+			return UnixChannel.ParseUnixURL (url, out objectURI);
+		}
 
-                    _activeConnections.Clear();
-                    Monitor.PulseAll (_activeConnections);
-                }
-        }
-    }
+		void WaitForConnections ()
+		{
+			try
+			{
+				while (true)
+				{
+					Socket client = listener.AcceptSocket ();
+					CreateListenerConnection (client);
+				}
+			}
+			catch
+			{}
+		}
 
-    class ClientConnection
-    {
-        Socket _client;
-        UnixServerTransportSink _sink;
-        Stream _stream;
-        UnixServerChannel _serverChannel;
+		internal void CreateListenerConnection (Socket client)
+		{
+			lock (_activeConnections)
+			{
+				if (_activeConnections.Count >= _maxConcurrentConnections)
+					Monitor.Wait (_activeConnections);
 
-        byte[] _buffer = new byte[UnixMessageIO.DefaultStreamBufferSize];
+				if (server_thread == null) return;    // Server was stopped while waiting
 
-        public ClientConnection (UnixServerChannel serverChannel, Socket client, UnixServerTransportSink sink)
-        {
-            _serverChannel = serverChannel;
-            _client = client;
-            _sink = sink;
-        }
+				ClientConnection reader = new ClientConnection (this, client, sink);
+				Thread thread = new Thread (new ThreadStart (reader.ProcessMessages));
+				thread.Start();
+				thread.IsBackground = true;
+				_activeConnections.Add (thread);
+			}
+		}
 
-        public Socket Client {
-            get { return _client; }
-        }
+		internal void ReleaseConnection (Thread thread)
+		{
+			lock (_activeConnections)
+			{
+				_activeConnections.Remove (thread);
+				Monitor.Pulse (_activeConnections);
+			}
+		}
 
-        public byte[] Buffer
-        {
-            get { return _buffer; }
-        }
+		public void StartListening (object data)
+		{
+			listener = new UnixListener (path);
+			Mono.Unix.Native.Syscall.chmod (path,
+			                                Mono.Unix.Native.FilePermissions.S_IRUSR |
+			                                Mono.Unix.Native.FilePermissions.S_IWUSR |
+			                                Mono.Unix.Native.FilePermissions.S_IRGRP |
+			                                Mono.Unix.Native.FilePermissions.S_IWGRP |
+			                                Mono.Unix.Native.FilePermissions.S_IROTH |
+			                                Mono.Unix.Native.FilePermissions.S_IWOTH);
 
-        public void ProcessMessages()
-        {
+			if (server_thread == null)
+			{
+				listener.Start ();
+
+				string[] uris = new String [1];
+				uris = new String [1];
+				uris [0] = GetChannelUri ();
+				channel_data.ChannelUris = uris;
+
+				server_thread = new Thread (new ThreadStart (WaitForConnections));
+				server_thread.IsBackground = true;
+				server_thread.Start ();
+			}
+		}
+
+		public void StopListening (object data)
+		{
+			if (server_thread == null) return;
+
+			lock (_activeConnections)
+			{
+				server_thread.Abort ();
+				server_thread = null;
+				listener.Stop ();
+
+				foreach (Thread thread in _activeConnections)
+					thread.Abort();
+
+				_activeConnections.Clear();
+				Monitor.PulseAll (_activeConnections);
+			}
+		}
+	}
+
+	class ClientConnection
+	{
+		Socket _client;
+		UnixServerTransportSink _sink;
+		Stream _stream;
+		UnixServerChannel _serverChannel;
+
+		byte[] _buffer = new byte[UnixMessageIO.DefaultStreamBufferSize];
+
+		public ClientConnection (UnixServerChannel serverChannel, Socket client, UnixServerTransportSink sink)
+		{
+			_serverChannel = serverChannel;
+			_client = client;
+			_sink = sink;
+		}
+
+		public Socket Client {
+			get { return _client; }
+		}
+
+		public byte[] Buffer
+		{
+			get { return _buffer; }
+		}
+
+		public void ProcessMessages()
+		{
 			byte[] buffer = new byte[256];
-            _stream = new BufferedStream (new NetworkStream (_client));
+			_stream = new BufferedStream (new NetworkStream (_client));
 
-            try
-            {
-                bool end = false;
-                while (!end)
-                {
-                    MessageStatus type = UnixMessageIO.ReceiveMessageStatus (_stream, buffer);
+			try
+			{
+				bool end = false;
+				while (!end)
+				{
+					MessageStatus type = UnixMessageIO.ReceiveMessageStatus (_stream, buffer);
 
-                    switch (type)
-                    {
+					switch (type)
+					{
 						case MessageStatus.MethodMessage:
 							_sink.InternalProcessMessage (this, _stream);
 							break;
@@ -301,30 +301,30 @@ namespace Mono.Remoting.Channels.Unix
 						case MessageStatus.CancelSignal:
 							end = true;
 							break;
-                    }
-                }
-            }
-            catch (Exception)
-            {
-                //                Console.WriteLine (ex);
-            }
-            finally
-            {
+					}
+				}
+			}
+			catch (Exception)
+			{
+				//                Console.WriteLine (ex);
+			}
+			finally
+			{
 				try {
-	                _serverChannel.ReleaseConnection (Thread.CurrentThread);
-	                _stream.Close();
+					_serverChannel.ReleaseConnection (Thread.CurrentThread);
+					_stream.Close();
 					_client.Close ();
 				} catch {
 				}
-            }
-        }
-        
-        public bool IsLocal
-        {
-            get
-            {
-                return true;
-            }
-        }
-    }
+			}
+		}
+
+		public bool IsLocal
+		{
+			get
+			{
+				return true;
+			}
+		}
+	}
 }
