@@ -59,7 +59,7 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Security;
 using System.Text;
-using Mono.Unix.Native;
+using Mono.Posix;
 
 namespace Mono.Unix.Native {
 
@@ -992,7 +992,7 @@ namespace Mono.Unix.Native {
 				l_pid.GetHashCode ();
 		}
 
-		public override bool Equals (object obj)
+		public override bool Equals (object? obj)
 		{
 			if ((obj == null) || (obj.GetType () != GetType ()))
 				return false;
@@ -1035,7 +1035,7 @@ namespace Mono.Unix.Native {
 			return events.GetHashCode () ^ revents.GetHashCode ();
 		}
 
-		public override bool Equals (object obj)
+		public override bool Equals (object? obj)
 		{
 			if (obj == null || obj.GetType () != GetType ())
 				return false;
@@ -1141,7 +1141,7 @@ namespace Mono.Unix.Native {
 				st_ctime_nsec.GetHashCode ();
 		}
 
-		public override bool Equals (object obj)
+		public override bool Equals (object? obj)
 		{
 			if (obj == null || obj.GetType() != GetType ())
 				return false;
@@ -1228,7 +1228,7 @@ namespace Mono.Unix.Native {
 				f_namemax.GetHashCode ();
 		}
 
-		public override bool Equals (object obj)
+		public override bool Equals (object? obj)
 		{
 			if (obj == null || obj.GetType() != GetType ())
 				return false;
@@ -1284,7 +1284,7 @@ namespace Mono.Unix.Native {
 			return tv_sec.GetHashCode () ^ tv_usec.GetHashCode ();
 		}
 
-		public override bool Equals (object obj)
+		public override bool Equals (object? obj)
 		{
 			if (obj == null || obj.GetType () != GetType ())
 				return false;
@@ -1322,7 +1322,7 @@ namespace Mono.Unix.Native {
 			return tz_minuteswest.GetHashCode ();
 		}
 
-		public override bool Equals (object obj)
+		public override bool Equals (object? obj)
 		{
 			if (obj == null || obj.GetType () != GetType ())
 				return false;
@@ -1358,7 +1358,7 @@ namespace Mono.Unix.Native {
 			return actime.GetHashCode () ^ modtime.GetHashCode ();
 		}
 
-		public override bool Equals (object obj)
+		public override bool Equals (object? obj)
 		{
 			if (obj == null || obj.GetType () != GetType ())
 				return false;
@@ -1394,7 +1394,7 @@ namespace Mono.Unix.Native {
 			return tv_sec.GetHashCode () ^ tv_nsec.GetHashCode ();
 		}
 
-		public override bool Equals (object obj)
+		public override bool Equals (object? obj)
 		{
 			if (obj == null || obj.GetType () != GetType ())
 				return false;
@@ -1537,7 +1537,7 @@ namespace Mono.Unix.Native {
 			}
 		}
 
-		public override string ToString ()
+		public override string? ToString ()
 		{
 			return NativeConvert.ToIPAddress (this).ToString ();
 		}
@@ -1546,7 +1546,7 @@ namespace Mono.Unix.Native {
 		{
 			return s_addr.GetHashCode ();
 		}
-		public override bool Equals (object obj)
+		public override bool Equals (object? obj)
 		{
 			if (!(obj is InAddr))
 				return false;
@@ -1609,12 +1609,14 @@ namespace Mono.Unix.Native {
 		{
 			return addr0.GetHashCode () ^ addr1.GetHashCode ();
 		}
-		public override bool Equals (object obj)
+
+		public override bool Equals (object? obj)
 		{
 			if (!(obj is In6Addr))
 				return false;
 			return Equals ((In6Addr) obj);
 		}
+
 		public bool Equals (In6Addr value)
 		{
 			return addr0 == value.addr0 && addr1 == value.addr1;
@@ -1688,7 +1690,7 @@ namespace Mono.Unix.Native {
 		[CLSCompliant (false)]
 		public ushort             d_reclen;
 		public byte               d_type;
-		public string             d_name;
+		public string             d_name = String.Empty;
 
 		public override int GetHashCode ()
 		{
@@ -1697,7 +1699,7 @@ namespace Mono.Unix.Native {
 				d_name.GetHashCode ();
 		}
 
-		public override bool Equals (object obj)
+		public override bool Equals (object? obj)
 		{
 			if (obj == null || GetType() != obj.GetType())
 				return false;
@@ -1705,7 +1707,7 @@ namespace Mono.Unix.Native {
 			return Equals (d);
 		}
 
-		public bool Equals (Dirent value)
+		public bool Equals (Dirent? value)
 		{
 			if (value == null)
 				return false;
@@ -1714,17 +1716,17 @@ namespace Mono.Unix.Native {
 				value.d_name == d_name;
 		}
 
-		public override string ToString ()
+		public override string? ToString ()
 		{
 			return d_name;
 		}
 
-		public static bool operator== (Dirent lhs, Dirent rhs)
+		public static bool operator== (Dirent? lhs, Dirent? rhs)
 		{
 			return Object.Equals (lhs, rhs);
 		}
 
-		public static bool operator!= (Dirent lhs, Dirent rhs)
+		public static bool operator!= (Dirent? lhs, Dirent? rhs)
 		{
 			return !Object.Equals (lhs, rhs);
 		}
@@ -1733,22 +1735,27 @@ namespace Mono.Unix.Native {
 	public sealed class Fstab
 		: IEquatable <Fstab>
 	{
-		public string fs_spec;
-		public string fs_file;
-		public string fs_vfstype;
-		public string fs_mntops;
-		public string fs_type;
-		public int    fs_freq;
-		public int    fs_passno;
+		public string? fs_spec;
+		public string? fs_file;
+		public string? fs_vfstype;
+		public string? fs_mntops;
+		public string? fs_type;
+		public int     fs_freq;
+		public int     fs_passno;
 
 		public override int GetHashCode ()
 		{
-			return fs_spec.GetHashCode () ^ fs_file.GetHashCode () ^
-				fs_vfstype.GetHashCode () ^ fs_mntops.GetHashCode () ^
-				fs_type.GetHashCode () ^ fs_freq ^ fs_passno;
+			return
+				Utilities.SafeGetHashCode (fs_spec) ^
+				Utilities.SafeGetHashCode (fs_file) ^
+				Utilities.SafeGetHashCode (fs_vfstype) ^
+				Utilities.SafeGetHashCode (fs_mntops) ^
+				Utilities.SafeGetHashCode (fs_type) ^
+				fs_freq ^
+				fs_passno;
 		}
 
-		public override bool Equals (object obj)
+		public override bool Equals (object? obj)
 		{
 			if (obj == null || GetType() != obj.GetType())
 				return false;
@@ -1756,7 +1763,7 @@ namespace Mono.Unix.Native {
 			return Equals (f);
 		}
 
-		public bool Equals (Fstab value)
+		public bool Equals (Fstab? value)
 		{
 			if (value == null)
 				return false;
@@ -1766,17 +1773,17 @@ namespace Mono.Unix.Native {
 				value.fs_passno == fs_passno;
 		}
 
-		public override string ToString ()
+		public override string? ToString ()
 		{
 			return fs_spec;
 		}
 
-		public static bool operator== (Fstab lhs, Fstab rhs)
+		public static bool operator== (Fstab? lhs, Fstab? rhs)
 		{
 			return Object.Equals (lhs, rhs);
 		}
 
-		public static bool operator!= (Fstab lhs, Fstab rhs)
+		public static bool operator!= (Fstab? lhs, Fstab? rhs)
 		{
 			return !Object.Equals (lhs, rhs);
 		}
@@ -1785,23 +1792,28 @@ namespace Mono.Unix.Native {
 	public sealed class Group
 		: IEquatable <Group>
 	{
-		public string           gr_name;
-		public string           gr_passwd;
+		public string?           gr_name;
+		public string?           gr_passwd;
 		[CLSCompliant (false)]
-		public /* gid_t */ uint gr_gid;
-		public string[]         gr_mem;
+		public /* gid_t */ uint  gr_gid;
+		public string?[]?        gr_mem;
 
 		public override int GetHashCode ()
 		{
 			int memhc = 0;
-			for (int i = 0; i < gr_mem.Length; ++i)
-				memhc ^= gr_mem[i].GetHashCode ();
+			if (gr_mem != null) {
+				for (int i = 0; i < gr_mem.Length; ++i)
+					memhc ^= Utilities.SafeGetHashCode ( gr_mem[i]);
+			}
 
-			return gr_name.GetHashCode () ^ gr_passwd.GetHashCode () ^ 
-				gr_gid.GetHashCode () ^ memhc;
+			return
+				Utilities.SafeGetHashCode (gr_name) ^
+				Utilities.SafeGetHashCode (gr_passwd) ^
+				gr_gid.GetHashCode () ^
+				memhc;
 		}
 
-		public override bool Equals (object obj)
+		public override bool Equals (object? obj)
 		{
 			if (obj == null || GetType() != obj.GetType())
 				return false;
@@ -1809,7 +1821,7 @@ namespace Mono.Unix.Native {
 			return Equals (g);
 		}
 
-		public bool Equals (Group value)
+		public bool Equals (Group? value)
 		{
 			if (value == null)
 				return false;
@@ -1832,7 +1844,7 @@ namespace Mono.Unix.Native {
 		}
 
 		// Generate string in /etc/group format
-		public override string ToString ()
+		public override string? ToString ()
 		{
 			StringBuilder sb = new StringBuilder ();
 			sb.Append (gr_name).Append (":").Append (gr_passwd).Append (":");
@@ -1841,22 +1853,26 @@ namespace Mono.Unix.Native {
 			return sb.ToString ();
 		}
 
-		private static void GetMembers (StringBuilder sb, string[] members)
+		static void GetMembers (StringBuilder sb, string?[]? members)
 		{
+			if (members == null) {
+				return;
+			}
+
 			if (members.Length > 0)
 				sb.Append (members[0]);
 			for (int i = 1; i < members.Length; ++i) {
 				sb.Append (",");
-				sb.Append (members[i]);
+				sb.Append (members[i] ?? String.Empty);
 			}
 		}
 
-		public static bool operator== (Group lhs, Group rhs)
+		public static bool operator== (Group? lhs, Group? rhs)
 		{
 			return Object.Equals (lhs, rhs);
 		}
 
-		public static bool operator!= (Group lhs, Group rhs)
+		public static bool operator!= (Group? lhs, Group? rhs)
 		{
 			return !Object.Equals (lhs, rhs);
 		}
@@ -1865,25 +1881,30 @@ namespace Mono.Unix.Native {
 	public sealed class Passwd
 		: IEquatable <Passwd>
 	{
-		public string           pw_name;
-		public string           pw_passwd;
+		public string?           pw_name;
+		public string?           pw_passwd;
 		[CLSCompliant (false)]
-		public /* uid_t */ uint pw_uid;
+		public /* uid_t */ uint  pw_uid;
 		[CLSCompliant (false)]
-		public /* gid_t */ uint pw_gid;
-		public string           pw_gecos;
-		public string           pw_dir;
-		public string           pw_shell;
+		public /* gid_t */ uint  pw_gid;
+		public string?           pw_gecos;
+		public string?           pw_dir;
+		public string?           pw_shell;
 
 		public override int GetHashCode ()
 		{
-			return pw_name.GetHashCode () ^ pw_passwd.GetHashCode () ^ 
-				pw_uid.GetHashCode () ^ pw_gid.GetHashCode () ^
-				pw_gecos.GetHashCode () ^ pw_dir.GetHashCode () ^
-				pw_dir.GetHashCode () ^ pw_shell.GetHashCode ();
+			return
+				Utilities.SafeGetHashCode (pw_name) ^
+				Utilities.SafeGetHashCode (pw_passwd) ^
+				(int)pw_uid ^
+				(int)pw_gid ^
+				Utilities.SafeGetHashCode (pw_gecos) ^
+				Utilities.SafeGetHashCode (pw_dir) ^
+				Utilities.SafeGetHashCode (pw_dir) ^
+				Utilities.SafeGetHashCode (pw_shell);
 		}
 
-		public override bool Equals (object obj)
+		public override bool Equals (object? obj)
 		{
 			if (obj == null || GetType() != obj.GetType())
 				return false;
@@ -1891,7 +1912,7 @@ namespace Mono.Unix.Native {
 			return Equals (p);
 		}
 
-		public bool Equals (Passwd value)
+		public bool Equals (Passwd? value)
 		{
 			if (value == null)
 				return false;
@@ -1908,12 +1929,12 @@ namespace Mono.Unix.Native {
 				pw_name, pw_passwd, pw_uid, pw_gid, pw_gecos, pw_dir, pw_shell);
 		}
 
-		public static bool operator== (Passwd lhs, Passwd rhs)
+		public static bool operator== (Passwd? lhs, Passwd? rhs)
 		{
 			return Object.Equals (lhs, rhs);
 		}
 
-		public static bool operator!= (Passwd lhs, Passwd rhs)
+		public static bool operator!= (Passwd? lhs, Passwd? rhs)
 		{
 			return !Object.Equals (lhs, rhs);
 		}
@@ -1922,21 +1943,25 @@ namespace Mono.Unix.Native {
 	public sealed class Utsname
 		: IEquatable <Utsname>
 	{
-		public string sysname;
-		public string nodename;
-		public string release;
-		public string version;
-		public string machine;
-		public string domainname;
+		public string? sysname;
+		public string? nodename;
+		public string? release;
+		public string? version;
+		public string? machine;
+		public string? domainname;
 
 		public override int GetHashCode ()
 		{
-			return sysname.GetHashCode () ^ nodename.GetHashCode () ^ 
-				release.GetHashCode () ^ version.GetHashCode () ^
-				machine.GetHashCode () ^ domainname.GetHashCode ();
+			return
+				Utilities.SafeGetHashCode (sysname) ^
+				Utilities.SafeGetHashCode (nodename) ^
+				Utilities.SafeGetHashCode (release) ^
+				Utilities.SafeGetHashCode (version) ^
+				Utilities.SafeGetHashCode (machine) ^
+				Utilities.SafeGetHashCode (domainname);
 		}
 
-		public override bool Equals (object obj)
+		public override bool Equals (object? obj)
 		{
 			if (obj == null || GetType() != obj.GetType())
 				return false;
@@ -1944,8 +1969,11 @@ namespace Mono.Unix.Native {
 			return Equals (u);
 		}
 
-		public bool Equals (Utsname value)
+		public bool Equals (Utsname? value)
 		{
+			if (value == null)
+				return false;
+
 			return value.sysname == sysname && value.nodename == nodename && 
 				value.release == release && value.version == version && 
 				value.machine == machine && value.domainname == domainname;
@@ -1958,12 +1986,12 @@ namespace Mono.Unix.Native {
 				sysname, nodename, release, version, machine);
 		}
 
-		public static bool operator== (Utsname lhs, Utsname rhs)
+		public static bool operator== (Utsname? lhs, Utsname? rhs)
 		{
 			return Object.Equals (lhs, rhs);
 		}
 
-		public static bool operator!= (Utsname lhs, Utsname rhs)
+		public static bool operator!= (Utsname? lhs, Utsname? rhs)
 		{
 			return !Object.Equals (lhs, rhs);
 		}
@@ -2052,7 +2080,7 @@ namespace Mono.Unix.Native {
 		// Sockaddr.GetNative() will return a null pointer for this Sockaddr.
 		static Sockaddr nullSockaddr = new Sockaddr ();
 
-		internal static Sockaddr GetAddress (Sockaddr address)
+		internal static Sockaddr GetAddress (Sockaddr? address)
 		{
 			if (address == null)
 				return nullSockaddr;
@@ -2075,15 +2103,13 @@ namespace Mono.Unix.Native {
 		// Return an array containing the dynamic data (for SockaddrStorage and SockaddrUn) or null
 		internal static byte[] GetDynamicData (Sockaddr addr)
 		{
-			if (addr == null)
-				return null;
 			return addr.DynamicData ();
 		}
 
 		// This methods is overwritten in SockaddrStorage and SockaddrUn
 		internal virtual byte[] DynamicData ()
 		{
-			return null;
+			return new byte[0];
 		}
 
 		// This methods should only be called for SockaddrStorage and SockaddrUn where they are overwritten
@@ -2248,14 +2274,14 @@ namespace Mono.Unix.Native {
 			}
 		}
 
-		public override bool Equals (object obj)
+		public override bool Equals (object? obj)
 		{
 			if (!(obj is SockaddrStorage))
 				return false;
 			return Equals ((SockaddrStorage) obj);
 		}
 
-		public bool Equals (SockaddrStorage value)
+		public bool Equals (SockaddrStorage? value)
 		{
 			if (value == null)
 				return false;
@@ -2364,14 +2390,14 @@ namespace Mono.Unix.Native {
 			return sun_family.GetHashCode () ^ IsLinuxAbstractNamespace.GetHashCode () ^ Path.GetHashCode ();
 		}
 
-		public override bool Equals (object obj)
+		public override bool Equals (object? obj)
 		{
 			if (!(obj is SockaddrUn))
 				return false;
 			return Equals ((SockaddrUn) obj);
 		}
 
-		public bool Equals (SockaddrUn value)
+		public bool Equals (SockaddrUn? value)
 		{
 			if (value == null)
 				return false;
@@ -2414,14 +2440,14 @@ namespace Mono.Unix.Native {
 			return sin_family.GetHashCode () ^ sin_port.GetHashCode () ^ sin_addr.GetHashCode ();
 		}
 
-		public override bool Equals (object obj)
+		public override bool Equals (object? obj)
 		{
 			if (!(obj is SockaddrIn))
 				return false;
 			return Equals ((SockaddrIn) obj);
 		}
 
-		public bool Equals (SockaddrIn value)
+		public bool Equals (SockaddrIn? value)
 		{
 			if (value == null)
 				return false;
@@ -2466,14 +2492,14 @@ namespace Mono.Unix.Native {
 			return sin6_family.GetHashCode () ^ sin6_port.GetHashCode () ^ sin6_flowinfo.GetHashCode () ^ sin6_addr.GetHashCode () ^ sin6_scope_id.GetHashCode ();
 		}
 
-		public override bool Equals (object obj)
+		public override bool Equals (object? obj)
 		{
 			if (!(obj is SockaddrIn6))
 				return false;
 			return Equals ((SockaddrIn6) obj);
 		}
 
-		public bool Equals (SockaddrIn6 value)
+		public bool Equals (SockaddrIn6? value)
 		{
 			if (value == null)
 				return false;
@@ -2488,11 +2514,11 @@ namespace Mono.Unix.Native {
 	[CLSCompliant (false)]
 	public sealed class Msghdr
 	{
-		public Sockaddr msg_name;
+		public Sockaddr? msg_name;
 		// msg_name_len is part of the Sockaddr structure
-		public Iovec[] msg_iov;
+		public Iovec[]? msg_iov;
 		public int msg_iovlen;
-		public byte[] msg_control;
+		public byte[]? msg_control;
 		public long msg_controllen;
 		public MessageFlags msg_flags;
 	}
@@ -2724,7 +2750,7 @@ namespace Mono.Unix.Native {
 
 		public static long getxattr (string path, string name, out byte [] value)
 		{
-			value = null;
+			value = new byte[0];
 			long size = getxattr (path, name, value, 0);
 			if (size <= 0)
 				return size;
@@ -2751,7 +2777,7 @@ namespace Mono.Unix.Native {
 
 		public static long lgetxattr (string path, string name, out byte [] value)
 		{
-			value = null;
+			value = new byte[0];
 			long size = lgetxattr (path, name, value, 0);
 			if (size <= 0)
 				return size;
@@ -2775,7 +2801,7 @@ namespace Mono.Unix.Native {
 
 		public static long fgetxattr (int fd, string name, out byte [] value)
 		{
-			value = null;
+			value = new byte[0];
 			long size = fgetxattr (fd, name, value, 0);
 			if (size <= 0)
 				return size;
@@ -2795,14 +2821,13 @@ namespace Mono.Unix.Native {
 		// Slight modification: returns 0 on success, negative on error
 		public static long listxattr (string path, Encoding encoding, out string [] values)
 		{
-			values = null;
-			long size = listxattr (path, null, 0);
-			if (size == 0)
-				values = new string [0];
+			values = new string[0];
+			var list = new byte[0];
+			long size = listxattr (path, list, 0);
 			if (size <= 0)
 				return (int) size;
 
-			byte[] list = new byte [size];
+			list = new byte [size];
 			long ret = listxattr (path, list, (ulong) size);
 			if (ret < 0)
 				return (int) ret;
@@ -2845,14 +2870,13 @@ namespace Mono.Unix.Native {
 		// Slight modification: returns 0 on success, negative on error
 		public static long llistxattr (string path, Encoding encoding, out string [] values)
 		{
-			values = null;
-			long size = llistxattr (path, null, 0);
-			if (size == 0)
-				values = new string [0];
+			values = new string [0];
+			var list = new byte[0];
+			long size = llistxattr (path, list, 0);
 			if (size <= 0)
 				return (int) size;
 
-			byte[] list = new byte [size];
+			list = new byte [size];
 			long ret = llistxattr (path, list, (ulong) size);
 			if (ret < 0)
 				return (int) ret;
@@ -2875,14 +2899,13 @@ namespace Mono.Unix.Native {
 		// Slight modification: returns 0 on success, negative on error
 		public static long flistxattr (int fd, Encoding encoding, out string [] values)
 		{
-			values = null;
-			long size = flistxattr (fd, null, 0);
-			if (size == 0)
-				values = new string [0];
+			values = new string [0];
+			var list = new byte[0];
+			long size = flistxattr (fd, list, 0);
 			if (size <= 0)
 				return (int) size;
 
-			byte[] list = new byte [size];
+			list = new byte [size];
 			long ret = flistxattr (fd, list, (ulong) size);
 			if (ret < 0)
 				return (int) ret;
@@ -2965,7 +2988,7 @@ namespace Mono.Unix.Native {
 				to.d_off    = from.d_off;
 				to.d_reclen = from.d_reclen;
 				to.d_type   = from.d_type;
-				to.d_name   = UnixMarshal.PtrToString (from.d_name);
+				to.d_name   = UnixMarshal.PtrToString (from.d_name) ?? String.Empty;
 			}
 			finally {
 				Stdlib.free (from.d_name);
@@ -2979,7 +3002,7 @@ namespace Mono.Unix.Native {
 				EntryPoint="Mono_Posix_Syscall_readdir")]
 		private static extern int sys_readdir (IntPtr dir, out _Dirent dentry);
 
-		public static Dirent readdir (IntPtr dir)
+		public static Dirent? readdir (IntPtr dir)
 		{
 			_Dirent dentry;
 			int r;
@@ -3003,7 +3026,7 @@ namespace Mono.Unix.Native {
 			entry.d_off    = 0;
 			entry.d_reclen = 0;
 			entry.d_type   = 0;
-			entry.d_name   = null;
+			entry.d_name   = String.Empty;
 
 			_Dirent _d;
 			int r = sys_readdir_r (dirp, out _d, out result);
@@ -3183,7 +3206,7 @@ namespace Mono.Unix.Native {
 				EntryPoint="Mono_Posix_Syscall_getfsent")]
 		private static extern int sys_getfsent (out _Fstab fs);
 
-		public static Fstab getfsent ()
+		public static Fstab? getfsent ()
 		{
 			_Fstab fsbuf;
 			int r;
@@ -3203,7 +3226,7 @@ namespace Mono.Unix.Native {
 				[MarshalAs (UnmanagedType.CustomMarshaler, MarshalTypeRef=typeof(FileNameMarshaler))]
 				string mount_point, out _Fstab fs);
 
-		public static Fstab getfsfile (string mount_point)
+		public static Fstab? getfsfile (string mount_point)
 		{
 			_Fstab fsbuf;
 			int r;
@@ -3223,7 +3246,7 @@ namespace Mono.Unix.Native {
 				[MarshalAs (UnmanagedType.CustomMarshaler, MarshalTypeRef=typeof(FileNameMarshaler))]
 				string special_file, out _Fstab fs);
 
-		public static Fstab getfsspec (string special_file)
+		public static Fstab? getfsspec (string special_file)
 		{
 			_Fstab fsbuf;
 			int r;
@@ -3267,7 +3290,7 @@ namespace Mono.Unix.Native {
 			if (username.Trim () == "")
 				throw new ArgumentException ("Username cannot be empty", "username");
 			// Syscall to getpwnam to retrieve user uid
-			Passwd pw = Syscall.getpwnam (username);
+			Passwd? pw = Syscall.getpwnam (username);
 			if (pw == null)
 				throw new ArgumentException (string.Format ("User {0} does not exist", username), "username");
 			return getgrouplist (pw);
@@ -3281,14 +3304,14 @@ namespace Mono.Unix.Native {
 			int ngroups = 8;
 			int res = -1;
 			// allocating buffer to store group uid's
-			uint [] groups=null;
+			uint[]? groups = null;
 			do {
 				Array.Resize (ref groups, ngroups*=2);
-				res = sys_getgrouplist (user.pw_name, user.pw_gid, groups, ref ngroups);
+				res = sys_getgrouplist (user.pw_name ?? String.Empty, user.pw_gid, groups, ref ngroups);
 			}
 			while (res == -1);
 			List<Group> result = new List<Group> ();
-			Group gr = null;
+			Group? gr = null;
 			for (int i = 0; i < res; i++) {
 				gr = Syscall.getgrgid (groups [i]);
 				if (gr != null)
@@ -3325,7 +3348,7 @@ namespace Mono.Unix.Native {
 				to.gr_gid    = from.gr_gid;
 				to.gr_name   = UnixMarshal.PtrToString (from.gr_name);
 				to.gr_passwd = UnixMarshal.PtrToString (from.gr_passwd);
-				to.gr_mem    = UnixMarshal.PtrToStringArray (from._gr_nmem_, from.gr_mem);
+				to.gr_mem    = UnixMarshal.PtrToStringArray (from._gr_nmem_, from.gr_mem) ?? new string?[0];
 			}
 			finally {
 				Stdlib.free (from.gr_mem);
@@ -3341,7 +3364,7 @@ namespace Mono.Unix.Native {
 				EntryPoint="Mono_Posix_Syscall_getgrnam")]
 		private static extern int sys_getgrnam (string name, out _Group group);
 
-		public static Group getgrnam (string name)
+		public static Group? getgrnam (string name)
 		{
 			_Group group;
 			int r;
@@ -3361,7 +3384,7 @@ namespace Mono.Unix.Native {
 				EntryPoint="Mono_Posix_Syscall_getgrgid")]
 		private static extern int sys_getgrgid (uint uid, out _Group group);
 
-		public static Group getgrgid (uint uid)
+		public static Group? getgrgid (uint uid)
 		{
 			_Group group;
 			int r;
@@ -3381,7 +3404,7 @@ namespace Mono.Unix.Native {
 				[MarshalAs (UnmanagedType.CustomMarshaler, MarshalTypeRef=typeof(FileNameMarshaler))]
 				string name, out _Group grbuf, out IntPtr grbufp);
 
-		public static int getgrnam_r (string name, Group grbuf, out Group grbufp)
+		public static int getgrnam_r (string name, Group grbuf, out Group? grbufp)
 		{
 			grbufp = null;
 			_Group group;
@@ -3401,7 +3424,7 @@ namespace Mono.Unix.Native {
 				EntryPoint="Mono_Posix_Syscall_getgrgid_r")]
 		private static extern int sys_getgrgid_r (uint uid, out _Group grbuf, out IntPtr grbufp);
 
-		public static int getgrgid_r (uint uid, Group grbuf, out Group grbufp)
+		public static int getgrgid_r (uint uid, Group grbuf, out Group? grbufp)
 		{
 			grbufp = null;
 			_Group group;
@@ -3418,7 +3441,7 @@ namespace Mono.Unix.Native {
 				EntryPoint="Mono_Posix_Syscall_getgrent")]
 		private static extern int sys_getgrent (out _Group grbuf);
 
-		public static Group getgrent ()
+		public static Group? getgrent ()
 		{
 			_Group group;
 			int r;
@@ -3458,7 +3481,7 @@ namespace Mono.Unix.Native {
 				EntryPoint="Mono_Posix_Syscall_fgetgrent")]
 		private static extern int sys_fgetgrent (IntPtr stream, out _Group grbuf);
 
-		public static Group fgetgrent (IntPtr stream)
+		public static Group? fgetgrent (IntPtr stream)
 		{
 			_Group group;
 			int r;
@@ -3517,7 +3540,7 @@ namespace Mono.Unix.Native {
 				EntryPoint="Mono_Posix_Syscall_getpwnam")]
 		private static extern int sys_getpwnam (string name, out _Passwd passwd);
 
-		public static Passwd getpwnam (string name)
+		public static Passwd? getpwnam (string name)
 		{
 			_Passwd passwd;
 			int r;
@@ -3537,7 +3560,7 @@ namespace Mono.Unix.Native {
 				EntryPoint="Mono_Posix_Syscall_getpwuid")]
 		private static extern int sys_getpwuid (uint uid, out _Passwd passwd);
 
-		public static Passwd getpwuid (uint uid)
+		public static Passwd? getpwuid (uint uid)
 		{
 			_Passwd passwd;
 			int r;
@@ -3557,7 +3580,7 @@ namespace Mono.Unix.Native {
 				[MarshalAs (UnmanagedType.CustomMarshaler, MarshalTypeRef=typeof(FileNameMarshaler))]
 				string name, out _Passwd pwbuf, out IntPtr pwbufp);
 
-		public static int getpwnam_r (string name, Passwd pwbuf, out Passwd pwbufp)
+		public static int getpwnam_r (string name, Passwd pwbuf, out Passwd? pwbufp)
 		{
 			pwbufp = null;
 			_Passwd passwd;
@@ -3577,7 +3600,7 @@ namespace Mono.Unix.Native {
 				EntryPoint="Mono_Posix_Syscall_getpwuid_r")]
 		private static extern int sys_getpwuid_r (uint uid, out _Passwd pwbuf, out IntPtr pwbufp);
 
-		public static int getpwuid_r (uint uid, Passwd pwbuf, out Passwd pwbufp)
+		public static int getpwuid_r (uint uid, Passwd pwbuf, out Passwd? pwbufp)
 		{
 			pwbufp = null;
 			_Passwd passwd;
@@ -3594,7 +3617,7 @@ namespace Mono.Unix.Native {
 				EntryPoint="Mono_Posix_Syscall_getpwent")]
 		private static extern int sys_getpwent (out _Passwd pwbuf);
 
-		public static Passwd getpwent ()
+		public static Passwd? getpwent ()
 		{
 			_Passwd passwd;
 			int r;
@@ -3634,7 +3657,7 @@ namespace Mono.Unix.Native {
 				EntryPoint="Mono_Posix_Syscall_fgetpwent")]
 		private static extern int sys_fgetpwent (IntPtr stream, out _Passwd pwbuf);
 
-		public static Passwd fgetpwent (IntPtr stream)
+		public static Passwd? fgetpwent (IntPtr stream)
 		{
 			_Passwd passwd;
 			int r;
@@ -3684,7 +3707,7 @@ namespace Mono.Unix.Native {
 			int s = NativeConvert.FromSignum (sig);
 			lock (signal_lock) {
 				IntPtr r = sys_strsignal (s);
-				return UnixMarshal.PtrToString (r);
+				return UnixMarshal.PtrToString (r) ?? String.Empty;
 			}
 		}
 
@@ -3723,7 +3746,7 @@ namespace Mono.Unix.Native {
 			}
 			lock (getlogin_lock) {
 				IntPtr r = sys_cuserid (@string);
-				return UnixMarshal.PtrToString (r);
+				return UnixMarshal.PtrToString (r) ?? String.Empty;
 			}
 		}
 
@@ -3745,7 +3768,7 @@ namespace Mono.Unix.Native {
 		[DllImport (LIBC, SetLastError=true, EntryPoint="mkdtemp")]
 		private static extern IntPtr sys_mkdtemp (StringBuilder template);
 
-		public static StringBuilder mkdtemp (StringBuilder template)
+		public static StringBuilder? mkdtemp (StringBuilder template)
 		{
 			if (sys_mkdtemp (template) == IntPtr.Zero)
 				return null;
@@ -4107,9 +4130,9 @@ namespace Mono.Unix.Native {
 
 		[DllImport (MPH, SetLastError=true, 
 				EntryPoint="Mono_Posix_Syscall_futimens")]
-		private static extern int sys_futimens (int fd, Timespec[] times);
+		private static extern int sys_futimens (int fd, Timespec[]? times);
 
-		public static int futimens (int fd, Timespec[] times)
+		public static int futimens (int fd, Timespec[]? times)
 		{
 			if (times != null && times.Length != 2) {
 				SetLastError (Errno.EINVAL);
@@ -4122,9 +4145,9 @@ namespace Mono.Unix.Native {
 				EntryPoint="Mono_Posix_Syscall_utimensat")]
 		private static extern int sys_utimensat (int dirfd,
 				[MarshalAs (UnmanagedType.CustomMarshaler, MarshalTypeRef=typeof(FileNameMarshaler))]
-				string pathname, Timespec[] times, int flags);
+				string pathname, Timespec[]? times, int flags);
 
-		public static int utimensat (int dirfd, string pathname, Timespec[] times, AtFlags flags)
+		public static int utimensat (int dirfd, string pathname, Timespec[]? times, AtFlags flags)
 		{
 			if (times != null && times.Length != 2) {
 				SetLastError (Errno.EINVAL);
@@ -4231,7 +4254,7 @@ namespace Mono.Unix.Native {
 				EntryPoint="Mono_Posix_Syscall_utimes")]
 		private static extern int sys_utimes (
 				[MarshalAs (UnmanagedType.CustomMarshaler, MarshalTypeRef=typeof(FileNameMarshaler))]
-				string filename, Timeval[] tvp);
+				string filename, Timeval[]? tvp);
 
 		public static int utimes (string filename, Timeval[] tvp)
 		{
@@ -4246,7 +4269,7 @@ namespace Mono.Unix.Native {
 				EntryPoint="Mono_Posix_Syscall_lutimes")]
 		private static extern int sys_lutimes (
 				[MarshalAs (UnmanagedType.CustomMarshaler, MarshalTypeRef=typeof(FileNameMarshaler))]
-				string filename, Timeval[] tvp);
+				string filename, Timeval[]? tvp);
 
 		public static int lutimes (string filename, Timeval[] tvp)
 		{
@@ -4259,7 +4282,7 @@ namespace Mono.Unix.Native {
 
 		[DllImport (MPH, SetLastError=true, 
 				EntryPoint="Mono_Posix_Syscall_futimes")]
-		private static extern int sys_futimes (int fd, Timeval[] tvp);
+		private static extern int sys_futimes (int fd, Timeval[]? tvp);
 
 		public static int futimes (int fd, Timeval[] tvp)
 		{
@@ -4753,7 +4776,7 @@ namespace Mono.Unix.Native {
 		//    size_t confstr(int name, char *buf, size_t len);
 		[DllImport (MPH, SetLastError=true,
 				EntryPoint="Mono_Posix_Syscall_confstr")]
-		public static extern ulong confstr (ConfstrName name, [Out] StringBuilder buf, ulong len);
+		public static extern ulong confstr (ConfstrName name, [Out] StringBuilder? buf, ulong len);
 
 		// getpid(2)
 		//    pid_t getpid(void);
@@ -4898,7 +4921,7 @@ namespace Mono.Unix.Native {
 		{
 			lock (tty_lock) {
 				IntPtr r = sys_ttyname (fd);
-				return UnixMarshal.PtrToString (r);
+				return UnixMarshal.PtrToString (r) ?? String.Empty;
 			}
 		}
 
@@ -5009,7 +5032,7 @@ namespace Mono.Unix.Native {
 		{
 			lock (getlogin_lock) {
 				IntPtr r = sys_getlogin ();
-				return UnixMarshal.PtrToString (r);
+				return UnixMarshal.PtrToString (r) ?? String.Empty;
 			}
 		}
 
@@ -5104,7 +5127,7 @@ namespace Mono.Unix.Native {
 		{
 			lock (usershell_lock) {
 				IntPtr r = sys_getusershell ();
-				return UnixMarshal.PtrToString (r);
+				return UnixMarshal.PtrToString (r) ?? String.Empty;
 			}
 		}
 
@@ -5819,6 +5842,10 @@ namespace Mono.Unix.Native {
 
 			public _Msghdr (Msghdr message, Iovec* ptr_msg_iov, byte* ptr_msg_control)
 			{
+				if (message.msg_iov == null) {
+					throw new ArgumentException ("structure not initialized properly", nameof (message));
+				}
+
 				if (message.msg_iovlen > message.msg_iov.Length || message.msg_iovlen < 0)
 					throw new ArgumentException ("message.msg_iovlen > message.msg_iov.Length || message.msg_iovlen < 0", "message");
 				msg_iov = ptr_msg_iov;
@@ -5850,7 +5877,11 @@ namespace Mono.Unix.Native {
 		public static unsafe long recvmsg (int socket, Msghdr message, MessageFlags flags)
 		{
 			var _flags = NativeConvert.FromMessageFlags (flags);
-			var address = message.msg_name;
+			Sockaddr? address = message.msg_name;
+			if (address == null) {
+				throw new ArgumentException ("structure not initialized properly: msg_name is null", nameof (message));
+			}
+
 			fixed (byte* ptr_msg_control = message.msg_control)
 			fixed (Iovec* ptr_msg_iov = message.msg_iov) {
 				var _message = new _Msghdr (message, ptr_msg_iov, ptr_msg_control);
@@ -5875,7 +5906,11 @@ namespace Mono.Unix.Native {
 		public static unsafe long sendmsg (int socket, Msghdr message, MessageFlags flags)
 		{
 			var _flags = NativeConvert.FromMessageFlags (flags);
-			var address = message.msg_name;
+			Sockaddr? address = message.msg_name;
+			if (address == null) {
+				throw new ArgumentException ("structure not initialized properly: msg_name is null", nameof (message));
+			}
+
 			fixed (byte* ptr_msg_control = message.msg_control)
 			fixed (Iovec* ptr_msg_iov = message.msg_iov) {
 				var _message = new _Msghdr (message, ptr_msg_iov, ptr_msg_control);

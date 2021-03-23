@@ -67,14 +67,7 @@ namespace Mono.Unix {
 			}
 		}
 
-		public UnixDirectoryInfo Root {
-			get {
-				string root = UnixPath.GetPathRoot (FullPath);
-				if (root == null)
-					return null;
-				return new UnixDirectoryInfo (root);
-			}
-		}
+		public UnixDirectoryInfo Root => new UnixDirectoryInfo (UnixPath.GetPathRoot (FullPath));
 
 		[CLSCompliant (false)]
 		public void Create (Mono.Unix.Native.FilePermissions mode)
@@ -105,7 +98,7 @@ namespace Mono.Unix {
 		{
 			if (recursive) {
 				foreach (UnixFileSystemInfo e in GetFileSystemEntries ()) {
-					UnixDirectoryInfo d = e as UnixDirectoryInfo;
+					UnixDirectoryInfo? d = e as UnixDirectoryInfo;
 					if (d != null)
 						d.Delete (true);
 					else

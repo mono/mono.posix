@@ -58,7 +58,7 @@ namespace Mono.Unix.Native {
 
 		public IntPtr MarshalManagedToNative (object obj)
 		{
-			string s = obj as string;
+			string? s = obj as string;
 			if (s == null)
 				return IntPtr.Zero;
 			IntPtr p = UnixMarshal.StringToHeap (s, UnixEncoding.Instance);
@@ -66,12 +66,9 @@ namespace Mono.Unix.Native {
 			return p;
 		}
 
-		public object MarshalNativeToManaged (IntPtr pNativeData)
+		public object? MarshalNativeToManaged (IntPtr pNativeData)
 		{
-			string s = UnixMarshal.PtrToString (pNativeData, UnixEncoding.Instance);
-			// Console.WriteLine ("# FileNameMarshaler.MarshalNativeToManaged ({0:x})=`{1}'",
-			// 		pNativeData, s);
-			return s;
+			return UnixMarshal.PtrToString (pNativeData, UnixEncoding.Instance);
 		}
 	}
 }

@@ -112,8 +112,9 @@ namespace Mono.Unix
 			return sa;
 		}
 
-		public override string ToString() {
-			return(filename);
+		public override string? ToString ()
+		{
+			return filename;
 		}
 
 		public override int GetHashCode ()
@@ -121,9 +122,9 @@ namespace Mono.Unix
 			return filename.GetHashCode ();
 		}
 
-		public override bool Equals (object o)
+		public override bool Equals (object? o)
 		{
-			UnixEndPoint other = o as UnixEndPoint;
+			UnixEndPoint? other = o as UnixEndPoint;
 			if (other == null)
 				return false;
 

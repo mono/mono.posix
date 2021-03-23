@@ -40,7 +40,7 @@ namespace Mono.Unix {
 		public UnixUserInfo (string user)
 		{
 			passwd = new Native.Passwd ();
-			Native.Passwd pw;
+			Native.Passwd? pw;
 			int r = Native.Syscall.getpwnam_r (user, passwd, out pw);
 			if (r != 0 || pw == null)
 				throw new ArgumentException (Locale.GetText ("invalid username"), "user");
@@ -50,7 +50,7 @@ namespace Mono.Unix {
 		public UnixUserInfo (uint user)
 		{
 			passwd = new Native.Passwd ();
-			Native.Passwd pw;
+			Native.Passwd? pw;
 			int r = Native.Syscall.getpwuid_r (user, passwd, out pw);
 			if (r != 0 || pw == null)
 				throw new ArgumentException (Locale.GetText ("invalid user id"), "user");
@@ -59,7 +59,7 @@ namespace Mono.Unix {
 		public UnixUserInfo (long user)
 		{
 			passwd = new Native.Passwd ();
-			Native.Passwd pw;
+			Native.Passwd? pw;
 			int r = Native.Syscall.getpwuid_r (Convert.ToUInt32 (user), passwd, out pw);
 			if (r != 0 || pw == null)
 				throw new ArgumentException (Locale.GetText ("invalid user id"), "user");
@@ -85,55 +85,29 @@ namespace Mono.Unix {
 			return p;
 		}
 
-		public string UserName {
-			get {return passwd.pw_name;}
-		}
-
-		public string Password {
-			get {return passwd.pw_passwd;}
-		}
-
-		public long UserId {
-			get {return passwd.pw_uid;}
-		}
-
-		public UnixGroupInfo Group {
-			get {return new UnixGroupInfo (passwd.pw_gid);}
-		}
-
-		public long GroupId {
-			get {return passwd.pw_gid;}
-		}
-
-		public string GroupName {
-			get {return Group.GroupName;}
-		}
-
-		public string RealName {
-			get {return passwd.pw_gecos;}
-		}
-
-		public string HomeDirectory {
-			get {return passwd.pw_dir;}
-		}
-
-		public string ShellProgram {
-			get {return passwd.pw_shell;}
-		}
+		public string UserName => passwd.pw_name ?? String.Empty;
+		public string Password => passwd.pw_passwd ?? String.Empty;
+		public long UserId => passwd.pw_uid;
+		public UnixGroupInfo Group => new UnixGroupInfo (passwd.pw_gid);
+		public long GroupId => passwd.pw_gid;
+		public string GroupName => Group.GroupName;
+		public string RealName => passwd.pw_gecos ?? String.Empty;
+		public string HomeDirectory => passwd.pw_dir ?? String.Empty;
+		public string ShellProgram => passwd.pw_shell ?? String.Empty;
 
 		public override int GetHashCode ()
 		{
 			return passwd.GetHashCode ();
 		}
 
-		public override bool Equals (object obj)
+		public override bool Equals (object? obj)
 		{
 			if (obj == null || GetType () != obj.GetType())
 				return false;
 			return passwd.Equals (((UnixUserInfo) obj).passwd);
 		}
 
-		public override string ToString ()
+		public override string? ToString ()
 		{
 			return passwd.ToString ();
 		}
@@ -175,7 +149,7 @@ namespace Mono.Unix {
 					UnixMarshal.ThrowExceptionForLastError ();
 				}
 				try {
-					Native.Passwd p;
+					Native.Passwd? p;
 					while ((p = Native.Syscall.getpwent()) != null)
 						entries.Add (new UnixUserInfo (p));
 					if (Native.Syscall.GetLastError () != (Native.Errno) 0)

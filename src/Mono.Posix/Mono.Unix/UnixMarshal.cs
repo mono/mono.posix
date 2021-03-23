@@ -119,7 +119,7 @@ namespace Mono.Unix {
 			Native.Stdlib.free (ptr);
 		}
 
-		public static unsafe string PtrToStringUnix (IntPtr p)
+		public static unsafe string? PtrToStringUnix (IntPtr p)
 		{
 			if (p == IntPtr.Zero)
 				return null;
@@ -128,20 +128,17 @@ namespace Mono.Unix {
 			return new string ((sbyte*) p, 0, len, UnixEncoding.Instance);
 		}
 
-		public static string PtrToString (IntPtr p)
+		public static string? PtrToString (IntPtr p)
 		{
 			if (p == IntPtr.Zero)
 				return null;
 			return PtrToString (p, UnixEncoding.Instance);
 		}
 
-		public static unsafe string PtrToString (IntPtr p, Encoding encoding)
+		public static unsafe string? PtrToString (IntPtr p, Encoding encoding)
 		{
 			if (p == IntPtr.Zero)
 				return null;
-
-			if (encoding == null)
-				throw new ArgumentNullException ("encoding");
 
 			int len = GetStringByteLength (p, encoding);
 
@@ -248,12 +245,12 @@ namespace Mono.Unix {
 		 * The terminating NULL is required so that we know when to stop looking
 		 * for strings.
 		 */
-		public static string[] PtrToStringArray (IntPtr stringArray)
+		public static string?[] PtrToStringArray (IntPtr stringArray)
 		{
 			return PtrToStringArray (stringArray, UnixEncoding.Instance);
 		}
 
-		public static string[] PtrToStringArray (IntPtr stringArray, Encoding encoding)
+		public static string?[] PtrToStringArray (IntPtr stringArray, Encoding encoding)
 		{
 			if (stringArray == IntPtr.Zero)
 				return new string[]{};
@@ -279,12 +276,12 @@ namespace Mono.Unix {
 		 * stringArray[count] is NOT accessed (though ANSI C requires that 
 		 * argv[argc] = NULL, which PtrToStringArray(IntPtr) requires).
 		 */
-		public static string[] PtrToStringArray (int count, IntPtr stringArray)
+		public static string?[] PtrToStringArray (int count, IntPtr stringArray)
 		{
 			return PtrToStringArray (count, stringArray, UnixEncoding.Instance);
 		}
 
-		public static string[] PtrToStringArray (int count, IntPtr stringArray, Encoding encoding)
+		public static string?[] PtrToStringArray (int count, IntPtr stringArray, Encoding encoding)
 		{
 			if (count < 0)
 				throw new ArgumentOutOfRangeException ("count", "< 0");
@@ -293,7 +290,7 @@ namespace Mono.Unix {
 			if (stringArray == IntPtr.Zero)
 				return new string[count];
 
-			string[] members = new string[count];
+			string?[] members = new string[count];
 			for (int i = 0; i < count; ++i) {
 				IntPtr s = Marshal.ReadIntPtr (stringArray, i * IntPtr.Size);
 				members[i] = PtrToString (s, encoding);

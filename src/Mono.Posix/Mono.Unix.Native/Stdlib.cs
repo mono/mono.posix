@@ -256,16 +256,20 @@ namespace Mono.Unix.Native {
 			return buf.ToString ();
 		}
 
-		public override bool Equals (object obj)
+		public override bool Equals (object? obj)
 		{
-			FilePosition fp = obj as FilePosition;
+			FilePosition? fp = obj as FilePosition;
 			if (obj == null || fp == null)
 				return false;
 			return ToString().Equals (obj.ToString());
 		}
 
-		public bool Equals (FilePosition value)
+		public bool Equals (FilePosition? value)
 		{
+			if (value == null) {
+				return false;
+			}
+
 			if (object.ReferenceEquals (this, value))
 				return true;
 			return ToString().Equals (value.ToString());
@@ -281,12 +285,12 @@ namespace Mono.Unix.Native {
 			Cleanup ();
 		}
 
-		public static bool operator== (FilePosition lhs, FilePosition rhs)
+		public static bool operator== (FilePosition? lhs, FilePosition? rhs)
 		{
 			return Object.Equals (lhs, rhs);
 		}
 
-		public static bool operator!= (FilePosition lhs, FilePosition rhs)
+		public static bool operator!= (FilePosition? lhs, FilePosition? rhs)
 		{
 			return !Object.Equals (lhs, rhs);
 		}
@@ -407,9 +411,8 @@ namespace Mono.Unix.Native {
 
 			// This string is arbitrary; it matters only that it is unique.
 			string assemblyVersion = "MonoProject-2015-12-1";
-			string nativeVersion = Marshal.PtrToStringAnsi (VersionStringPtr ());
-			if (assemblyVersion != nativeVersion)
-			{
+			string? nativeVersion = Marshal.PtrToStringAnsi (VersionStringPtr ());
+			if (nativeVersion == null || assemblyVersion != nativeVersion) {
 				throw new Exception ("Mono.Posix assembly loaded with a different version (\""
 					+ assemblyVersion + "\") than MonoPosixHelper (\"" + nativeVersion
 				    + "\"). You may need to reinstall Mono.Posix.");
@@ -629,7 +632,7 @@ namespace Mono.Unix.Native {
 
 		[DllImport (MPH, CallingConvention=CallingConvention.Cdecl,
 				EntryPoint="Mono_Posix_Stdlib_DumpFilePosition")]
-		internal static extern int DumpFilePosition (StringBuilder buf, HandleRef handle, int len);
+		internal static extern int DumpFilePosition (StringBuilder? buf, HandleRef handle, int len);
 
 		[DllImport (MPH, CallingConvention=CallingConvention.Cdecl,
 				EntryPoint="Mono_Posix_Stdlib_EOF")]
@@ -705,7 +708,7 @@ namespace Mono.Unix.Native {
 
 		[DllImport (LIBC, CallingConvention=CallingConvention.Cdecl,
 				SetLastError=true, EntryPoint="tmpnam")]
-		private static extern IntPtr sys_tmpnam (StringBuilder s);
+		private static extern IntPtr sys_tmpnam (StringBuilder? s);
 
 		[Obsolete ("Syscall.mkstemp() should be preferred.")]
 		public static string tmpnam (StringBuilder s)
@@ -714,7 +717,7 @@ namespace Mono.Unix.Native {
 				throw new ArgumentOutOfRangeException ("s", "s.Capacity < L_tmpnam");
 			lock (tmpnam_lock) {
 				IntPtr r = sys_tmpnam (s);
-				return UnixMarshal.PtrToString (r);
+				return UnixMarshal.PtrToString (r) ?? String.Empty;
 			}
 		}
 
@@ -723,7 +726,7 @@ namespace Mono.Unix.Native {
 		{
 			lock (tmpnam_lock) {
 				IntPtr r = sys_tmpnam (null);
-				return UnixMarshal.PtrToString (r);
+				return UnixMarshal.PtrToString (r) ?? String.Empty;
 			}
 		}
 
@@ -887,7 +890,7 @@ namespace Mono.Unix.Native {
 				SetLastError=true, EntryPoint="Mono_Posix_Stdlib_fgets")]
 		private static extern IntPtr sys_fgets (StringBuilder sb, int size, IntPtr stream);
 
-		public static StringBuilder fgets (StringBuilder sb, int size, IntPtr stream)
+		public static StringBuilder? fgets (StringBuilder sb, int size, IntPtr stream)
 		{
 			IntPtr r = sys_fgets (sb, size, stream);
 			if (r == IntPtr.Zero)
@@ -895,7 +898,7 @@ namespace Mono.Unix.Native {
 			return sb;
 		}
 
-		public static StringBuilder fgets (StringBuilder sb, IntPtr stream)
+		public static StringBuilder? fgets (StringBuilder sb, IntPtr stream)
 		{
 			return fgets (sb, sb.Capacity, stream);
 		}
@@ -1127,7 +1130,7 @@ namespace Mono.Unix.Native {
 		[DllImport (LIBC, CallingConvention=CallingConvention.Cdecl, EntryPoint="getenv")]
 		private static extern IntPtr sys_getenv (string name);
 
-		public static string getenv (string name)
+		public static string? getenv (string name)
 		{
 			IntPtr r = sys_getenv (name);
 			return UnixMarshal.PtrToString (r);
@@ -1153,7 +1156,7 @@ namespace Mono.Unix.Native {
 			int e = NativeConvert.FromErrno (errnum);
 			lock (strerror_lock) {
 				IntPtr r = sys_strerror (e);
-				return UnixMarshal.PtrToString (r);
+				return UnixMarshal.PtrToString (r) ?? $"Unknown error {errnum}";
 			}
 		}
 

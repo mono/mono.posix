@@ -101,8 +101,9 @@ namespace Mono.Unix
 			return sa;
 		}
 
-		public override string ToString() {
-			return(path);
+		public override string? ToString()
+		{
+			return path;
 		}
 
 		public override int GetHashCode ()
@@ -110,9 +111,9 @@ namespace Mono.Unix
 			return path.GetHashCode ();
 		}
 
-		public override bool Equals (object o)
+		public override bool Equals (object? o)
 		{
-			AbstractUnixEndPoint other = o as AbstractUnixEndPoint;
+			AbstractUnixEndPoint? other = o as AbstractUnixEndPoint;
 			if (other == null)
 				return false;
 

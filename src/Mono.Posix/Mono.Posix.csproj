@@ -3,6 +3,8 @@
     <TargetFrameworks>netstandard2.0;netcoreapp3.1;net6.0;</TargetFrameworks>
     <AssemblyName>Mono.Posix</AssemblyName>
     <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
+    <Nullable>enable</Nullable>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
 
   <Import Project="Mono.Posix.Common.props" />

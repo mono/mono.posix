@@ -40,8 +40,9 @@ namespace Mono.Unix {
 		bool listening;
 		Socket server;
 		EndPoint savedEP;
- 
-		void Init (UnixEndPoint ep)
+
+		// The `out` parameters hush compiler's nullability warning (CS8618)
+		void Init (UnixEndPoint ep, out Socket _server, out EndPoint _savedEP)
 		{
 			listening = false;
 			string filename = ep.Filename;
@@ -56,25 +57,23 @@ namespace Mono.Unix {
 				File.Delete (filename);
 			}
 
-			server = new Socket (AddressFamily.Unix, SocketType.Stream, 0);
-			server.Bind (ep);
-			savedEP = server.LocalEndPoint;
+			_server = new Socket (AddressFamily.Unix, SocketType.Stream, 0);
+			_server.Bind (ep);
+			_savedEP = server.LocalEndPoint ?? throw new InvalidOperationException ("No local point for socket");
 		}
 
 		public UnixListener (string path)
 		{
-			if (!Directory.Exists (Path.GetDirectoryName (path)))
-				Directory.CreateDirectory (Path.GetDirectoryName (path));
+			string? dir = Path.GetDirectoryName (path);
+			if (dir != null)
+				Directory.CreateDirectory (dir);
 
-			Init (new UnixEndPoint (path));
+			Init (new UnixEndPoint (path), out server, out savedEP);
 		}
 
 		public UnixListener (UnixEndPoint localEndPoint)
 		{
-			if (localEndPoint == null)
-				throw new ArgumentNullException ("localendPoint");
-
-			Init (localEndPoint);
+			Init (localEndPoint, out server, out savedEP);
 		}
 
 		public EndPoint LocalEndpoint {
@@ -156,8 +155,6 @@ namespace Mono.Unix {
 				}
 				if (server != null)
 					server.Close ();
-
-				server = null;
 			}
 
 			disposed = true;

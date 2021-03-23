@@ -36,8 +36,8 @@ using System;
 		AttributeTargets.Field    |
 		AttributeTargets.Struct)]
 internal class MapAttribute : Attribute {
-	private string nativeType;
-	private string suppressFlags;
+	string nativeType = String.Empty;
+	string suppressFlags = String.Empty;
 
 	public MapAttribute ()
 	{

@@ -36,7 +36,7 @@ using System.Runtime.InteropServices;
 namespace Mono.Unix {
 
 	public class UnixClient : MarshalByRefObject, IDisposable {
-		NetworkStream stream;
+		NetworkStream? stream;
 		Socket client;
 		bool disposed;
 
@@ -44,7 +44,6 @@ namespace Mono.Unix {
 		{
 			if (client != null) {
 				client.Close ();
-				client = null;
 			}
 
 			client = new Socket (AddressFamily.Unix, SocketType.Stream, 0);
@@ -52,24 +51,21 @@ namespace Mono.Unix {
 
 		public UnixClient (string path) : this ()
 		{
-			if (path == null)
-				throw new ArgumentNullException ("ep");
+			if (path.Length == 0)
+				throw new ArgumentException (nameof (path), "must not be empty");
 
 			Connect (path);
 		}
 
 		public UnixClient (UnixEndPoint ep) : this ()
 		{
-			if (ep == null)
-				throw new ArgumentNullException ("ep");
-
 			Connect (ep);
 		}
 
 		// UnixListener uses this when accepting a connection.
 		internal UnixClient (Socket sock)
 		{
-			Client = sock;
+			client = sock;
 		}
 
 		public
@@ -91,8 +87,7 @@ namespace Mono.Unix {
 		public LingerOption LingerState {
 			get {
 				CheckDisposed ();
-				return (LingerOption) client.GetSocketOption (SocketOptionLevel.Socket,
-									      SocketOptionName.Linger);
+				return EnsureOption <LingerOption> (client, SocketOptionLevel.Socket, SocketOptionName.Linger);
 			}
 
 			set {
@@ -105,8 +100,7 @@ namespace Mono.Unix {
 		public int ReceiveBufferSize {
 			get {
 				CheckDisposed ();
-				return (int) client.GetSocketOption (SocketOptionLevel.Socket,
-								     SocketOptionName.ReceiveBuffer);
+				return EnsureOption<int> (client,SocketOptionLevel.Socket, SocketOptionName.ReceiveBuffer);
 			}
 
 			set {
@@ -119,8 +113,7 @@ namespace Mono.Unix {
 		public int ReceiveTimeout {
 			get {
 				CheckDisposed ();
-				return (int) client.GetSocketOption (SocketOptionLevel.Socket,
-								     SocketOptionName.ReceiveTimeout);
+				return EnsureOption<int> (client, SocketOptionLevel.Socket, SocketOptionName.ReceiveTimeout);
 			}
 
 			set {
@@ -133,8 +126,7 @@ namespace Mono.Unix {
 		public int SendBufferSize {
 			get {
 				CheckDisposed ();
-				return (int) client.GetSocketOption (SocketOptionLevel.Socket,
-								     SocketOptionName.SendBuffer);
+				return EnsureOption<int> (client, SocketOptionLevel.Socket, SocketOptionName.SendBuffer);
 			}
 
 			set {
@@ -147,8 +139,7 @@ namespace Mono.Unix {
 		public int SendTimeout {
 			get {
 				CheckDisposed ();
-				return (int) client.GetSocketOption (SocketOptionLevel.Socket,
-								     SocketOptionName.SendTimeout);
+				return EnsureOption<int> (client, SocketOptionLevel.Socket, SocketOptionName.SendTimeout);
 			}
 
 			set {
@@ -190,7 +181,7 @@ namespace Mono.Unix {
 
 			if (disposing) {
 				// release managed resources
-				NetworkStream s = stream;
+				NetworkStream? s = stream;
 				stream = null;
 				if (s != null) {
 					// This closes the socket as well, as the NetworkStream
@@ -200,7 +191,6 @@ namespace Mono.Unix {
 				} else if (client != null){
 					client.Close ();
 				}
-				client = null;
 			}
 
 			disposed = true;
@@ -213,6 +203,20 @@ namespace Mono.Unix {
 				stream = new NetworkStream (client, true);
 
 			return stream;
+		}
+
+		T EnsureOption<T> (Socket client, SocketOptionLevel optionLevel, SocketOptionName optionName)
+		{
+			object? opt = client.GetSocketOption (optionLevel, optionName);
+			if (opt == null) {
+				throw new InvalidOperationException ($"Attempt to retrieve socket option '{optionLevel}/{optionName}' returned a null value");
+			}
+
+			try {
+				return (T)opt;
+			} catch (InvalidCastException ex) {
+				throw new InvalidOperationException ($"Option returned for '{optionLevel}/{optionName}' has invalid type (expected '{typeof (T).FullName}', got '{opt.GetType ().FullName}'", ex);
+			}
 		}
 
 		void CheckDisposed ()

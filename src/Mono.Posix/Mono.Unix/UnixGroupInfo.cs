@@ -28,8 +28,8 @@
 
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Text;
-using Mono.Unix;
 
 namespace Mono.Unix {
 
@@ -40,7 +40,7 @@ namespace Mono.Unix {
 		public UnixGroupInfo (string group)
 		{
 			this.group = new Native.Group ();
-			Native.Group gr;
+			Native.Group? gr;
 			int r = Native.Syscall.getgrnam_r (group, this.group, out gr);
 			if (r != 0 || gr == null)
 				throw new ArgumentException (Locale.GetText ("invalid group name"), "group");
@@ -49,7 +49,7 @@ namespace Mono.Unix {
 		public UnixGroupInfo (long group)
 		{
 			this.group = new Native.Group ();
-			Native.Group gr;
+			Native.Group? gr;
 			int r = Native.Syscall.getgrgid_r (Convert.ToUInt32 (group), this.group, out gr);
 			if (r != 0 || gr == null)
 				throw new ArgumentException (Locale.GetText ("invalid group id"), "group");
@@ -72,33 +72,33 @@ namespace Mono.Unix {
 			return g;
 		}
 
-		public string GroupName {
-			get {return group.gr_name;}
-		}
-
-		public string Password {
-			get {return group.gr_passwd;}
-		}
-
-		public long GroupId {
-			get {return group.gr_gid;}
-		}
+		public string GroupName => group.gr_name ?? String.Empty;
+		public string Password => group.gr_passwd ?? String.Empty;
+		public long GroupId => group.gr_gid;
 
 		public UnixUserInfo[] GetMembers ()
 		{
-			ArrayList members = new ArrayList (group.gr_mem.Length);
+			if (group.gr_mem == null) {
+				return new UnixUserInfo[0];
+			}
+
+			var members = new List<UnixUserInfo> (group.gr_mem.Length);
 			for (int i = 0; i < group.gr_mem.Length; ++i) {
 				try {
-					members.Add (new UnixUserInfo (group.gr_mem [i]));
+					members.Add (new UnixUserInfo (group.gr_mem [i] ?? String.Empty));
 				} catch (ArgumentException) {
 					// ignore invalid users
 				}
 			}
-			return (UnixUserInfo[]) members.ToArray (typeof (UnixUserInfo));
+			return members.ToArray ();
 		}
 
 		public string[] GetMemberNames ()
 		{
+			if (group.gr_mem == null) {
+				return new string[0];
+			}
+
 			return (string[]) group.gr_mem.Clone ();
 		}
 
@@ -107,16 +107,16 @@ namespace Mono.Unix {
 			return group.GetHashCode ();
 		}
 
-		public override bool Equals (object obj)
+		public override bool Equals (object? obj)
 		{
 			if (obj == null || GetType () != obj.GetType())
 				return false;
 			return group.Equals (((UnixGroupInfo) obj).group);
 		}
 
-		public override string ToString ()
+		public override string? ToString ()
 		{
-			return group.ToString();
+			return group.ToString ();
 		}
 
 		public Native.Group ToGroup ()
@@ -131,7 +131,7 @@ namespace Mono.Unix {
 				if (Native.Syscall.setgrent () != 0)
 					UnixMarshal.ThrowExceptionForLastError ();
 				try {
-					Native.Group g;
+					Native.Group? g;
 					while ((g = Native.Syscall.getgrent()) != null)
 						entries.Add (new UnixGroupInfo (g));
 					if (Native.Syscall.GetLastError() != (Native.Errno) 0)

@@ -53,7 +53,7 @@ namespace Mono.Unix {
 			return new UnixPipes (new UnixStream (reading), new UnixStream (writing));
 		}
 
-		public override bool Equals (object value)
+		public override bool Equals (object? value)
 		{
 			if ((value == null) || (value.GetType () != GetType ()))
 				return false;

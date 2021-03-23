@@ -69,7 +69,7 @@ namespace Mono.Unix {
 		}
 
 		private static void MarshalStrings (string s1, out IntPtr p1, 
-				string s2, out IntPtr p2, string s3, out IntPtr p3)
+				string s2, out IntPtr p2, string? s3, out IntPtr p3)
 		{
 			p1 = p2 = p3 = IntPtr.Zero;
 
@@ -101,7 +101,7 @@ namespace Mono.Unix {
 				// gettext(3) returns the input pointer if no translation is found
 				IntPtr r = gettext (ints);
 				if (r != ints)
-					return UnixMarshal.PtrToStringUnix (r);
+					return UnixMarshal.PtrToStringUnix (r) ?? String.Empty;
 				return s;
 			}
 			finally {
@@ -114,8 +114,8 @@ namespace Mono.Unix {
 		
 		public static String GetPluralString (String s, String p, Int32 n)
 		{
-			IntPtr ints, intp, _ignore;
-			MarshalStrings (s, out ints, p, out intp, null, out _ignore);
+			IntPtr ints, intp;
+			MarshalStrings (s, out ints, p, out intp, null, out _);
 
 			try {
 				// ngettext(3) returns an input pointer if no translation is found
@@ -124,7 +124,7 @@ namespace Mono.Unix {
 					return s;
 				if (r == intp)
 					return p;
-				return UnixMarshal.PtrToStringUnix (r); 
+				return UnixMarshal.PtrToStringUnix (r) ?? String.Empty;
 			}
 			finally {
 				UnixMarshal.FreeHeap (ints);

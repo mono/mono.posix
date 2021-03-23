@@ -373,7 +373,7 @@ namespace Mono.Unix {
 		{
 			AssertNotDisposed ();
 
-			Native.Passwd pw = Native.Syscall.getpwnam (user);
+			Native.Passwd? pw = Native.Syscall.getpwnam (user);
 			if (pw == null)
 				throw new ArgumentException (Locale.GetText ("invalid username"), "user");
 			long uid = pw.pw_uid;

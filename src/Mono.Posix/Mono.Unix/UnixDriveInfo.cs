@@ -29,7 +29,6 @@
 using System;
 using System.Collections;
 using System.IO;
-using Mono.Unix;
 
 namespace Mono.Unix {
 
@@ -46,14 +45,14 @@ namespace Mono.Unix {
 	// All methods & properties can throw IOException
 	public sealed class UnixDriveInfo
 	{
-		private Native.Statvfs stat;
-		private string fstype, mount_point, block_device;
+		Native.Statvfs stat;
+		string fstype = String.Empty;
+		string mount_point = String.Empty;
+		string block_device = String.Empty;
 
 		public UnixDriveInfo (string mountPoint)
 		{
-			if (mountPoint == null)
-				throw new ArgumentNullException ("mountPoint");
-			Native.Fstab fstab = Native.Syscall.getfsfile (mountPoint);
+			Native.Fstab? fstab = Native.Syscall.getfsfile (mountPoint);
 			if (fstab != null) {
 				FromFstab (fstab);
 			}
@@ -66,16 +65,16 @@ namespace Mono.Unix {
 
 		private void FromFstab (Native.Fstab fstab)
 		{
-			this.fstype       = fstab.fs_vfstype;
-			this.mount_point  = fstab.fs_file;
-			this.block_device = fstab.fs_spec;
+			this.fstype       = fstab.fs_vfstype ?? String.Empty;
+			this.mount_point  = fstab.fs_file ?? String.Empty;
+			this.block_device = fstab.fs_spec ?? String.Empty;
 		}
 
 		public static UnixDriveInfo GetForSpecialFile (string specialFile)
 		{
 			if (specialFile == null)
 				throw new ArgumentNullException ("specialFile");
-			Native.Fstab f = Native.Syscall.getfsspec (specialFile);
+			Native.Fstab? f = Native.Syscall.getfsspec (specialFile);
 			if (f == null)
 				throw new ArgumentException ("specialFile isn't valid: " + specialFile);
 			return new UnixDriveInfo (f);
@@ -152,7 +151,7 @@ namespace Mono.Unix {
 				if (r != 1)
 					throw new IOException ("Error calling setfsent(3)", new UnixIOException ());
 				try {
-					Native.Fstab fs;
+					Native.Fstab? fs;
 					while ((fs = Native.Syscall.getfsent()) != null) {
 						// avoid virtual entries, such as "swap"
 						if (fs.fs_file != null && fs.fs_file.StartsWith ("/"))
@@ -166,7 +165,7 @@ namespace Mono.Unix {
 			return (UnixDriveInfo[]) entries.ToArray (typeof(UnixDriveInfo));
 		}
 
-		public override string ToString ()
+		public override string? ToString ()
 		{
 			return VolumeLabel;
 		}

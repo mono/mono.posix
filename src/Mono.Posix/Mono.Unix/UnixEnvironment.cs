@@ -29,7 +29,6 @@
 using System;
 using System.Collections;
 using System.Text;
-using Mono.Unix;
 
 namespace Mono.Unix {
 
@@ -51,7 +50,7 @@ namespace Mono.Unix {
 				Native.Utsname buf;
 				if (Native.Syscall.uname (out buf) != 0)
 					throw UnixMarshal.CreateExceptionForLastError ();
-				return buf.nodename;
+				return buf.nodename ?? String.Empty;
 			}
 			set {
 				int r = Native.Syscall.sethostname (value);

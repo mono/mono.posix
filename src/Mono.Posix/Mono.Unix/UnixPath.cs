@@ -108,7 +108,7 @@ namespace Mono.Unix {
 
 		public static string GetFileName (string path)
 		{
-			if (path == null || path.Length == 0)
+			if (path.Length == 0)
 				return path;
 
 			int lastDir = path.LastIndexOf (DirectorySeparatorChar);
@@ -163,8 +163,6 @@ namespace Mono.Unix {
 
 		public static string GetPathRoot (string path)
 		{
-			if (path == null)
-				return null;
 			if (!IsPathRooted (path))
 				return "";
 			return "/";
@@ -217,7 +215,7 @@ namespace Mono.Unix {
 				if (errno != Native.Errno.EINVAL)
 					UnixMarshal.ThrowExceptionForError (errno);
 			}
-			return target;
+			return target ?? String.Empty;
 		}
 
 		public static string TryReadLink (string path)
@@ -226,7 +224,7 @@ namespace Mono.Unix {
 			do {
 				long r = Native.Syscall.readlink (path, buf);
 				if (r < 0)
-					return null;
+					return String.Empty;
 				else if (r == buf.Length)
 					buf = new byte[checked (buf.LongLength * 2)];
 				else
@@ -240,7 +238,7 @@ namespace Mono.Unix {
 			do {
 				long r = Native.Syscall.readlinkat (dirfd, path, buf);
 				if (r < 0)
-					return null;
+					return String.Empty;
 				else if (r == buf.Length)
 					buf = new byte[checked (buf.LongLength * 2)];
 				else
@@ -253,7 +251,7 @@ namespace Mono.Unix {
 			string target = TryReadLink (path);
 			if (target == null)
 				UnixMarshal.ThrowExceptionForLastError (); 
-			return target;
+			return target ?? String.Empty;
 		}
 
 		public static string ReadLinkAt (int dirfd, string path)
@@ -261,7 +259,7 @@ namespace Mono.Unix {
 			string target = TryReadLinkAt (dirfd, path);
 			if (target == null)
 				UnixMarshal.ThrowExceptionForLastError (); 
-			return target;
+			return target ?? String.Empty;
 		}
 
 		public static bool IsPathRooted (string path)

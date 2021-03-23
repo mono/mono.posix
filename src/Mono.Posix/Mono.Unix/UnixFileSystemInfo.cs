@@ -333,7 +333,7 @@ namespace Mono.Unix {
 
 		public void SetOwner (string owner)
 		{
-			Native.Passwd pw = Native.Syscall.getpwnam (owner);
+			Native.Passwd? pw = Native.Syscall.getpwnam (owner);
 			if (pw == null)
 				throw new ArgumentException (Locale.GetText ("invalid username"), "owner");
 			uint uid = pw.pw_uid;
@@ -364,14 +364,14 @@ namespace Mono.Unix {
 			SetOwner (uid, gid);
 		}
 
-		public void SetOwner (UnixUserInfo owner, UnixGroupInfo group)
+		public void SetOwner (UnixUserInfo? owner, UnixGroupInfo? group)
 		{
 			long uid, gid;
 			uid = gid = -1;
 			if (owner != null)
 				uid = owner.UserId;
 			if (group != null)
-				gid = owner.GroupId;
+				gid = group.GroupId;
 			SetOwner (uid, gid);
 		}
 
@@ -388,8 +388,7 @@ namespace Mono.Unix {
 
 		public static UnixFileSystemInfo GetFileSystemEntry (string path)
 		{
-			UnixFileSystemInfo info;
-			if (TryGetFileSystemEntry (path, out info))
+			if (TryGetFileSystemEntry (path, out UnixFileSystemInfo? info) && info != null)
 				return info;
 
 			UnixMarshal.ThrowExceptionForLastError ();
@@ -400,7 +399,7 @@ namespace Mono.Unix {
 			throw new DirectoryNotFoundException ("UnixMarshal.ThrowExceptionForLastError didn't throw?!");
 		}
 
-		public static bool TryGetFileSystemEntry (string path, out UnixFileSystemInfo entry)
+		public static bool TryGetFileSystemEntry (string path, out UnixFileSystemInfo? entry)
 		{
 			Native.Stat stat;
 			int r = Native.Syscall.lstat (path, out stat);

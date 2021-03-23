@@ -764,9 +764,9 @@ public class UnixEncoding : Encoding
 	}
 
 	// Determine if this object is equal to another.
-	public override bool Equals (Object value)
+	public override bool Equals (Object? value)
 	{
-		UnixEncoding enc = (value as UnixEncoding);
+		UnixEncoding? enc = (value as UnixEncoding);
 		if (enc != null) {
 			return true;
 		}

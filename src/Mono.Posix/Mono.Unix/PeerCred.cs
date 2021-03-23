@@ -55,8 +55,15 @@ namespace Mono.Unix
 				throw new ArgumentException ("Only Unix sockets are supported", "sock");
 			}
 
-			data = (PeerCredData)
-				sock.GetSocketOption (SocketOptionLevel.Socket, (SocketOptionName)so_peercred);
+			object? opt = sock.GetSocketOption (SocketOptionLevel.Socket, (SocketOptionName)so_peercred);
+			if (opt != null) {
+				data = (PeerCredData)opt;
+			} else {
+				data.pid = -1;
+				data.uid = -1;
+				data.gid = -1;
+			}
+
 		}
 		
 		public int ProcessID {
