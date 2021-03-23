@@ -66,10 +66,24 @@ namespace Mono.Unix.Native {
 			return p;
 		}
 
+		// Disable the following warning for netcore builds:
+		//
+		//  Nullability of reference types in return type of 'object? FileNameMarshaler.MarshalNativeToManaged(IntPtr pNativeData)' doesn't match implicitly implemented member 'object ICustomMarshaler.MarshalNativeToManaged(IntPtr pNativeData)' (possibly because of nullability attributes).
+		//
+		// We should return `null` for IntPtr.Zero but the ICustomMarshaler class doesn't have NRT annotations, so
+		// instead of throwing an exception we are better off ignoring the compile warning
+		//
+#if NETCOREAPP
+#pragma warning disable 8766
+#endif // NETCOREAPP
 		public object? MarshalNativeToManaged (IntPtr pNativeData)
 		{
 			return UnixMarshal.PtrToString (pNativeData, UnixEncoding.Instance);
 		}
+
+#if NETCOREAPP
+#pragma warning restore 8766
+#endif // NETCOREAPP
 	}
 }
 
