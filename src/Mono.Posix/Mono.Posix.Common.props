@@ -22,18 +22,6 @@
     <OutputPath>$(MSBuildThisFileDirectory)../../build/managed/$(Configuration)</OutputPath>
   </PropertyGroup>
 
-  <PropertyGroup Condition=" '$(TargetFramework)' == 'netcoreapp3.1' ">
-    <DefineConstants>$(DefineConstants);NETSTANDARD2_0;NETCOREAPP3_1</DefineConstants>
-  </PropertyGroup>
-
-  <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
-    <DefineConstants>$(DefineConstants);NETSTANDARD2_0</DefineConstants>
-  </PropertyGroup>
-
-  <PropertyGroup Condition=" '$(TargetFramework)' == 'net6.0' ">
-    <DefineConstants>$(DefineConstants);NET6</DefineConstants>
-  </PropertyGroup>
-
   <PropertyGroup Condition="'$(ForceUseLibC)' == 'true'">
     <DefineConstants>$(DefineConstants);FORCE_USE_LIBC_NOT_MSVC</DefineConstants>
   </PropertyGroup>

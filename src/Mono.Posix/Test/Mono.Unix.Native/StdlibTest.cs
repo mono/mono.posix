@@ -64,7 +64,7 @@ namespace MonoTests.Mono.Unix.Native {
 			Assert.IsFalse (NativeConvert.ToSignum (st.signalReceived) == Signum.SIGURG,
 					"#IH: Signal Handler invoked when it should have been removed!");
 		}
-#if !NETCOREAPP2_0 && !NET6 && !NETCOREAPP3_1
+#if !NETCOREAPP2_0_OR_GREATER && !NET6_0_OR_GREATER
 		[Test]
 		// MSVCRT.DLL doesn't export snprintf(3).
 		[Category ("NotDotNet")]
