@@ -28,6 +28,7 @@
 //
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
@@ -84,7 +85,8 @@ namespace Mono.Unix {
 			}
 		}
 
-		public LingerOption LingerState {
+		public LingerOption? LingerState {
+			[return: MaybeNull]
 			get {
 				CheckDisposed ();
 				return EnsureOption <LingerOption> (client, SocketOptionLevel.Socket, SocketOptionName.Linger);
@@ -92,8 +94,8 @@ namespace Mono.Unix {
 
 			set {
 				CheckDisposed ();
-				client.SetSocketOption (SocketOptionLevel.Socket,
-							SocketOptionName.Linger, value);
+				// SetSocketOption will throw if value is null, we don't need to check here
+				client.SetSocketOption (SocketOptionLevel.Socket, SocketOptionName.Linger, value!);
 			}
 		}
 
@@ -205,11 +207,12 @@ namespace Mono.Unix {
 			return stream;
 		}
 
-		T EnsureOption<T> (Socket client, SocketOptionLevel optionLevel, SocketOptionName optionName)
+		[return: MaybeNull]
+		T? EnsureOption<T> (Socket client, SocketOptionLevel optionLevel, SocketOptionName optionName)
 		{
 			object? opt = client.GetSocketOption (optionLevel, optionName);
 			if (opt == null) {
-				throw new InvalidOperationException ($"Attempt to retrieve socket option '{optionLevel}/{optionName}' returned a null value");
+				return default(T);
 			}
 
 			try {
