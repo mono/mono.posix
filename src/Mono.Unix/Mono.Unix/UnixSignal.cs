@@ -60,7 +60,7 @@ namespace Mono.Unix {
 			Native.Errno err = Native.Stdlib.GetLastError ();
 			if (this.signal_info == IntPtr.Zero) {
 				if (err == Native.Errno.EADDRINUSE)
-					throw new ArgumentException ("Signal registered outside of Mono.Posix", "signum");
+					throw new ArgumentException ("Signal registered outside of Mono.Unix", "signum");
 				throw new ArgumentException ("Unable to handle signal", "signum");
 			}
 		}

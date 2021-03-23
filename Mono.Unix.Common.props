@@ -18,8 +18,8 @@
     <EnableDefaultItems>false</EnableDefaultItems>
     <SignAssembly>true</SignAssembly>
     <DelaySign>true</DelaySign>
-    <AssemblyOriginatorKeyFile>Open.snk</AssemblyOriginatorKeyFile>
-    <OutputPath>$(MSBuildThisFileDirectory)../../build/managed/$(Configuration)</OutputPath>
+    <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)Open.snk</AssemblyOriginatorKeyFile>
+    <OutputPath>$(MSBuildThisFileDirectory)build/managed/$(Configuration)</OutputPath>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(ForceUseLibC)' == 'true'">

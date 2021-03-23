@@ -190,17 +190,17 @@
 
   <Target Name="_GetNativeLibraries">
     <ItemGroup>
-      <Content Include="$(BuildDirTop)/%(_NativeLib.Identity)-$(NativeConfiguration)/lib/%(_NativeLib.LibraryPrefix)MonoPosixHelper.%(_NativeLib.SharedSuffix)"
+      <Content Include="$(BuildDirTop)/%(_NativeLib.Identity)-$(NativeConfiguration)/lib/%(_NativeLib.LibraryPrefix)Mono.Unix.%(_NativeLib.SharedSuffix)"
                Condition=" '%(_NativeLib.HasSharedLibrary)' == 'true' ">
         <PackagePath>%(_NativeLib.PackagePath)</PackagePath>
       </Content>
 
-      <Content Include="$(BuildDirTop)/%(_NativeLib.Identity)-$(NativeConfiguration)/lib/%(_NativeLib.LibraryPrefix)MonoPosixHelper.%(_NativeLib.DebugSuffix)"
+      <Content Include="$(BuildDirTop)/%(_NativeLib.Identity)-$(NativeConfiguration)/lib/%(_NativeLib.LibraryPrefix)Mono.Unix.%(_NativeLib.DebugSuffix)"
                Condition=" '%(_NativeLib.HasDebugLibrary)' == 'true' ">
         <PackagePath>%(_NativeLib.PackagePath)</PackagePath>
       </Content>
 
-      <Content Include="$(BuildDirTop)/%(_NativeLib.Identity)-$(NativeConfiguration)/lib/%(_NativeLib.LibraryPrefix)MonoPosixHelper.%(_NativeLib.StaticSuffix)">
+      <Content Include="$(BuildDirTop)/%(_NativeLib.Identity)-$(NativeConfiguration)/lib/%(_NativeLib.LibraryPrefix)Mono.Unix.%(_NativeLib.StaticSuffix)">
         <PackagePath>%(_NativeLib.PackagePath)</PackagePath>
       </Content>
     </ItemGroup>

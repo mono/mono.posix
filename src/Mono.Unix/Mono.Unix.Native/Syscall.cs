@@ -140,7 +140,7 @@ namespace Mono.Unix.Native {
 		// non-supported platforms.
 		//
 		// (For example, "C-wrapped" system calls -- calls with implementation in
-		// MonoPosixHelper -- will return -1 with errno=EINVAL.  C#-wrapped system
+		// Mono.Unix -- will return -1 with errno=EINVAL.  C#-wrapped system
 		// calls will generate an exception in NativeConvert, as the value can't be
 		// converted on the target platform.)
 		//
@@ -948,7 +948,7 @@ namespace Mono.Unix.Native {
 		SHUT_RDWR = 0x03,   /* No more receptions or transmissions. */
 	}
 
-	// Used by libMonoPosixHelper to distinguish between different sockaddr types
+	// Used by libMono.Unix to distinguish between different sockaddr types
 	[Map]
 	enum SockaddrType : int {
 		Invalid,
@@ -2558,7 +2558,7 @@ namespace Mono.Unix.Native {
 	//        check errno to see if any errors occurred.  This sequence can't 
 	//        be done safely in managed code, as errno may change as part of 
 	//        the P/Invoke mechanism.
-	//        Instead, add a MonoPosixHelper export which does:
+	//        Instead, add a Mono.Unix export which does:
 	//          errno = 0;
 	//          INVOKE SYSCALL;
 	//          return errno == 0 ? 0 : -1;
@@ -2620,17 +2620,17 @@ namespace Mono.Unix.Native {
 	//    we can afford to clean things up whenever possible.
 	//    - Examples: 
 	//    	- Syscall.statfs: Solaris/Mac OS X provide statfs(2), Linux provides
-	//        statvfs(2).  MonoPosixHelper will "thunk" between the two,
+	//        statvfs(2).  Mono.Unix will "thunk" between the two,
 	//        exporting a statvfs that works across platforms.
 	//    	- Syscall.getfsent: Glibc export which Solaris lacks, while Solaris
-	//    	  instead provides getvfsent(3).  MonoPosixHelper provides wrappers
+	//    	  instead provides getvfsent(3).  Mono.Unix provides wrappers
 	//    	  to convert getvfsent(3) into Fstab data.
 	//    - Exception: If it isn't possible to cleanly wrap platforms, then the
 	//      method shouldn't be exported.  The user will be expected to do their
 	//      own platform check and their own DllImports.
 	//      Examples: mount(2), umount(2), etc.
 	//    - Note: if a platform doesn't support a function AT ALL, the
-	//      MonoPosixHelper wrapper won't be compiled, resulting in a
+	//      Mono.Unix wrapper won't be compiled, resulting in a
 	//      EntryPointNotFoundException.  This is also consistent with a missing 
 	//      P/Invoke into libc.so.
 	//

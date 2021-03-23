@@ -256,8 +256,8 @@ function __build_managed()
 			   -f "${framework}" \
 			   --configuration "${CONFIGURATION}" \
 			   --verbosity "${MANAGED_BUILD_VERBOSITY}" \
-			   Mono.Posix.sln \
-			   "/bl:LogFile=${LOG_DIR}/Mono.Posix-build-${framework}.binlog"
+			   Mono.Unix.sln \
+			   "/bl:LogFile=${LOG_DIR}/Mono.Unix-build-${framework}.binlog"
 	done
 
 	for framework in ${MONO_POSIX_TEST_FRAMEWORKS}; do
@@ -266,8 +266,8 @@ function __build_managed()
 			   -f "${framework}" \
 			   --configuration "${CONFIGURATION}" \
 			   --verbosity "${MANAGED_BUILD_VERBOSITY}" \
-			   Mono.Posix.Test.sln \
-			   "/bl:LogFile=${LOG_DIR}/Mono.Posix.Test-build-${framework}.binlog"
+			   Mono.Unix.Test.sln \
+			   "/bl:LogFile=${LOG_DIR}/Mono.Unix.Test-build-${framework}.binlog"
 	done
 
 	MANAGED_BUILT="yes"
@@ -292,13 +292,13 @@ function __build_test()
 	local managed_top_dir="${MANAGED_OUTPUT_DIR}/${CONFIGURATION}"
 	for framework in ${MONO_POSIX_TEST_FRAMEWORKS}; do
 		print_build_banner Running tests for framework ${framework}
-		cp "${host_build_dir}/lib"/libMonoPosixHelper.* "${managed_top_dir}/${framework}"
+		cp "${host_build_dir}/lib"/libMono.Unix.* "${managed_top_dir}/${framework}"
 		dotnet test ${verbose} \
 			   -f "${framework}" \
 			   --verbosity "${MANAGED_BUILD_VERBOSITY}" \
 			   --configuration "${CONFIGURATION}" \
-			   --logger "trx;LogFileName=${LOG_DIR}/Mono.Posix.Test-${framework}.trx" \
-			   Mono.Posix.Test.sln
+			   --logger "trx;LogFileName=${LOG_DIR}/Mono.Unix.Test-${framework}.trx" \
+			   Mono.Unix.Test.sln
 	done
 }
 

@@ -20,9 +20,9 @@ include(${CMAKE_CURRENT_LIST_DIR}/../../cmake/toolchain.android.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/../../cmake/toolchain.apple.cmake)
 
 project(
-  MonoPosixHelper
+  Mono.Unix
   VERSION ${MPH_VERSION}
-  DESCRIPTION "Native helper library for the Mono.Posix assembly"
+  DESCRIPTION "Native helper library for the Mono.Unix assembly"
   HOMEPAGE_URL "https://github.com/mono/mono.posix/"
   LANGUAGES CXX C
   )
@@ -292,7 +292,7 @@ set(LOCAL_COMPILER_ARGS
 
 if(NOT IS_ANDROID)
   # Android toolchain takes care of this on its own, based on selected features
-  list(APPEND LOCAL_COMPILE_ARGS
+  list(APPEND LOCAL_COMPILER_ARGS
     -fno-exceptions
     -fno-rtti
     )
@@ -310,7 +310,7 @@ set(LOCAL_LINKER_ARGS
   LINKER:--export-dynamic
   )
 
-if(IS_LINUX AND IS_CLANG)
+if(IS_LINUX)
   list(APPEND LOCAL_LINKER_ARGS -static-libstdc++)
 endif()
 

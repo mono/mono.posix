@@ -1,14 +1,14 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFrameworks>netstandard2.1;netcoreapp3.1;net6.0;</TargetFrameworks>
-    <AssemblyName>Mono.Posix</AssemblyName>
+    <AssemblyName>Mono.Unix</AssemblyName>
     <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
     <Nullable>enable</Nullable>
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
 
-  <Import Project="Mono.Posix.Common.props" />
-  <Import Project="Mono.Posix.proj" />
+  <Import Project="../../Mono.Unix.Common.props" />
+  <Import Project="Mono.Unix.proj" />
 
   <ItemGroup>
     <Compile Include="./Assembly/**/*.cs" />

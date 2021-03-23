@@ -369,7 +369,7 @@ namespace Mono.Unix.Native {
 	//        check errno to see if any errors occurred.  This sequence can't 
 	//        be done safely in managed code, as errno may change as part of 
 	//        the P/Invoke mechanism.
-	//        Instead, add a MonoPosixHelper export which does:
+	//        Instead, add a Mono.Unix export which does:
 	//          errno = 0;
 	//          INVOKE SYSCALL;
 	//          return errno == 0 ? 0 : -1;
@@ -389,12 +389,12 @@ namespace Mono.Unix.Native {
 #else
 		internal const string LIBC = "msvcrt";
 #endif
-		internal const string MPH  = "MonoPosixHelper";
+		internal const string MPH  = "Mono.Unix";
 
-		// It is possible for Mono.Posix and MonoPosixHelper to get out of sync,
+		// It is possible for Mono.Posix and Mono.Unix to get out of sync,
 		// for example if NuGet does something weird. To mitigate this, anyone
 		// editing Mono.Posix needs to observe two rules:
-		//   1. When introducing C-interface changes to MonoPosixHelper, update
+		//   1. When introducing C-interface changes to Mono.Unix, update
 		//      the version strings in VersionCheck below and also
 		//      Mono_Unix_VersionString in the C sources.
 		//   2. Any class which performs a DllImport on Stdlib.MPH needs to call
@@ -413,9 +413,9 @@ namespace Mono.Unix.Native {
 			string assemblyVersion = "MonoProject-2015-12-1";
 			string? nativeVersion = Marshal.PtrToStringAnsi (VersionStringPtr ());
 			if (nativeVersion == null || assemblyVersion != nativeVersion) {
-				throw new Exception ("Mono.Posix assembly loaded with a different version (\""
-					+ assemblyVersion + "\") than MonoPosixHelper (\"" + nativeVersion
-				    + "\"). You may need to reinstall Mono.Posix.");
+				throw new Exception ("Mono.Unix assembly loaded with a different version (\""
+					+ assemblyVersion + "\") than Mono.Unix (\"" + nativeVersion
+				    + "\"). You may need to reinstall Mono.Unix.");
 			}
 
 			versionCheckPerformed = true;
@@ -445,7 +445,7 @@ namespace Mono.Unix.Native {
 				// On Windows Marshal.GetLastWin32Error() doesn't take errno
 				// into account so we need to call Mono_Posix_Stdlib_GetLastError()
 				// which returns the value of errno in the C runtime
-				// libMonoPosixHelper.dll was linked against.
+				// libMono.Unix.dll was linked against.
 				errno = _GetLastError ();
 			}
 			return NativeConvert.ToErrno (errno);

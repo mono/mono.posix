@@ -8,7 +8,7 @@ namespace Mono.Unix.Android
 {
 	internal sealed class AndroidUtils
 	{
-		const string TAG = "Mono.Posix";
+		const string TAG = "Mono.Unix";
 
 		delegate void DetectCPUAndArchitecture (out ushort builtForCPU, out ushort runningOnCPU, out bool is64bit);
 

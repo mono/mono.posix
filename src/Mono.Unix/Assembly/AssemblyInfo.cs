@@ -34,7 +34,7 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Security.Permissions;
 
-[assembly: AssemblyTitle("Mono.Posix.dll")]
+[assembly: AssemblyTitle("Mono.Unix.dll")]
 
 [assembly: CLSCompliant (true)]
 [assembly: ComVisible (false)]
