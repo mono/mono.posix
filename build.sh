@@ -288,7 +288,15 @@ function __build_test()
 		verbose="-v d"
 	fi
 
-	local host_build_dir="$(get_build_dir "${HOST_BUILD_NAME}")"
+	local arch=""
+	if [ "${OS}" == "Darwin" ]; then
+		case $(arch) in
+			i386) arch="-x64" ;;
+			arm64) arch="-arm64" ;;
+			*) die "Unknown host architecture: $(arch)" ;;
+		esac
+	fi
+	local host_build_dir="$(get_build_dir "${HOST_BUILD_NAME}${arch}")"
 	local managed_top_dir="${MANAGED_OUTPUT_DIR}/${CONFIGURATION}"
 	for framework in ${MONO_POSIX_TEST_FRAMEWORKS}; do
 		print_build_banner Running tests for framework ${framework}

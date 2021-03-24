@@ -4467,7 +4467,7 @@ namespace Mono.Unix.Native {
 			return UnixMarshal.EscapeFormatString (message, new char[]{'m'});
 		}
 
-#if !NETSTANDARD2_0_OR_GREATER && !NETCOREAPP2_0_OR_GREATER && !NET6_0_OR_GREATER
+#if !NETSTANDARD && !NETSTANDARD2_0_OR_GREATER && !NETCOREAPP2_0_OR_GREATER && !NET6_0_OR_GREATER
 		[Obsolete ("Not necessarily portable due to cdecl restrictions.\n" +
 				"Use syslog(SyslogFacility, SyslogLevel, string) instead.")]
 		public static int syslog (SyslogFacility facility, SyslogLevel level, 
