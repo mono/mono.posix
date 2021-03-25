@@ -32,6 +32,31 @@ HOST_BUILT="no"
 HOST_BUILD_NAME="host-${OS_LOWER}"
 MANAGED_OUTPUT_DIR="${BUILD_DIR_ROOT}/managed"
 
+# The color block is pilfered from the dotnet installer script
+#
+# Setup some colors to use. These need to work in fairly limited shells, like the Ubuntu Docker container where there are only 8 colors.
+# See if stdout is a terminal
+#
+BRIGHT_YELLOW=""
+BRIGHT_GREEN=""
+BRIGHT_BLUE=""
+BRIGHT_CYAN=""
+BRIGHT_WHITE=""
+NORMAL=""
+
+if [ -t 1 ] && command -v tput > /dev/null; then
+    # see if it supports colors
+    ncolors=$(tput colors)
+    if [ -n "$ncolors" ] && [ $ncolors -ge 8 ]; then
+		BRIGHT_YELLOW="$(tput bold || echo)$(tput setaf 3 || echo)"
+		BRIGHT_GREEN="$(tput bold || echo)$(tput setaf 2 || echo)"
+		BRIGHT_BLUE="$(tput bold || echo)$(tput setaf 4 || echo)"
+		BRIGHT_CYAN="$(tput bold || echo)$(tput setaf 6 || echo)"
+		BRIGHT_WHITE="$(tput bold || echo)$(tput setaf 7 || echo)"
+		NORMAL="$(tput sgr0 || echo)"
+	fi
+fi
+
 function die()
 {
 	echo -e "$@" >&2
@@ -41,9 +66,9 @@ function die()
 function usage()
 {
 	cat <<EOF
-Usage: ${MY_NAME} [OPTIONS] [TARGET]
+Usage: ${BRIGHT_WHITE}${MY_NAME}${NORMAL} ${BRIGHT_CYAN}[OPTIONS]${NORMAL} ${BRIGHT_CYAN}[TARGETS]${NORMAL}
 
-Where OPTIONS are:
+Where OPTIONS is one or more of:
 
   -c, --configuration NAME  build in configuration 'NAME' (Release or Debug, default is ${CONFIGURATION})
   -b, --no-color            do not use color for native compiler diagnostics
@@ -67,7 +92,7 @@ Where OPTIONS are:
 
   -h, --help                show help
 
-And TARGET is one of:
+And TARGETS is one or more of:
 
   host                 build native library for the current OS
   android              build native library for Android
@@ -85,11 +110,11 @@ EOF
 
 function print_build_banner()
 {
-	echo
-	echo "*************************************************************"
-	echo "$@"
-	echo "*************************************************************"
-	echo
+	echo ${NORMAL}
+	echo ${BRIGHT_GREEN}"*************************************************************"
+	echo ${BRIGHT_YELLOW}"$@"
+	echo ${BRIGHT_GREEN}"*************************************************************"
+	echo ${NORMAL}
 }
 
 function print_build_banner_native()
