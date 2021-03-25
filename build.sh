@@ -305,6 +305,7 @@ function __build_test()
 			   -f "${framework}" \
 			   --verbosity "${MANAGED_BUILD_VERBOSITY}" \
 			   --configuration "${CONFIGURATION}" \
+			   --logger:"console;verbosity=detailed" \
 			   --logger "trx;LogFileName=${LOG_DIR}/Mono.Unix.Test-${framework}.trx" \
 			   Mono.Unix.Test.sln
 	done
