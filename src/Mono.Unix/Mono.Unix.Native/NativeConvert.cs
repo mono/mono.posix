@@ -474,9 +474,11 @@ namespace Mono.Unix.Native {
 
 		public static unsafe bool TryCopy (Sockaddr source, IntPtr destination)
 		{
-			if (source == null)
-				throw new ArgumentNullException ("source");
-			byte[] array = Sockaddr.GetDynamicData (source);
+			byte[]? array = Sockaddr.GetDynamicData (source);
+			if (array == null) {
+				return false;
+			}
+
 			// SockaddrStorage has to be handled extra because the native code assumes that SockaddrStorage input is used in-place
 			if (source.type == (SockaddrType.SockaddrStorage | SockaddrType.MustBeWrapped)) {
 				Marshal.Copy (array, 0, destination, (int) source.GetDynamicLength ());
@@ -496,7 +498,11 @@ namespace Mono.Unix.Native {
 		{
 			if (destination == null)
 				throw new ArgumentNullException ("destination");
-			byte[] array = Sockaddr.GetDynamicData (destination);
+			byte[]? array = Sockaddr.GetDynamicData (destination);
+			if (array == null) {
+				return false;
+			}
+
 			fixed (SockaddrType* addr = &Sockaddr.GetAddress (destination).type)
 			fixed (byte* data = Sockaddr.GetDynamicData (destination)) {
 				var dyn = new _SockaddrDynamic (destination, data, useMaxLength: true);

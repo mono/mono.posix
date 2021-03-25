@@ -386,29 +386,22 @@ class SockAddr final
 public:
 	explicit SockAddr (Mono_Posix__SockaddrHeader* address) noexcept
 	{
-		// fprintf (stdout, "%s\n", __PRETTY_FUNCTION__);
-		// fprintf (stdout, "  address == %p\n", address);
 		if (address == nullptr || !get_addrlen (address, addrlen)) {
-			// fprintf (stdout, "  bail #1\n");
 			return;
 		}
 
 		if (address->type == Mono_Posix_SockaddrType_SockaddrStorage) {
 			// ugly...
-			// fprintf (stdout, "  option #1\n");
 			addr = reinterpret_cast<sockaddr*> (reinterpret_cast<Mono_Posix__SockaddrDynamic*>(address)->data);
 		} else if (address->type == Mono_Posix_SockaddrType_SockaddrUn) {
-			// fprintf (stdout, "  option #2\n");
 			/* Use local_storage for up to 2048 bytes, use malloc() otherwise */
 			need_free = addrlen > MAX_ADDRLEN;
 			if (addrlen > 0) {
 				// Don't allocate otherwise, malloc takes size_t and if socklen_t is signed, it could
 				// allocate a huge block of memory
 				addr = reinterpret_cast<sockaddr*>(need_free ? malloc (addrlen) : local_storage);
-			}// } else
-			// 	fprintf (stdout, "  bail #2\n");
+			}
 		} else {
-			// fprintf (stdout, "  option #3\n");
 			addr = reinterpret_cast<sockaddr*>(local_storage);
 		}
 

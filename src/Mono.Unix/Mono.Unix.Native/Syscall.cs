@@ -2101,8 +2101,11 @@ namespace Mono.Unix.Native {
 		}
 
 		// Return an array containing the dynamic data (for SockaddrStorage and SockaddrUn) or null
-		internal static byte[] GetDynamicData (Sockaddr addr)
+		internal static byte[]? GetDynamicData (Sockaddr? addr)
 		{
+			if (addr == null) {
+				return null;
+			}
 			return addr.DynamicData ();
 		}
 
@@ -5760,13 +5763,13 @@ namespace Mono.Unix.Native {
 				EntryPoint="Mono_Posix_Syscall_getsockname")]
 		static extern unsafe int sys_getsockname (int socket, _SockaddrHeader* address);
 
-		public static unsafe int getsockname (int socket, Sockaddr address)
+		public static unsafe int getsockname (int socket, Sockaddr? address)
 		{
 			fixed (SockaddrType* addr = &Sockaddr.GetAddress (address).type)
 			fixed (byte* data = Sockaddr.GetDynamicData (address)) {
-				var dyn = new _SockaddrDynamic (address, data, useMaxLength: true);
+				var dyn = new _SockaddrDynamic (Sockaddr.GetAddress (address), data, useMaxLength: true);
 				int r = sys_getsockname (socket, Sockaddr.GetNative (&dyn, addr));
-				dyn.Update (address);
+				dyn.Update (Sockaddr.GetAddress (address));
 				return r;
 			}
 		}
