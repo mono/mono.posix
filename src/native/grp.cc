@@ -76,6 +76,7 @@ copy_group (struct Mono_Posix_Syscall__Group *to, struct group *from)
 
 	to->_gr_nmem_ = count;
 	char *cur = to->_gr_buf_ = static_cast<char*>(malloc (buflen));
+	char **to_mem = to->gr_mem = static_cast<char**>(malloc (sizeof(char*) * (count+1)));
 	if (to->_gr_buf_ == nullptr || to->gr_mem == nullptr) {
 		free (to->_gr_buf_);
 		free (to->gr_mem);
@@ -88,7 +89,6 @@ copy_group (struct Mono_Posix_Syscall__Group *to, struct group *from)
 	cur += (plen + 1);
 
 	int i = 0;
-	char **to_mem = to->gr_mem = static_cast<char**>(malloc (sizeof(char*)*(count+1)));
 	for (; i != count; ++i) {
 		to_mem [i] = strcpy (cur, from->gr_mem[i]);
 		cur += (strlen (from->gr_mem[i])+1);
