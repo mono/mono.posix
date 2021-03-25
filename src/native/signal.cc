@@ -119,7 +119,7 @@ Mono_Posix_FromRealTimeSignum ([[maybe_unused]] int offset, int *r)
 #define mph_int_dec_test(ptr)     (__atomic_sub_fetch ((ptr), 1, __ATOMIC_SEQ_CST) == 0)
 #define mph_int_set(ptr,val) __atomic_store_n ((ptr), (val), __ATOMIC_SEQ_CST)
 // Pointer, original, new
-#define mph_int_test_and_set(ptr,expected,desired) (*(expected) == __atomic_compare_exchange_n ((ptr), (expected), (desired), false, __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST))
+#define mph_int_test_and_set(ptr,expected,desired) (__atomic_compare_exchange_n ((ptr), (expected), (desired), false, __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST))
 
 #if HAVE_PSIGNAL
 
@@ -209,13 +209,15 @@ acquire_pipelock_teardown (int *lock)
 	while (true) {
 		int lockvalue = mph_int_get (lock);
 		lockvalue_draining = lockvalue | PIPELOCK_TEARDOWN_BIT;
-		if (mph_int_test_and_set (lock, &lockvalue, lockvalue_draining))
+		if (mph_int_test_and_set (lock, &lockvalue, lockvalue_draining)) {
 			break;
+		}
 	}
 	// Now wait for all handlers to complete.
 	while (true) {
-		if (0 == PIPELOCK_GET_COUNT (lockvalue_draining))
+		if (0 == PIPELOCK_GET_COUNT (lockvalue_draining)) {
 			break; // We now hold the lock.
+		}
 		// Handler is still running, spin until it completes.
 		sched_yield (); // We can call this because !defined(HOST_WIN32)
 		lockvalue_draining = mph_int_get (lock);
