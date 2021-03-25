@@ -91,7 +91,11 @@ namespace MonoTests.Mono.Unix.Native {
 		{
 			if (!TestHelper.CanUseRealTimeSignals ())
 				return;
-			UnixSignal signal1 = new UnixSignal(new RealTimeSignum (0));
+
+			int rtsigOffset = Utilities.FindFirstFreeRTSignal ();
+			Assert.That (rtsigOffset, Is.GreaterThan (-1), "No available RT signals");
+
+			UnixSignal signal1 = new UnixSignal(new RealTimeSignum (rtsigOffset));
 			Assert.That (signal1.IsRealTimeSignal, Is.True);
 		}
 

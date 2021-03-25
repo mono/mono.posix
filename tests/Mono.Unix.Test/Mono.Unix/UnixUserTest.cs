@@ -13,6 +13,7 @@ using System;
 using System.Configuration;
 using System.Diagnostics;
 using System.Collections;
+using System.Collections.Generic;
 
 using Mono.Unix;
 
@@ -48,7 +49,7 @@ namespace MonoTests.Mono.Unix {
 		[Category ("NotWorking")]
 		public void ReentrantConstructors ()
 		{
-			ArrayList user_ids = new ArrayList (4);
+			var user_ids = new List<long> (4);
 			IList users = UnixUserInfo.GetLocalUsers ();
 			foreach (UnixUserInfo user in users) {
 				try {
@@ -65,9 +66,9 @@ namespace MonoTests.Mono.Unix {
 				}
 			}
 
-			foreach (uint uid in user_ids) {
+			foreach (long uid in user_ids) {
 				try {
-					UnixUserInfo byId = new UnixUserInfo (uid);
+					UnixUserInfo byId = new UnixUserInfo ((uint)uid);
 					Assert.IsTrue (users.Contains (byId), "TRC: construct by uid");
 				}
 				catch (Exception e) {

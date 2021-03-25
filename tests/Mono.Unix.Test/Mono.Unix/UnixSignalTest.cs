@@ -128,7 +128,11 @@ namespace MonoTests.Mono.Unix {
 		{
 			if (!TestHelper.CanUseRealTimeSignals ())
 				return;
-			RealTimeSignum rts = new RealTimeSignum (0);
+
+			int rtsigOffset = Utilities.FindFirstFreeRTSignal ();
+			Assert.That (rtsigOffset, Is.GreaterThan (-1), "No available RT signals");
+
+			RealTimeSignum rts = new RealTimeSignum (rtsigOffset);
 			using (UnixSignal s = new UnixSignal (rts))
 			{
 				Assert.That(s.IsRealTimeSignal);
@@ -143,8 +147,11 @@ namespace MonoTests.Mono.Unix {
 			if (!TestHelper.CanUseRealTimeSignals ())
 				return;
 
+			int rtsigOffset = Utilities.FindFirstFreeRTSignal ();
+			Assert.That (rtsigOffset, Is.GreaterThan (-1), "No available RT signals");
+
 			Assert.Throws<InvalidOperationException> (() => {
-				UnixSignal signal1 = new UnixSignal (new RealTimeSignum (0));
+				UnixSignal signal1 = new UnixSignal (new RealTimeSignum (rtsigOffset));
 				Signum s = signal1.Signum;
 			});
 		}
@@ -155,7 +162,11 @@ namespace MonoTests.Mono.Unix {
 		{
 			if (!TestHelper.CanUseRealTimeSignals ())
 				return;
-			RealTimeSignum rts = new RealTimeSignum (0);
+
+			int rtsigOffset = Utilities.FindFirstFreeRTSignal ();
+			Assert.That (rtsigOffset, Is.GreaterThan (-1), "No available RT signals");
+
+			RealTimeSignum rts = new RealTimeSignum (rtsigOffset);
 			UnixSignal signal1 = new UnixSignal (rts);
 			Assert.That (signal1.RealTimeSignum, Is.EqualTo (rts));
 		}
@@ -179,7 +190,11 @@ namespace MonoTests.Mono.Unix {
 		{
 			if (!TestHelper.CanUseRealTimeSignals ())
 				return;
-			RealTimeSignum rts = new RealTimeSignum (0);
+
+			int rtsigOffset = Utilities.FindFirstFreeRTSignal ();
+			Assert.That (rtsigOffset, Is.GreaterThan (-1), "No available RT signals");
+
+			RealTimeSignum rts = new RealTimeSignum (rtsigOffset);
 			using (UnixSignal signal = new UnixSignal (rts))
 			{
 				MultiThreadTest (signal, 5000, delegate() {
@@ -196,7 +211,7 @@ namespace MonoTests.Mono.Unix {
 			if (!TestHelper.CanUseRealTimeSignals ())
 				return;
 			/*this number is a guestimate, but it's ok*/
-			for (int i = 1; i < 10; ++i) {
+			for (int i = RealTimeSignum.MinValue.Offset + 1; i <= RealTimeSignum.MaxValue.Offset; ++i) {
 				RealTimeSignum rts = new RealTimeSignum (i);
 				UnixSignal signal;
 				try {
