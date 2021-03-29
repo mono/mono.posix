@@ -7,6 +7,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{1E84CF29-7AB
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mono.Unix", "src\Mono.Unix\Mono.Unix.csproj", "{ECFA7B06-6453-4F7A-9308-394B0212BDEE}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mono.Posix", "src\Mono.Posix\Mono.Posix.csproj", "{76BA4DE5-DCA6-4FCF-886A-336B12673FBA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -32,8 +34,21 @@ Global
 		{ECFA7B06-6453-4F7A-9308-394B0212BDEE}.Release|x64.Build.0 = Release|Any CPU
 		{ECFA7B06-6453-4F7A-9308-394B0212BDEE}.Release|x86.ActiveCfg = Release|Any CPU
 		{ECFA7B06-6453-4F7A-9308-394B0212BDEE}.Release|x86.Build.0 = Release|Any CPU
+		{76BA4DE5-DCA6-4FCF-886A-336B12673FBA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{76BA4DE5-DCA6-4FCF-886A-336B12673FBA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{76BA4DE5-DCA6-4FCF-886A-336B12673FBA}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{76BA4DE5-DCA6-4FCF-886A-336B12673FBA}.Debug|x64.Build.0 = Debug|Any CPU
+		{76BA4DE5-DCA6-4FCF-886A-336B12673FBA}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{76BA4DE5-DCA6-4FCF-886A-336B12673FBA}.Debug|x86.Build.0 = Debug|Any CPU
+		{76BA4DE5-DCA6-4FCF-886A-336B12673FBA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{76BA4DE5-DCA6-4FCF-886A-336B12673FBA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{76BA4DE5-DCA6-4FCF-886A-336B12673FBA}.Release|x64.ActiveCfg = Release|Any CPU
+		{76BA4DE5-DCA6-4FCF-886A-336B12673FBA}.Release|x64.Build.0 = Release|Any CPU
+		{76BA4DE5-DCA6-4FCF-886A-336B12673FBA}.Release|x86.ActiveCfg = Release|Any CPU
+		{76BA4DE5-DCA6-4FCF-886A-336B12673FBA}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{ECFA7B06-6453-4F7A-9308-394B0212BDEE} = {1E84CF29-7ABE-4B07-A378-5F4B996EDC01}
+		{76BA4DE5-DCA6-4FCF-886A-336B12673FBA} = {1E84CF29-7ABE-4B07-A378-5F4B996EDC01}
 	EndGlobalSection
 EndGlobal

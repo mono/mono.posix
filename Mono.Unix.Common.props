@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project>
   <PropertyGroup>
-    <PackageId>Mono.Posix</PackageId>
+    <NugetPackageId>Mono.Posix</NugetPackageId>
     <VersionPrefix>$(ProductVersion)</VersionPrefix>
     <VersionSuffix>$(ProductSuffix)</VersionSuffix>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -20,6 +20,7 @@
     <DelaySign>true</DelaySign>
     <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)Open.snk</AssemblyOriginatorKeyFile>
     <OutputPath>$(MSBuildThisFileDirectory)build/managed/$(Configuration)</OutputPath>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$([MSBuild]::IsOSPlatform(Windows))' == 'false' ">

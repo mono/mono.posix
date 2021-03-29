@@ -3,8 +3,8 @@
     <TargetFrameworks>netstandard2.1;netcoreapp3.1;net6.0;</TargetFrameworks>
     <AssemblyName>Mono.Unix</AssemblyName>
     <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
+    <PackageId>$(NugetPackageId)</PackageId>
     <Nullable>enable</Nullable>
-    <LangVersion>latest</LangVersion>
   </PropertyGroup>
 
   <Import Project="../../Mono.Unix.Common.props" />
