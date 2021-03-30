@@ -28,7 +28,7 @@ Managed code status:
     * `net6.0`
     * `netcoreapp3.1`
 
-A number of tests fail at this point.
+All tests pass
 
 # Mono.Posix standalone repository
 

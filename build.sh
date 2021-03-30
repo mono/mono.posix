@@ -101,7 +101,7 @@ And TARGETS is one or more of:
   catalyst             build native library for macOS Catalyst
   wasm                 build native library for WASM
   managed              build the managed library
-  test                 run the tests on the host OS
+  test                 run tests on the host OS
   package              package built artifacts into nugets
   all                  build all the targets above
 EOF
@@ -323,6 +323,7 @@ function __build_test()
 	fi
 	local host_build_dir="$(get_build_dir "${HOST_BUILD_NAME}${arch}")"
 	local managed_top_dir="${MANAGED_OUTPUT_DIR}/${CONFIGURATION}"
+	local something_failed=no
 	for framework in ${MONO_POSIX_TEST_FRAMEWORKS}; do
 		print_build_banner Running tests for framework ${framework}
 		cp "${host_build_dir}/lib"/libMono.Unix.* "${managed_top_dir}/${framework}"
@@ -332,8 +333,12 @@ function __build_test()
 			   --configuration "${CONFIGURATION}" \
 			   --logger:"console;verbosity=detailed" \
 			   --logger "trx;LogFileName=${LOG_DIR}/Mono.Unix.Test-${framework}.trx" \
-			   Mono.Unix.Test.sln
+			   Mono.Unix.Test.sln || something_failed=yes
 	done
+
+	if [ "${something_failed}" == "yes" ]; then
+		die Some tests failed
+	fi
 }
 
 function __build_package()

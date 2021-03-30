@@ -421,22 +421,27 @@ namespace MonoTests.Mono.Unix.Native
 				sin6_addr = NativeConvert.ToIn6Addr (IPAddress.IPv6Loopback),
 			};
 			WithSockets (UnixAddressFamily.AF_INET6, UnixSocketType.SOCK_STREAM, 0, (so1, so2) => {
-				if (Syscall.bind (so1, address) < 0)
+				if (Syscall.bind (so1, address) < 0) {
 					UnixMarshal.ThrowExceptionForLastError ();
+				}
 
 				var address1Stor = new SockaddrStorage ();
-				if (Syscall.getsockname (so1, address1Stor) < 0)
+				if (Syscall.getsockname (so1, address1Stor) < 0) {
 					UnixMarshal.ThrowExceptionForLastError ();
+				}
+
 				var address1 = new SockaddrIn6 ();
 				address1Stor.CopyTo (address1);
 
 				// Check getsockname(socket, null)
-				if (Syscall.getsockname (so1, null) < 0)
+				if (Syscall.getsockname (so1, null) < 0) {
 					UnixMarshal.ThrowExceptionForLastError ();
+				}
 
 				var address2 = new SockaddrIn6 ();
-				if (Syscall.getsockname (so1, address2) < 0)
+				if (Syscall.getsockname (so1, address2) < 0) {
 					UnixMarshal.ThrowExceptionForLastError ();
+				}
 
 				Assert.AreEqual (address1, address2);
 				Assert.IsTrue (Syscall.ntohs (address1.sin6_port) != 0);
@@ -444,8 +449,9 @@ namespace MonoTests.Mono.Unix.Native
 				Assert.AreEqual (address, address1);
 
 				var address3 = new Sockaddr ();
-				if (Syscall.getsockname (so1, address3) < 0)
+				if (Syscall.getsockname (so1, address3) < 0) {
 					UnixMarshal.ThrowExceptionForLastError ();
+				}
 				Assert.AreEqual (address.sa_family, address3.sa_family);
 
 				// Try to store a sockaddr_in6 into a Sockaddr. Should fail because sockaddr_in6 should be larger than sockaddr_in

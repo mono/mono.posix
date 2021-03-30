@@ -242,7 +242,7 @@ get_addrlen (struct Mono_Posix__SockaddrHeader* address, socklen_t& addrlen)
 
 		case Mono_Posix_SockaddrType_SockaddrIn6:
 			addrlen = sizeof (struct sockaddr_in6);
-			return false;
+			return true;
 
 		default:
 			addrlen = 0;
@@ -265,8 +265,7 @@ int
 Mono_Posix_FromSockaddr (struct Mono_Posix__SockaddrHeader* source, void* destination)
 {
 	if (source == nullptr || destination == nullptr) {
-		errno = EFAULT;
-		return -1;
+		return 0; // For compatibility with older code (for now, this should PROBABLY be an error)
 	}
 
 	switch (source->type) {
@@ -311,13 +310,13 @@ Mono_Posix_FromSockaddr (struct Mono_Posix__SockaddrHeader* source, void* destin
 int
 Mono_Posix_ToSockaddr (void* source, int64_t size, struct Mono_Posix__SockaddrHeader* destination)
 {
+	if (destination == nullptr || size < 0) {
+		return 0;
+	}
+
 	if (source == nullptr) {
 		errno = EFAULT;
 		return -1;
-	}
-
-	if (destination == nullptr || size < 0) {
-		return 0;
 	}
 
 	struct Mono_Posix__SockaddrDynamic* destination_dyn;
@@ -354,8 +353,9 @@ Mono_Posix_ToSockaddr (void* source, int64_t size, struct Mono_Posix__SockaddrHe
 				errno = ENOBUFS;
 				return -1;
 			}
-			if (Mono_Posix_ToSockaddrIn (static_cast<struct sockaddr_in*>(source), reinterpret_cast<struct Mono_Posix_SockaddrIn*>(destination)) != 0)
+			if (Mono_Posix_ToSockaddrIn (static_cast<struct sockaddr_in*>(source), reinterpret_cast<struct Mono_Posix_SockaddrIn*>(destination)) != 0) {
 				return -1;
+			}
 			break;
 
 		case Mono_Posix_SockaddrType_SockaddrIn6:
@@ -363,8 +363,9 @@ Mono_Posix_ToSockaddr (void* source, int64_t size, struct Mono_Posix__SockaddrHe
 				errno = ENOBUFS;
 				return -1;
 			}
-			if (Mono_Posix_ToSockaddrIn6 (static_cast<struct sockaddr_in6*>(source), reinterpret_cast<struct Mono_Posix_SockaddrIn6*>(destination)) != 0)
+			if (Mono_Posix_ToSockaddrIn6 (static_cast<struct sockaddr_in6*>(source), reinterpret_cast<struct Mono_Posix_SockaddrIn6*>(destination)) != 0) {
 				return -1;
+			}
 			break;
 
 		default:
@@ -386,7 +387,8 @@ class SockAddr final
 public:
 	explicit SockAddr (Mono_Posix__SockaddrHeader* address) noexcept
 	{
-		if (address == nullptr || !get_addrlen (address, addrlen)) {
+		if (!get_addrlen (address, addrlen) || address == nullptr) {
+			valid = address == nullptr; // Backward compatibility, some tests rely on this behavior
 			return;
 		}
 
@@ -405,7 +407,6 @@ public:
 			addr = reinterpret_cast<sockaddr*>(local_storage);
 		}
 
-		// fprintf (stdout, "  addr == %p\n", addr);
 		valid = addr != nullptr;
 	}
 
@@ -540,7 +541,7 @@ Mono_Posix_Syscall_getsockname (int socket, struct Mono_Posix__SockaddrHeader* a
 	socklen_t addrlen = sock.address_length ();
 	int r = getsockname (socket, sock.to_sockaddr (), &addrlen);
 
-	if (r != -1 && Mono_Posix_ToSockaddr (sock.to_sockaddr (), sock.address_length (), address) != 0) {
+	if (r != -1 && Mono_Posix_ToSockaddr (sock.to_sockaddr (), addrlen, address) != 0) {
 		r = -1;
 	}
 
@@ -643,19 +644,12 @@ Mono_Posix_Syscall_recvmsg (int socket, struct Mono_Posix_Syscall__Msghdr* messa
 int64_t
 Mono_Posix_Syscall_sendmsg (int socket, struct Mono_Posix_Syscall__Msghdr* message, struct Mono_Posix__SockaddrHeader* address, int flags)
 {
-	// fprintf (stdout, "%s\n", __PRETTY_FUNCTION__);
-	// fprintf (stdout, "  socket == %d\n", socket);
-	// fprintf (stdout, "  message == %p\n", message);
-	// fprintf (stdout, "  address == %p\n", address);
-	// fprintf (stdout, "  flags == %d\n", flags);
 	SockAddr sock (address);
 	if (!sock.is_valid ()) {
-		// fprintf (stdout, "  Invalid socket\n");
 		return -1;
 	}
 
 	if (Mono_Posix_FromSockaddr (address, sock.to_sockaddr ()) != 0) {
-		// fprintf (stdout, "  Failed to read from sockaddr\n");
 		return -1;
 	}
 
@@ -670,7 +664,6 @@ Mono_Posix_Syscall_sendmsg (int socket, struct Mono_Posix_Syscall__Msghdr* messa
 	hdr.msg_iov = _mph_from_iovec_array (message->msg_iov, message->msg_iovlen);
 
 	int r = sendmsg (socket, &hdr, flags);
-	// fprintf (stdout, "  sendmsg returned %d\n", r);
 	free (hdr.msg_iov);
 	return r;
 }

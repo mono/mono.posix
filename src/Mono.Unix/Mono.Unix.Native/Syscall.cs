@@ -2151,9 +2151,9 @@ namespace Mono.Unix.Native {
 		public byte* data;
 		public long len;
 
-		public _SockaddrDynamic (Sockaddr address, byte* data, bool useMaxLength)
+		public _SockaddrDynamic (Sockaddr? address, byte* data, bool useMaxLength)
 		{
-			if (data == null) {
+			if (address == null || data == null) {
 				// When data is null, no wrapper is needed.
 				// Initialize everything to zero, Sockaddr.GetNative() will then
 				// use the Sockaddr structure directly.
@@ -2175,11 +2175,12 @@ namespace Mono.Unix.Native {
 			}
 		}
 
-		public void Update (Sockaddr address)
+		public void Update (Sockaddr? address)
 		{
 			// When data is null, no wrapper was needed.
-			if (data == null)
+			if (data == null || address == null) {
 				return;
+			}
 
 			address.sa_family = sa_family;
 			address.SetDynamicLength (len);
@@ -5686,7 +5687,8 @@ namespace Mono.Unix.Native {
 			fixed (SockaddrType* addr = &Sockaddr.GetAddress (address).type)
 			fixed (byte* data = Sockaddr.GetDynamicData (address)) {
 				var dyn = new _SockaddrDynamic (address, data, useMaxLength: false);
-				return sys_bind (socket, Sockaddr.GetNative (&dyn, addr));
+				int r = sys_bind (socket, Sockaddr.GetNative (&dyn, addr));
+				return r;
 			}
 		}
 
@@ -5765,13 +5767,13 @@ namespace Mono.Unix.Native {
 
 		public static unsafe int getsockname (int socket, Sockaddr? address)
 		{
-			fixed (SockaddrType* addr = &Sockaddr.GetAddress (address).type)
+			fixed (SockaddrType* addr = &Sockaddr.GetAddress (address).type) {
 			fixed (byte* data = Sockaddr.GetDynamicData (address)) {
-				var dyn = new _SockaddrDynamic (Sockaddr.GetAddress (address), data, useMaxLength: true);
+				var dyn = new _SockaddrDynamic (address, data, useMaxLength: true);
 				int r = sys_getsockname (socket, Sockaddr.GetNative (&dyn, addr));
-				dyn.Update (Sockaddr.GetAddress (address));
+				dyn.Update (address);
 				return r;
-			}
+			}}
 		}
 
 		// recvfrom(2)
@@ -5881,9 +5883,6 @@ namespace Mono.Unix.Native {
 		{
 			var _flags = NativeConvert.FromMessageFlags (flags);
 			Sockaddr? address = message.msg_name;
-			if (address == null) {
-				throw new ArgumentException ("structure not initialized properly: msg_name is null", nameof (message));
-			}
 
 			fixed (byte* ptr_msg_control = message.msg_control)
 			fixed (Iovec* ptr_msg_iov = message.msg_iov) {
@@ -5910,9 +5909,6 @@ namespace Mono.Unix.Native {
 		{
 			var _flags = NativeConvert.FromMessageFlags (flags);
 			Sockaddr? address = message.msg_name;
-			if (address == null) {
-				throw new ArgumentException ("structure not initialized properly: msg_name is null", nameof (message));
-			}
 
 			fixed (byte* ptr_msg_control = message.msg_control)
 			fixed (Iovec* ptr_msg_iov = message.msg_iov) {
