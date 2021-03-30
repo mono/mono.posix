@@ -314,26 +314,31 @@ function __build_test()
 	fi
 
 	local arch=""
+	local filter=""
 	if [ "${OS}" == "Darwin" ]; then
+		filter="--filter \"Category!=NotOnMac\""
 		case $(arch) in
 			i386) arch="-x64" ;;
 			arm64) arch="-arm64" ;;
 			*) die "Unknown host architecture: $(arch)" ;;
 		esac
 	fi
+
 	local host_build_dir="$(get_build_dir "${HOST_BUILD_NAME}${arch}")"
 	local managed_top_dir="${MANAGED_OUTPUT_DIR}/${CONFIGURATION}"
 	local something_failed=no
 	for framework in ${MONO_POSIX_TEST_FRAMEWORKS}; do
 		print_build_banner Running tests for framework ${framework}
 		cp "${host_build_dir}/lib"/libMono.Unix.* "${managed_top_dir}/${framework}"
-		dotnet test ${verbose} \
+		set -x
+		dotnet test ${verbose} ${filter} \
 			   -f "${framework}" \
 			   --verbosity "${MANAGED_BUILD_VERBOSITY}" \
 			   --configuration "${CONFIGURATION}" \
 			   --logger:"console;verbosity=detailed" \
 			   --logger "trx;LogFileName=${LOG_DIR}/Mono.Unix.Test-${framework}.trx" \
 			   Mono.Unix.Test.sln || something_failed=yes
+		set +x
 	done
 
 	if [ "${something_failed}" == "yes" ]; then
