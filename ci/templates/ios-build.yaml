@@ -1,0 +1,52 @@
+parameters:
+  buildDirArm64: ''
+  buildDirArmV7: ''
+  buildDirArmV7s: ''
+  buildDirSimArm64: ''
+  buildDirSimX64: ''
+  archiveNameArm64: ''
+  archiveNameArmV7: ''
+  archiveNameArmV7s: ''
+  archiveNameSimArm64: ''
+  archiveNameSimX64: ''
+  publishArtifactName: ''
+
+steps:
+  - bash: |
+      ./build.sh $(BuildScriptCommonOptions) ios
+
+  - template: pack-artifact.yaml
+    parameters:
+      displayName: Archive iOS arm64 build
+      buildDir: ${{ parameters.buildDirArm64 }}
+      archiveName: ${{ parameters.archiveNameArm64 }}
+
+  - template: pack-artifact.yaml
+    parameters:
+      displayName: Archive iOS armv7 build
+      buildDir: ${{ parameters.buildDirArmV7 }}
+      archiveName: ${{ parameters.archiveNameArmV7 }}
+
+  - template: pack-artifact.yaml
+    parameters:
+      displayName: Archive iOS armv7s build
+      buildDir: ${{ parameters.buildDirArmV7s }}
+      archiveName: ${{ parameters.archiveNameArmV7s }}
+
+  - template: pack-artifact.yaml
+    parameters:
+      displayName: Archive iOS simulator arm64 build
+      buildDir: ${{ parameters.buildDirSimArm64 }}
+      archiveName: ${{ parameters.archiveNameSimArm64 }}
+
+  - template: pack-artifact.yaml
+    parameters:
+      displayName: Archive iOS simulator x64 build
+      buildDir: ${{ parameters.buildDirSimX64 }}
+      archiveName: ${{ parameters.archiveNameSimX64 }}
+
+  - task: PublishBuildArtifacts@1
+    displayName: Upload Artifacts
+    inputs:
+      artifactName: ${{ parameters.publishArtifactName }}
+      pathToPublish: $(Build.ArtifactStagingDirectory)

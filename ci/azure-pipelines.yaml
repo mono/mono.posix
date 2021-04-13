@@ -8,33 +8,56 @@ variables:
   BuildDirName: build
   LinuxPool: ubuntu-18.04
   MacPool: macos-10.15
-  ArchiveType: 7z
+  BuildScriptCommonOptions: --no-color --verbose --managed-verbosity diag --configuration Release
   ArchiveNameBase: mono-posix
   HostArchiveNameBase: $(ArchiveNameBase)-host
+  # Linux
   LinuxHostBuildDir: $(BuildDirName)/host-linux-release/lib
-  LinuxHostArchiveName: $(HostArchiveNameBase)-linux-x64.7z
+  LinuxHostArchiveName: $(HostArchiveNameBase)-linux-x64
+  # Android
   AndroidArchiveNameBase: $(ArchiveNameBase)-android
   AndroidArm32BuildDir: $(BuildDirName)/android-arm32-release/lib
-  AndroidArm32ArchiveName: $(AndroidArchiveNameBase)-arm32.7z
+  AndroidArm32ArchiveName: $(AndroidArchiveNameBase)-arm32
   AndroidArm64BuildDir: $(BuildDirName)/android-arm64-release/lib
-  AndroidArm64ArchiveName: $(AndroidArchiveNameBase)-arm64.7z
+  AndroidArm64ArchiveName: $(AndroidArchiveNameBase)-arm64
   AndroidX64BuildDir: $(BuildDirName)/android-x64-release/lib
-  AndroidX64ArchiveName: $(AndroidArchiveNameBase)-x64.7z
+  AndroidX64ArchiveName: $(AndroidArchiveNameBase)-x64
   AndroidX86BuildDir: $(BuildDirName)/android-x86-release/lib
-  AndroidX86ArchiveName: $(AndroidArchiveNameBase)-x86.7z
+  AndroidX86ArchiveName: $(AndroidArchiveNameBase)-x86
+  # macOS
   MacHostArchiveNameBase: $(HostArchiveNameBase)-darwin
-  MacHostX64ArchiveName: $(MacHostArchiveNameBase)-x64.7z
-  MacHostArm64ArchiveName: $(MacHostArchiveNameBase)-arm64.7z
+  MacHostX64ArchiveName: $(MacHostArchiveNameBase)-x64
+  MacHostArm64ArchiveName: $(MacHostArchiveNameBase)-arm64
   MacHostBuildDirBase: $(BuildDirName)/host-darwin
   MacHostX64BuildDir: $(MacHostBuildDirBase)-x64-release/lib
   MacHostArm64BuildDir: $(MacHostBuildDirBase)-arm64-release/lib
+  # macCatalyst
   MacCatalystArchiveNameBase: $(ArchiveNameBase)-catalyst
-  MacCatalystX64ArchiveName: $(MacCatalystArchiveNameBase)-x64.7z
-  MacCatalystArm64ArchiveName: $(MacCatalystArchiveNameBase)-arm64.7z
+  MacCatalystX64ArchiveName: $(MacCatalystArchiveNameBase)-x64
+  MacCatalystArm64ArchiveName: $(MacCatalystArchiveNameBase)-arm64
   MacCatalystBuildDirBase: $(BuildDirName)/catalyst
   MacCatalystX64BuildDir: $(MacCatalystBuildDirBase)-x64-release/lib
   MacCatalystArm64BuildDir: $(MacCatalystBuildDirBase)-arm64-release/lib
-  BuildScriptCommonOptions: --no-color --verbose --managed-verbosity diag --configuration Release
+  # iOS
+  MacIOSArchiveNameBase: $(ArchiveNameBase)-ios
+  MacIOSArm64ArchiveName: $(MacIOSArchiveNameBase)-arm64
+  MacIOSArmV7ArchiveName: $(MacIOSArchiveNameBase)-armv7
+  MacIOSArmV7sArchiveName: $(MacIOSArchiveNameBase)-armv7s
+  MacIOSSimArm64ArchiveName: $(MacIOSArchiveNameBase)-simarm64
+  MacIOSSimX64ArchiveName: $(MacIOSArchiveNameBase)-simx64
+  MacIOSBuildDirBase: $(BuildDirName)/ios
+  MacIOSArm64BuildDir: $(MacIOSBuildDirBase)-arm64-release/lib
+  MacIOSArmV7BuildDir: $(MacIOSBuildDirBase)-armv7-release/lib
+  MacIOSArmV7sBuildDir: $(MacIOSBuildDirBase)-armv7s-release/lib
+  MacIOSSimArm64BuildDir: $(MacIOSBuildDirBase)-simarm64-release/lib
+  MacIOSSimX64BuildDir: $(MacIOSBuildDirBase)-simx64-release/lib
+  # tvOS
+  MacTVOSArchiveNameBase: $(ArchiveNameBase)-tvos
+  MacTVOSArm64ArchiveName: $(MacTVOSArchiveNameBase)-arm64
+  MacTVOSSimX64ArchiveName: $(MacTVOSArchiveNameBase)-simx64
+  MacTVOSBuildDirBase: $(BuildDirName)/tvos
+  MacTVOSArm64BuildDir: $(MacTVOSBuildDirBase)-arm64-release/lib
+  MacTVOSSimX64BuildDir: $(MacTVOSBuildDirBase)-simx64-release/lib
 
 stages:
 - stage: Build
@@ -51,14 +74,11 @@ stages:
     - bash: |
         ./build.sh $(BuildScriptCommonOptions) host
 
-    - task: ArchiveFiles@2
-      displayName: Archive Linux host build
-      inputs:
-        rootFolderOrFile: $(LinuxHostBuildDir)
-        includeRootFolder: false
-        archiveType: $(ArchiveType)
-        replaceExistingArchive: true
-        archiveFile: $(Build.ArtifactStagingDirectory)/$(LinuxHostArchiveName)
+    - template: templates/pack-artifact.yaml
+      parameters:
+        buildDir: '$(LinuxHostBuildDir)'
+        archiveName: '$(LinuxHostArchiveName)'
+        displayName: 'Archive Linux host build'
 
     - task: PublishBuildArtifacts@1
       displayName: Upload Artifacts
@@ -78,41 +98,29 @@ stages:
     - bash: |
         ./build.sh $(BuildScriptCommonOptions) --ndk $(ANDROID_NDK_HOME) android
 
-    - task: ArchiveFiles@2
-      displayName: Archive Android ARM32 build
-      inputs:
-        rootFolderOrFile: $(AndroidArm32BuildDir)
-        includeRootFolder: false
-        archiveType: $(ArchiveType)
-        replaceExistingArchive: true
-        archiveFile: $(Build.ArtifactStagingDirectory)/$(AndroidArm32ArchiveName)
+    - template: templates/pack-artifact.yaml
+      parameters:
+        buildDir: '$(AndroidArm32BuildDir)'
+        archiveName: '$(AndroidArm32ArchiveName)'
+        displayName: 'Archive Android ARM32 build'
 
-    - task: ArchiveFiles@2
-      displayName: Archive Android ARM64 build
-      inputs:
-        rootFolderOrFile: $(AndroidArm64BuildDir)
-        includeRootFolder: false
-        archiveType: $(ArchiveType)
-        replaceExistingArchive: true
-        archiveFile: $(Build.ArtifactStagingDirectory)/$(AndroidArm64ArchiveName)
+    - template: templates/pack-artifact.yaml
+      parameters:
+        buildDir: '$(AndroidArm64BuildDir)'
+        archiveName: '$(AndroidArm64ArchiveName)'
+        displayName: 'Archive Android ARM64 build'
 
-    - task: ArchiveFiles@2
-      displayName: Archive Android x86 build
-      inputs:
-        rootFolderOrFile: $(AndroidX86BuildDir)
-        includeRootFolder: false
-        archiveType: $(ArchiveType)
-        replaceExistingArchive: true
-        archiveFile: $(Build.ArtifactStagingDirectory)/$(AndroidX86ArchiveName)
+    - template: templates/pack-artifact.yaml
+      parameters:
+        buildDir: '$(AndroidX86BuildDir)'
+        archiveName: '$(AndroidX86ArchiveName)'
+        displayName: 'Archive Android x86 build'
 
-    - task: ArchiveFiles@2
-      displayName: Archive Android x86_64 build
-      inputs:
-        rootFolderOrFile: $(AndroidX64BuildDir)
-        includeRootFolder: false
-        archiveType: $(ArchiveType)
-        replaceExistingArchive: true
-        archiveFile: $(Build.ArtifactStagingDirectory)/$(AndroidX64ArchiveName)
+    - template: templates/pack-artifact.yaml
+      parameters:
+        buildDir: '$(AndroidX64BuildDir)'
+        archiveName: '$(AndroidX64ArchiveName)'
+        displayName: 'Archive Android x86_64 build'
 
     - task: PublishBuildArtifacts@1
       displayName: Upload Artifacts
@@ -127,6 +135,8 @@ stages:
     workspace:
       clean: all
     steps:
+    - template: templates/mac-common.yaml
+
     - template: templates/mac-build.yaml
       parameters:
         buildTarget: 'host'
@@ -143,6 +153,8 @@ stages:
     workspace:
       clean: all
     steps:
+    - template: templates/mac-common.yaml
+
     - template: templates/mac-build.yaml
       parameters:
         buildTarget: 'catalyst'
@@ -151,3 +163,43 @@ stages:
         arm64BuildDir: $(MacCatalystArm64BuildDir)
         arm64ArchiveName: $(MacCatalystArm64ArchiveName)
         publishArtifactName: 'macOS Catalyst'
+
+  - job: mac_build_ios
+    displayName: Build for iOS
+    pool:
+      vmImage: '$(MacPool)'
+    workspace:
+      clean: all
+    steps:
+    - template: templates/mac-common.yaml
+
+    - template: templates/ios-build.yaml
+      parameters:
+        buildDirArm64: '$(MacIOSArm64BuildDir)'
+        buildDirArmV7: '$(MacIOSArmV7BuildDir)'
+        buildDirArmV7s: '$(MacIOSArmV7sBuildDir)'
+        buildDirSimArm64: '$(MacIOSSimArm64BuildDir)'
+        buildDirSimX64: '$(MacIOSSimX64BuildDir)'
+        archiveNameArm64: '$(MacIOSArm64ArchiveName)'
+        archiveNameArmV7: '$(MacIOSArmV7ArchiveName)'
+        archiveNameArmV7s: '$(MacIOSArmV7sArchiveName)'
+        archiveNameSimArm64: '$(MacIOSSimArm64ArchiveName)'
+        archiveNameSimX64: '$(MacIOSSimX64ArchiveName)'
+        publishArtifactName: 'iOS'
+
+  - job: mac_build_tvos
+    displayName: Build for tvOS
+    pool:
+      vmImage: '$(MacPool)'
+    workspace:
+      clean: all
+    steps:
+    - template: templates/mac-common.yaml
+
+    - template: templates/tvos-build.yaml
+      parameters:
+        buildDirArm64: '$(MacTVOSArm64BuildDir)'
+        buildDirSimX64: '$(MacTVOSSimX64BuildDir)'
+        archiveNameArm64: '$(MacTVOSArm64ArchiveName)'
+        archiveNameSimX64: '$(MacTVOSSimX64ArchiveName)'
+        publishArtifactName: 'tvOS'

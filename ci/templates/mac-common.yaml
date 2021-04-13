@@ -1,0 +1,8 @@
+steps:
+  - checkout: self
+    clean: true
+    submodules: recursive
+
+  - bash: |
+      brew install ninja
+    displayName: 'Install ninja'

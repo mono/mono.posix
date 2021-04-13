@@ -1,0 +1,14 @@
+parameters:
+  buildDir: ''
+  archiveName: ''
+  displayName: ''
+
+steps:
+  - task: ArchiveFiles@2
+    displayName: ${{ parameters.displayName }}
+    inputs:
+      rootFolderOrFile: ${{ parameters.buildDir }}
+      includeRootFolder: false
+      archiveType: 7z
+      replaceExistingArchive: true
+      archiveFile: $(Build.ArtifactStagingDirectory)/${{ parameters.archiveName }}.7z
