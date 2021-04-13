@@ -1,19 +1,117 @@
-# Starter pipeline
-# Start with a minimal pipeline that you can customize to build and deploy your code.
-# Add steps that build, run tests, deploy, and more:
-# https://aka.ms/yaml
-
 trigger:
-- main
+  branches:
+    include:
+      - main
+      - release/*
 
-pool:
-  vmImage: ubuntu-latest
+variables:
+  BuildDirName: build
+  LinuxPool: ubuntu-18.04
+  ArchiveType: 7z
+  ArchiveNameBase: mono-posix
+  HostArchiveNameBase: $(ArchiveNameBase)-host
+  LinuxHostBuildDir: $(BuildDirName)/host-linux-release/lib
+  LinuxHostArchiveName: $(HostArchiveNameBase)-linux-x64.7z
+  AndroidArchiveNameBase: $(ArchiveNameBase)-android
+  AndroidArm32BuildDir: $(BuildDirName)/android-arm32-release/lib
+  AndroidArm32ArchiveName: $(AndroidArchiveNameBase)-arm32.7z
+  AndroidArm64BuildDir: $(BuildDirName)/android-arm64-release/lib
+  AndroidArm64ArchiveName: $(AndroidArchiveNameBase)-arm64.7z
+  AndroidX64BuildDir: $(BuildDirName)/android-x64-release/lib
+  AndroidX64ArchiveName: $(AndroidArchiveNameBase)-x64.7z
+  AndroidX86BuildDir: $(BuildDirName)/android-x86-release/lib
+  AndroidX86ArchiveName: $(AndroidArchiveNameBase)-x86.7z
+  BuildScriptCommonOptions: --no-color --verbose --managed-verbosity diag --configuration Release
 
-steps:
-- script: echo Hello, world!
-  displayName: 'Run a one-line script'
+stages:
+- stage: Build
+  jobs:
+  - job: linux_build_host
+    displayName: Build for Linux
+    pool:
+      vmImage: '$(LinuxPool)'
+    workspace:
+      clean: all
+    steps:
+    - checkout: self
+      clean: true
+      submodules: recursive
 
-- script: |
-    echo Add other tasks to build, test, and deploy your project.
-    echo See https://aka.ms/yaml
-  displayName: 'Run a multi-line script'
+    - bash: |
+        sudo apt -y update
+        sudo apt -f -u install ninja-build -y
+      displayName: 'Install ninja'
+
+    - bash: |
+        ./build.sh $(BuildScriptCommonOptions) host
+
+    - task: ArchiveFiles@2
+      inputs:
+        rootFolderOrFile: $(LinuxHostBuildDir)
+        includeRootFolder: false
+        archiveType: $(ArchiveType)
+        replaceExistingArchive: true
+        archiveFile: $(Build.ArtifactStagingDirectory)/$(LinuxHostArchiveName)
+
+    - task: PublishBuildArtifacts@1
+      displayName: Upload Artifacts
+      inputs:
+        artifactName: 'Host'
+        pathToPublish: $(Build.ArtifactStagingDirectory)
+
+  - job: linux_build_android
+    displayName: Build for Android
+    pool:
+      vmImage: '$(LinuxPool)'
+    workspace:
+      clean: all
+    steps:
+    - checkout: self
+      clean: true
+      submodules: recursive
+
+    - bash: |
+        sudo apt -y update
+        sudo apt -f -u install ninja-build -y
+      displayName: 'Install ninja'
+
+    - bash: |
+        ./build.sh $(BuildScriptCommonOptions) --ndk $(ANDROID_NDK_HOME) android
+
+    - task: ArchiveFiles@2
+      inputs:
+        rootFolderOrFile: $(AndroidArm32BuildDir)
+        includeRootFolder: false
+        archiveType: $(ArchiveType)
+        replaceExistingArchive: true
+        archiveFile: $(Build.ArtifactStagingDirectory)/$(AndroidArm32ArchiveName)
+
+    - task: ArchiveFiles@2
+      inputs:
+        rootFolderOrFile: $(AndroidArm64BuildDir)
+        includeRootFolder: false
+        archiveType: $(ArchiveType)
+        replaceExistingArchive: true
+        archiveFile: $(Build.ArtifactStagingDirectory)/$(AndroidArm64ArchiveName)
+
+    - task: ArchiveFiles@2
+      inputs:
+        rootFolderOrFile: $(AndroidX86BuildDir)
+        includeRootFolder: false
+        archiveType: $(ArchiveType)
+        replaceExistingArchive: true
+        archiveFile: $(Build.ArtifactStagingDirectory)/$(AndroidX86ArchiveName)
+
+    - task: ArchiveFiles@2
+      inputs:
+        rootFolderOrFile: $(AndroidX64BuildDir)
+        includeRootFolder: false
+        archiveType: $(ArchiveType)
+        replaceExistingArchive: true
+        archiveFile: $(Build.ArtifactStagingDirectory)/$(AndroidX64ArchiveName)
+
+    - task: PublishBuildArtifacts@1
+      displayName: Upload Artifacts
+      inputs:
+        artifactName: 'Android'
+        pathToPublish: $(Build.ArtifactStagingDirectory)

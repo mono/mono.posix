@@ -415,6 +415,15 @@ while (( "$#" )); do
 			fi
 			;;
 
+		-a|--ndk)
+			if [ -n "$2" ] && [ ${2:0:1} != "-" ]; then
+				NDK_ROOT="$2"
+				shift 2
+			else
+				missing_argument "$1"
+			fi
+			;;
+
 		-V|--managed-verbosity)
 			if [ -n "$2" ] && [ ${2:0:1} != "-" ]; then
 				MANAGED_BUILD_VERBOSITY="$(echo $2 | tr ',' ' ')";

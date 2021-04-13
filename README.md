@@ -32,6 +32,10 @@ All tests pass
 
 # Mono.Posix standalone repository
 
+## Build status
+
+[![Build Status](https://dev.azure.com/dnceng/public/_apis/build/status/mono/mono-mono.posix?branchName=main)](https://dev.azure.com/dnceng/public/_build/latest?definitionId=966&branchName=main)
+
 ## Build requirements
 
   * All platforms

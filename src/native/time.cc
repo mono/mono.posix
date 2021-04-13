@@ -53,7 +53,7 @@ Mono_Posix_Syscall_nanosleep (struct Mono_Posix_Timespec *req, struct Mono_Posix
 extern int stime(time_t);
 #endif
 
-gint32
+uint32_t
 Mono_Posix_Syscall_stime (mph_time_t *t)
 {
 	if (t == nullptr) {
