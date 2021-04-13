@@ -676,7 +676,7 @@ if(IS_LINUX OR IS_ANDROID)
     set(STRIP "strip")
   else()
     set(OBJCOPY "${ANDROID_TOOLCHAIN_ROOT}/bin/llvm-objcopy${ANDROID_TOOLCHAIN_SUFFIX}")
-    set(STRIP "${ANDROID_STRIP}")
+    set(STRIP "${ANDROID_TOOLCHAIN_ROOT}/bin/llvm-strip${ANDROID_TOOLCHAIN_SUFFIX}")
   endif()
 
   add_custom_command(
