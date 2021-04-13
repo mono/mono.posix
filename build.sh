@@ -45,9 +45,9 @@ BRIGHT_WHITE=""
 NORMAL=""
 
 if [ -t 1 ] && command -v tput > /dev/null; then
-    # see if it supports colors
-    ncolors=$(tput colors)
-    if [ -n "$ncolors" ] && [ $ncolors -ge 8 ]; then
+	# see if it supports colors
+	ncolors=$(tput colors)
+	if [ -n "$ncolors" ] && [ $ncolors -ge 8 ]; then
 		BRIGHT_YELLOW="$(tput bold || echo)$(tput setaf 3 || echo)"
 		BRIGHT_GREEN="$(tput bold || echo)$(tput setaf 2 || echo)"
 		BRIGHT_BLUE="$(tput bold || echo)$(tput setaf 4 || echo)"
@@ -127,7 +127,7 @@ function do_build()
 	local strip_debug
 	local generator="${CMAKE_GENERATOR:-Ninja}"
 	local make_program="${CMAKE_MAKE:-${NINJA}}"
-	
+
 	if [ "${CONFIGURATION}" == "Release" ]; then
 		strip_debug="ON"
 	else
@@ -430,9 +430,9 @@ while (( "$#" )); do
 
 		-r|--rebuild) REBUILD="yes"; shift;;
 
-        -h|--help) usage; shift ;;
+		-h|--help) usage; shift ;;
 
-        -*|--*=) die "Error: Unsupported flag $1";;
+		-*|--*=) die "Error: Unsupported flag $1";;
 
 		*) POSITIONAL_ARGS="${POSITIONAL_ARGS} $1"; shift;;
     esac
