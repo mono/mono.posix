@@ -15,6 +15,7 @@ MANAGED_VERBOSITY="quiet"
 MANAGED_VERBOSITY_VERBOSE="detailed"
 CONFIGURATION="Release"
 USE_COLOR="ON"
+USE_NET6="no"
 CMAKE="cmake"
 NINJA="ninja"
 XCODEBUILD="xcodebuild"
@@ -24,8 +25,8 @@ ANDROID_ABIS="arm32 arm64 x86 x64"
 IOS_ABIS="armv7 armv7s arm64 simx64 simarm64"
 TVOS_ABIS="arm64 simx64"
 CATALYST_ABIS="arm64 x64"
-MONO_POSIX_FRAMEWORKS="netstandard2.1 netcoreapp3.1 net6.0 "
-MONO_POSIX_TEST_FRAMEWORKS="netcoreapp3.1 net6.0"
+MONO_POSIX_FRAMEWORKS="netstandard2.1 netcoreapp3.1"
+MONO_POSIX_TEST_FRAMEWORKS="netcoreapp3.1"
 
 MANAGED_BUILT="no"
 HOST_BUILT="no"
@@ -89,6 +90,7 @@ Where OPTIONS is one or more of:
                                iOS default: ${IOS_ABIS}
                                tvOS default: ${TVOS_ABIS}
                                catalyst default: ${CATALYST_ABIS}
+  -6, --net6                support NET6 (default: ${USE_NET6})
 
   -h, --help                show help
 
@@ -275,6 +277,12 @@ function __build_managed()
 		verbosity="quiet"
 	fi
 
+	local use_net6
+
+	if [ "${USE_NET6}" == "yes" ]; then
+		use_net6="/p:UseNet6=True"
+	fi
+
 	for framework in ${MONO_POSIX_FRAMEWORKS}; do
 		print_build_banner Building managed library for framework ${framework}
 		dotnet build \
@@ -282,7 +290,7 @@ function __build_managed()
 			   --configuration "${CONFIGURATION}" \
 			   --verbosity "${MANAGED_BUILD_VERBOSITY}" \
 			   Mono.Unix.sln \
-			   "/bl:LogFile=${LOG_DIR}/Mono.Unix-build-${framework}.binlog"
+			   "/bl:LogFile=${LOG_DIR}/Mono.Unix-build-${framework}.binlog" ${use_net6}
 	done
 
 	for framework in ${MONO_POSIX_TEST_FRAMEWORKS}; do
@@ -292,7 +300,7 @@ function __build_managed()
 			   --configuration "${CONFIGURATION}" \
 			   --verbosity "${MANAGED_BUILD_VERBOSITY}" \
 			   Mono.Unix.Test.sln \
-			   "/bl:LogFile=${LOG_DIR}/Mono.Unix.Test-build-${framework}.binlog"
+			   "/bl:LogFile=${LOG_DIR}/Mono.Unix.Test-build-${framework}.binlog" ${use_net6}
 	done
 
 	MANAGED_BUILT="yes"
@@ -311,6 +319,12 @@ function __build_test()
 	local verbose=""
 	if [ "${VERBOSE}" == "yes" ]; then
 		verbose="-v d"
+	fi
+
+	local use_net6
+
+	if [ "${USE_NET6}" == "yes" ]; then
+		use_net6="/p:UseNet6=True"
 	fi
 
 	local arch=""
@@ -337,7 +351,7 @@ function __build_test()
 			   --configuration "${CONFIGURATION}" \
 			   --logger:"console;verbosity=detailed" \
 			   --logger "trx;LogFileName=${LOG_DIR}/Mono.Unix.Test-${framework}.trx" \
-			   Mono.Unix.Test.sln || something_failed=yes
+			   Mono.Unix.Test.sln ${use_net6} || something_failed=yes
 		set +x
 	done
 
@@ -433,6 +447,8 @@ while (( "$#" )); do
 			fi
 			;;
 
+		-6|--net6) USE_NET6="yes" ;;
+
 		-v|--verbose) VERBOSE="yes"; shift ;;
 
 		-b|--no-color) USE_COLOR=OFF; shift ;;
@@ -463,6 +479,11 @@ if [ -z "${MANAGED_BUILD_VERBOSITY}" ]; then
 	else
 		MANAGED_BUILD_VERBOSITY="${MANAGED_VERBOSITY_VERBOSE}"
 	fi
+fi
+
+if [ "${USE_NET6}" == "yes" ]; then
+	MONO_POSIX_FRAMEWORKS="${MONO_POSIX_FRAMEWORKS} net6.0"
+	MONO_POSIX_TEST_FRAMEWORKS="${MONO_POSIX_TEST_FRAMEWORKS} net6.0"
 fi
 
 if [ $# -eq 0 ]; then

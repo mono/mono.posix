@@ -58,6 +58,9 @@ variables:
   MacTVOSBuildDirBase: $(BuildDirName)/tvos
   MacTVOSArm64BuildDir: $(MacTVOSBuildDirBase)-arm64-release/lib
   MacTVOSSimX64BuildDir: $(MacTVOSBuildDirBase)-simx64-release/lib
+  # managed
+  ManagedArchiveName: $(ArchiveNameBase)-managed
+  ManagedBuildDir: $(BuildDirName)/managed/Release
 
 stages:
 - stage: Build
@@ -203,3 +206,25 @@ stages:
         archiveNameArm64: '$(MacTVOSArm64ArchiveName)'
         archiveNameSimX64: '$(MacTVOSSimX64ArchiveName)'
         publishArtifactName: 'tvOS'
+
+  - job: mac_build_managed
+    displayName: Build managed
+    pool:
+      vmImage: '$(MacPool)'
+    workspace:
+      clean: all
+    steps:
+    - bash: |
+        ./build.sh $(BuildScriptCommonOptions) managed
+
+    - template: templates/pack-artifact.yaml
+      parameters:
+        buildDir: '$(ManagedBuildDir)'
+        archiveName: '$(ManagedArchiveName)'
+        displayName: 'Archive Managed code'
+
+    - task: PublishBuildArtifacts@1
+      displayName: Upload Artifacts
+      inputs:
+        artifactName: 'Managed'
+        pathToPublish: $(Build.ArtifactStagingDirectory)
