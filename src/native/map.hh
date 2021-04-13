@@ -2450,7 +2450,7 @@ MPH_API int Mono_Posix_Syscall_setxattr (const char* path, const char* name, uns
 MPH_API int Mono_Posix_Syscall_socketpair (int domain, int type, int protocol, int* socket1, int* socket2);
 MPH_API int Mono_Posix_Syscall_stat (const char* file_name, struct Mono_Posix_Stat* buf);
 MPH_API int Mono_Posix_Syscall_statvfs (const char* path, struct Mono_Posix_Statvfs* buf);
-MPH_API int Mono_Posix_Syscall_stime (int64_t* t);
+MPH_API int32_t Mono_Posix_Syscall_stime (int64_t* t);
 MPH_API int Mono_Posix_Syscall_strerror_r (int errnum, char* buf, uint64_t n);
 MPH_API int Mono_Posix_Syscall_swab (void* from, void* to, int64_t n);
 MPH_API int Mono_Posix_Syscall_sync (void);

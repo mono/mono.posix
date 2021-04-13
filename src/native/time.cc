@@ -53,15 +53,19 @@ Mono_Posix_Syscall_nanosleep (struct Mono_Posix_Timespec *req, struct Mono_Posix
 extern int stime(time_t);
 #endif
 
-uint32_t
+int32_t
 Mono_Posix_Syscall_stime (mph_time_t *t)
 {
 	if (t == nullptr) {
 		errno = EFAULT;
 		return -1;
 	}
-	mph_return_if_time_t_overflow (*t);
-	time_t = (time_t) *t;
+
+	if (mph_have_time_t_overflow (*t)) {
+		return -1;
+	}
+
+	time_t _t = static_cast<time_t>(*t);
 	return stime (&_t);
 }
 #endif /* ndef HAVE_STIME */
