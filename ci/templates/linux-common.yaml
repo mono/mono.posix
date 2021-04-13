@@ -1,0 +1,9 @@
+steps:
+    - checkout: self
+      clean: true
+      submodules: recursive
+
+    - bash: |
+        sudo apt -y update
+        sudo apt -f -u install ninja-build -y
+      displayName: 'Install ninja'

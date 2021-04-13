@@ -1,0 +1,43 @@
+parameters:
+  buildTarget: ''
+  x64BuildDir: ''
+  arm64BuildDir: ''
+  x64ArchiveName: ''
+  arm64ArchiveName: ''
+  publishArtifactName: ''
+
+steps:
+  - checkout: self
+    clean: true
+    submodules: recursive
+
+  - bash: |
+      brew install ninja
+    displayName: 'Install ninja'
+
+  - bash: |
+      ./build.sh $(BuildScriptCommonOptions) ${{ parameters.buildTarget }}
+
+  - task: ArchiveFiles@2
+    displayName: Archive macOS ${{ parameters.buildTarget }} x86_64 build
+    inputs:
+      rootFolderOrFile: ${{ parameters.x64BuildDir }}
+      includeRootFolder: false
+      archiveType: $(ArchiveType)
+      replaceExistingArchive: true
+      archiveFile: $(Build.ArtifactStagingDirectory)/${{ parameters.x64ArchiveName }}
+
+  - task: ArchiveFiles@2
+    displayName: Archive macOS ${{ parameters.buildTarget }} ARM64 build
+    inputs:
+      rootFolderOrFile: ${{ parameters.arm64BuildDir }}
+      includeRootFolder: false
+      archiveType: $(ArchiveType)
+      replaceExistingArchive: true
+      archiveFile: $(Build.ArtifactStagingDirectory)/${{ parameters.arm64ArchiveName }}
+
+  - task: PublishBuildArtifacts@1
+    displayName: Upload Artifacts
+    inputs:
+      artifactName: ${{ parameters.publishArtifactName }}
+      pathToPublish: $(Build.ArtifactStagingDirectory)

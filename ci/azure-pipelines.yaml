@@ -7,6 +7,7 @@ trigger:
 variables:
   BuildDirName: build
   LinuxPool: ubuntu-18.04
+  MacPool: macos-10.15
   ArchiveType: 7z
   ArchiveNameBase: mono-posix
   HostArchiveNameBase: $(ArchiveNameBase)-host
@@ -21,6 +22,18 @@ variables:
   AndroidX64ArchiveName: $(AndroidArchiveNameBase)-x64.7z
   AndroidX86BuildDir: $(BuildDirName)/android-x86-release/lib
   AndroidX86ArchiveName: $(AndroidArchiveNameBase)-x86.7z
+  MacHostArchiveNameBase: $(HostArchiveNameBase)-darwin
+  MacHostX64ArchiveName: $(MacHostArchiveNameBase)-x64.7z
+  MacHostArm64ArchiveName: $(MacHostArchiveNameBase)-arm64.7z
+  MacHostBuildDirBase: $(BuildDirName)/host-darwin
+  MacHostX64BuildDir: $(MacHostBuildDirBase)-x64-release/lib
+  MacHostArm64BuildDir: $(MacHostBuildDirBase)-arm64-release/lib
+  MacCatalystArchiveNameBase: $(ArchiveNameBase)-catalyst
+  MacCatalystX64ArchiveName: $(MacCatalystArchiveNameBase)-x64.7z
+  MacCatalystArm64ArchiveName: $(MacCatalystArchiveNameBase)-arm64.7z
+  MacCatalystBuildDirBase: $(BuildDirName)/catalyst
+  MacCatalystX64BuildDir: $(MacCatalystBuildDirBase)-x64-release/lib
+  MacCatalystArm64BuildDir: $(MacCatalystBuildDirBase)-arm64-release/lib
   BuildScriptCommonOptions: --no-color --verbose --managed-verbosity diag --configuration Release
 
 stages:
@@ -33,19 +46,13 @@ stages:
     workspace:
       clean: all
     steps:
-    - checkout: self
-      clean: true
-      submodules: recursive
-
-    - bash: |
-        sudo apt -y update
-        sudo apt -f -u install ninja-build -y
-      displayName: 'Install ninja'
+    - template: templates/linux-common.yaml
 
     - bash: |
         ./build.sh $(BuildScriptCommonOptions) host
 
     - task: ArchiveFiles@2
+      displayName: Archive Linux host build
       inputs:
         rootFolderOrFile: $(LinuxHostBuildDir)
         includeRootFolder: false
@@ -66,19 +73,13 @@ stages:
     workspace:
       clean: all
     steps:
-    - checkout: self
-      clean: true
-      submodules: recursive
-
-    - bash: |
-        sudo apt -y update
-        sudo apt -f -u install ninja-build -y
-      displayName: 'Install ninja'
+    - template: templates/linux-common.yaml
 
     - bash: |
         ./build.sh $(BuildScriptCommonOptions) --ndk $(ANDROID_NDK_HOME) android
 
     - task: ArchiveFiles@2
+      displayName: Archive Android ARM32 build
       inputs:
         rootFolderOrFile: $(AndroidArm32BuildDir)
         includeRootFolder: false
@@ -87,6 +88,7 @@ stages:
         archiveFile: $(Build.ArtifactStagingDirectory)/$(AndroidArm32ArchiveName)
 
     - task: ArchiveFiles@2
+      displayName: Archive Android ARM64 build
       inputs:
         rootFolderOrFile: $(AndroidArm64BuildDir)
         includeRootFolder: false
@@ -95,6 +97,7 @@ stages:
         archiveFile: $(Build.ArtifactStagingDirectory)/$(AndroidArm64ArchiveName)
 
     - task: ArchiveFiles@2
+      displayName: Archive Android x86 build
       inputs:
         rootFolderOrFile: $(AndroidX86BuildDir)
         includeRootFolder: false
@@ -103,6 +106,7 @@ stages:
         archiveFile: $(Build.ArtifactStagingDirectory)/$(AndroidX86ArchiveName)
 
     - task: ArchiveFiles@2
+      displayName: Archive Android x86_64 build
       inputs:
         rootFolderOrFile: $(AndroidX64BuildDir)
         includeRootFolder: false
@@ -115,3 +119,35 @@ stages:
       inputs:
         artifactName: 'Android'
         pathToPublish: $(Build.ArtifactStagingDirectory)
+
+  - job: mac_build_host
+    displayName: Build for macOS
+    pool:
+      vmImage: '$(MacPool)'
+    workspace:
+      clean: all
+    steps:
+    - template: templates/mac-build.yaml
+      parameters:
+        buildTarget: 'host'
+        x64BuildDir: $(MacHostX64BuildDir)
+        x64ArchiveName: $(MacHostX64ArchiveName)
+        arm64BuildDir: $(MacHostArm64BuildDir)
+        arm64ArchiveName: $(MacHostArm64ArchiveName)
+        publishArtifactName: 'Host'
+
+  - job: mac_build_catalyst
+    displayName: Build for macOS Catalyst
+    pool:
+      vmImage: '$(MacPool)'
+    workspace:
+      clean: all
+    steps:
+    - template: templates/mac-build.yaml
+      parameters:
+        buildTarget: 'catalyst'
+        x64BuildDir: $(MacCatalystX64BuildDir)
+        x64ArchiveName: $(MacCatalystX64ArchiveName)
+        arm64BuildDir: $(MacCatalystArm64BuildDir)
+        arm64ArchiveName: $(MacCatalystArm64ArchiveName)
+        publishArtifactName: 'macOS Catalyst'
