@@ -9,6 +9,7 @@ parameters:
 steps:
   - bash: |
       ./build.sh $(BuildScriptCommonOptions) ${{ parameters.buildTarget }}
+    displayName: Build
 
   - template: pack-artifact.yaml
     parameters:

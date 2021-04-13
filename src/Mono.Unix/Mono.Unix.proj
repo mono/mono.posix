@@ -157,7 +157,7 @@
       <HasSharedLibrary>false</HasSharedLibrary>
     </_NativeLib>
 
-    <_NativeLib Include="ios-simx86">
+    <_NativeLib Include="ios-simx64">
       <PackagePath>runtimes/ios-simx64/native</PackagePath>
       <LibraryPrefix>$(_DarwinLibraryPrefix)</LibraryPrefix>
       <SharedSuffix>$(_DarwinSharedNativeLibrarySuffix)</SharedSuffix>
@@ -177,7 +177,7 @@
       <HasSharedLibrary>false</HasSharedLibrary>
     </_NativeLib>
 
-    <_NativeLib Include="tvos-simx86">
+    <_NativeLib Include="tvos-simx64">
       <PackagePath>runtimes/tvos-simx64/native</PackagePath>
       <LibraryPrefix>$(_DarwinLibraryPrefix)</LibraryPrefix>
       <SharedSuffix>$(_DarwinSharedNativeLibrarySuffix)</SharedSuffix>

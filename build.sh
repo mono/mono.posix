@@ -16,9 +16,9 @@ MANAGED_VERBOSITY_VERBOSE="detailed"
 CONFIGURATION="Release"
 USE_COLOR="ON"
 USE_NET6="no"
+NO_BUILD="no"
 CMAKE="cmake"
 NINJA="ninja"
-XCODEBUILD="xcodebuild"
 NDK_ROOT="${ANDROID_NDK_HOME:-${ANDROID_NDK_ROOT}}"
 
 ANDROID_ABIS="arm32 arm64 x86 x64"
@@ -81,7 +81,6 @@ Where OPTIONS is one or more of:
 
   -m, --cmake PATH          use the specified cmake binary instead of the default '${CMAKE}'
   -n, --ninja PATH          use the specified ninja binary instead of the default '${NINJA}'
-  -x, --xcodebuild PATH     use the specified xcodebuild binary instead of the default '${XCODEBUILD}'
   -j, --jobs NUM            spin up at most NUM jobs
   -r, --rebuild             rebuild from scratch
   -a, --ndk PATH            path to the Android NDK root directory (default: ${NDK_ROOT:-UNSET})
@@ -91,6 +90,9 @@ Where OPTIONS is one or more of:
                                tvOS default: ${TVOS_ABIS}
                                catalyst default: ${CATALYST_ABIS}
   -6, --net6                support NET6 (default: ${USE_NET6})
+  -x, --no-build            do not build native runtime (for the 'test` target) or the managed code
+                            (for the 'pack' target). The necessary native and managed libraries must
+                            be present in their correct location.  This optin is mostly useful for CI.
 
   -h, --help                show help
 
@@ -155,14 +157,6 @@ function do_build()
 
 		if [ -n "${JOBS}" ]; then
 			jobs="-j${JOBS}"
-		fi
-	elif [ "${make_program}" == "${xcodebuild}" ]; then
-		if [ "${VERBOSE}" == "yes" ]; then
-			verbose="-verbose"
-		fi
-
-		if [ -n "${JOBS}" ]; then
-			jobs="-jobs ${JOBS}"
 		fi
 	fi
 	"${make_program}" ${verbose} ${jobs}
@@ -306,15 +300,22 @@ function __build_managed()
 	MANAGED_BUILT="yes"
 }
 
+function build_if_necessary()
+{
+	if [ "${NO_BUILD}" == "no" ]; then
+		if [ "${HOST_BUILT}" == "no" ]; then
+			__build_host
+		fi
+
+		if [ "${MANAGED_BUILT}" == "no" ]; then
+			__build_managed
+		fi
+	fi
+}
+
 function __build_test()
 {
-	if [ "${HOST_BUILT}" == "no" ]; then
-		__build_host
-	fi
-
-	if [ "${MANAGED_BUILT}" == "no" ]; then
-		__build_managed
-	fi
+	build_if_necessary
 
 	local verbose=""
 	if [ "${VERBOSE}" == "yes" ]; then
@@ -345,13 +346,14 @@ function __build_test()
 		print_build_banner Running tests for framework ${framework}
 		cp "${host_build_dir}/lib"/libMono.Unix.* "${managed_top_dir}/${framework}"
 		set -x
-		dotnet test ${verbose} ${filter} \
-			   -f "${framework}" \
-			   --verbosity "${MANAGED_BUILD_VERBOSITY}" \
+		dotnet test ${filter} \
+			   -f "${framework}" ${use_net6} \
+			   --verbosity="${MANAGED_BUILD_VERBOSITY}" \
 			   --configuration "${CONFIGURATION}" \
 			   --logger:"console;verbosity=detailed" \
 			   --logger "trx;LogFileName=${LOG_DIR}/Mono.Unix.Test-${framework}.trx" \
-			   Mono.Unix.Test.sln ${use_net6} || something_failed=yes
+			   "/bl:LogFile=${LOG_DIR}/Mono.Unix.Test-${framework}.binlog" \
+			   Mono.Unix.Test.sln || something_failed=yes
 		set +x
 	done
 
@@ -363,6 +365,23 @@ function __build_test()
 function __build_package()
 {
 	print_build_banner Packaging
+
+	build_if_necessary
+
+	local no_build
+	if [ "${NO_BUILD}" == "yes" ]; then
+		no_build="--no-build"
+
+		dotnet build \
+			   --configuration "${CONFIGURATION}" \
+			   -t:Restore \
+			   Mono.Unix.sln
+	fi
+
+	dotnet pack ${no_build} \
+		   --include-symbols \
+		   --configuration "${CONFIGURATION}" \
+		   Mono.Unix.sln
 }
 
 function missing_argument()
@@ -387,15 +406,6 @@ while (( "$#" )); do
 		-m|--cmake)
 			if [ -n "$2" ] && [ ${2:0:1} != "-" ]; then
 				CMAKE="$2";
-				shift 2
-			else
-				missing_argument "$1"
-			fi
-			;;
-
-		-x|--xcodebuild)
-			if [ -n "$2" ] && [ ${2:0:1} != "-" ]; then
-				XCODEBUILD="$2";
 				shift 2
 			else
 				missing_argument "$1"
@@ -447,7 +457,9 @@ while (( "$#" )); do
 			fi
 			;;
 
-		-6|--net6) USE_NET6="yes" ;;
+		-x|--no-build) NO_BUILD="yes"; shift ;;
+
+		-6|--net6) USE_NET6="yes"; shift ;;
 
 		-v|--verbose) VERBOSE="yes"; shift ;;
 

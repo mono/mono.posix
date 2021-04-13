@@ -1,0 +1,12 @@
+parameters:
+  displayName: ''
+  archiveName: ''
+  destinationFolder: ''
+  artifactName: ''
+
+steps:
+  - task: ExtractFiles@1
+    displayName: ${{ parameters.displayName }}
+    inputs:
+      archiveFilePatterns: $(Build.ArtifactStagingDirectory)/${{ parameters.artifactName }}/${{ parameters.archiveName }}.7z
+      destinationFolder: ${{ parameters.destinationFolder }}

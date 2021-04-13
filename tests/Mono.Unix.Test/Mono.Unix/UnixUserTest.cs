@@ -46,7 +46,10 @@ namespace MonoTests.Mono.Unix {
 		// According to bug 72293, this may not work:
 		// On systems with NIS, it is possible to have multiple users in the passwd
 		// file with the same name, so the assertion above no longer holds.
-		[Category ("NotWorking")]
+		//
+		// The test works on Linux but fails on macOS where it sees a different shell name (`/bin/sh` vs `/bin/bash`)
+		// for `root`.
+		[Category ("NotOnMac")]
 		public void ReentrantConstructors ()
 		{
 			var user_ids = new List<long> (4);

@@ -8,6 +8,7 @@ parameters:
 steps:
   - bash: |
       ./build.sh $(BuildScriptCommonOptions) tvos
+    displayName: Build
 
   - template: pack-artifact.yaml
     parameters:
