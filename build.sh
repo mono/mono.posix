@@ -25,7 +25,7 @@ ANDROID_ABIS="arm32 arm64 x86 x64"
 IOS_ABIS="armv7 armv7s arm64 simx64 simarm64"
 TVOS_ABIS="arm64 simx64"
 CATALYST_ABIS="arm64 x64"
-MONO_POSIX_FRAMEWORKS="netstandard2.1 netcoreapp3.1"
+MONO_POSIX_FRAMEWORKS="netstandard2.0 netstandard2.1 netcoreapp3.1 net45"
 MONO_POSIX_TEST_FRAMEWORKS="netcoreapp3.1"
 
 MANAGED_BUILT="no"

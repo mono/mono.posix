@@ -86,7 +86,9 @@ namespace Mono.Unix {
 		}
 
 		public LingerOption? LingerState {
+#if NETSTANDARD2_1_OR_GREATER
 			[return: MaybeNull]
+#endif
 			get {
 				CheckDisposed ();
 				return EnsureOption <LingerOption> (client, SocketOptionLevel.Socket, SocketOptionName.Linger);
@@ -207,7 +209,9 @@ namespace Mono.Unix {
 			return stream;
 		}
 
+#if NETSTANDARD2_1_OR_GREATER
 		[return: MaybeNull]
+#endif
 		T? EnsureOption<T> (Socket client, SocketOptionLevel optionLevel, SocketOptionName optionName)
 		{
 			object? opt = client.GetSocketOption (optionLevel, optionName);
