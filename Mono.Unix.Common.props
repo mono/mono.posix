@@ -1,14 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project>
   <PropertyGroup>
-    <NugetPackageId>Mono.Posix</NugetPackageId>
-    <VersionPrefix>$(ProductVersion)</VersionPrefix>
-    <VersionSuffix>$(ProductSuffix)</VersionSuffix>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <Authors>Microsoft</Authors>
-    <Copyright>© Microsoft Corporation. All rights reserved.</Copyright>
+    <Copyright>$(CopyrightNetFoundation)</Copyright>
     <RepositoryUrl>https://github.com/mono/mono.posix</RepositoryUrl>
-    <RepositoryType>git</RepositoryType>
 
     <Title>POSIX interface for Mono, .NET and dotnetcore</Title>
     <PackageTags>posix unix mono macos osx linux</PackageTags>
@@ -17,9 +12,7 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <EnableDefaultItems>false</EnableDefaultItems>
     <SignAssembly>true</SignAssembly>
-    <DelaySign>true</DelaySign>
-    <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)Open.snk</AssemblyOriginatorKeyFile>
-    <OutputPath>$(MSBuildThisFileDirectory)build/managed/$(Configuration)</OutputPath>
+    <StrongNameKeyId>Open</StrongNameKeyId>
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
 

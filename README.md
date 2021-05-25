@@ -70,13 +70,9 @@ specific to these systems etc.
 	* `netstandard2.1`
 	* `netstandard2.0`
 	* `net45`
-  * `Mono.Unix.Test` supports
+  * `Mono.Unix.Tests` supports
     * `net6.0`
     * `netcoreapp3.1`
-
-**NOTE** Currently the NET6 target is **disabled** when building on CI
-and, thus, the published nugets will not contain NET6-specific
-binaries.  This will be enabled on CI once NET6 is released.
 
 ## Build requirements
 

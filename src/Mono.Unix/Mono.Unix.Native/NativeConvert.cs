@@ -498,7 +498,11 @@ namespace Mono.Unix.Native {
 		{
 			if (destination == null)
 				throw new ArgumentNullException ("destination");
+
 			byte[]? array = Sockaddr.GetDynamicData (destination);
+
+			if (array == null)
+				throw new InvalidOperationException ("destination is not valid.");
 
 			fixed (SockaddrType* addr = &Sockaddr.GetAddress (destination).type)
 			fixed (byte* data = Sockaddr.GetDynamicData (destination)) {
