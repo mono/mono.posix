@@ -31,4 +31,5 @@ tests/api-compatibility/reference/*.cs
 Novell
 *.patch
 *.keystore
-/build
+/artifacts
+.dotnet

@@ -4,9 +4,9 @@ TRUE_PATH=$(readlink "$0" || echo "$0")
 MY_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 OS=$(uname -s)
 OS_LOWER=$(echo ${OS} | tr A-Z a-z)
-BUILD_DIR_ROOT="${MY_DIR}/build"
+BUILD_DIR_ROOT="${MY_DIR}/artifacts"
 NATIVE_SOURCE_DIR="${MY_DIR}/src/native"
-LOG_DIR="${MY_DIR}/build/logs"
+LOG_DIR="${BUILD_DIR_ROOT}/log"
 ALL_TARGETS="host android ios tvos catalyst wasm managed test package"
 VERBOSE="no"
 JOBS=""
@@ -15,7 +15,6 @@ MANAGED_VERBOSITY="quiet"
 MANAGED_VERBOSITY_VERBOSE="detailed"
 CONFIGURATION="Release"
 USE_COLOR="ON"
-USE_NET6="no"
 NO_BUILD="no"
 CMAKE="cmake"
 NINJA="ninja"
@@ -25,13 +24,12 @@ ANDROID_ABIS="arm32 arm64 x86 x64"
 IOS_ABIS="armv7 armv7s arm64 simx64 simarm64"
 TVOS_ABIS="arm64 simx64"
 CATALYST_ABIS="arm64 x64"
-MONO_POSIX_FRAMEWORKS="netstandard2.0 netstandard2.1 netcoreapp3.1 net45"
-MONO_POSIX_TEST_FRAMEWORKS="netcoreapp3.1"
+MONO_POSIX_TEST_FRAMEWORKS="netcoreapp3.1 net6.0"
 
 MANAGED_BUILT="no"
 HOST_BUILT="no"
 HOST_BUILD_NAME="host-${OS_LOWER}"
-MANAGED_OUTPUT_DIR="${BUILD_DIR_ROOT}/managed"
+MANAGED_OUTPUT_DIR="${BUILD_DIR_ROOT}/bin"
 
 # The color block is pilfered from the dotnet installer script
 #
@@ -89,7 +87,6 @@ Where OPTIONS is one or more of:
                                iOS default: ${IOS_ABIS}
                                tvOS default: ${TVOS_ABIS}
                                catalyst default: ${CATALYST_ABIS}
-  -6, --net6                support NET6 (default: ${USE_NET6})
   -x, --no-build            do not build native runtime (for the 'test` target) or the managed code
                             (for the 'pack' target). The necessary native and managed libraries must
                             be present in their correct location.  This optin is mostly useful for CI.
@@ -271,31 +268,23 @@ function __build_managed()
 		verbosity="quiet"
 	fi
 
-	local use_net6
+	print_build_banner Building managed library
+	${MY_DIR}/eng/common/build.sh \
+			--restore \
+			--build \
+			--configuration "${CONFIGURATION}" \
+			--verbosity "${MANAGED_BUILD_VERBOSITY}" \
+			--projects ${MY_DIR}/Mono.Unix.sln \
+			"/bl:LogFile=${LOG_DIR}/${CONFIGURATION}/Mono.Unix-build.binlog"
 
-	if [ "${USE_NET6}" == "yes" ]; then
-		use_net6="/p:UseNet6=True"
-	fi
-
-	for framework in ${MONO_POSIX_FRAMEWORKS}; do
-		print_build_banner Building managed library for framework ${framework}
-		dotnet build \
-			   -f "${framework}" \
-			   --configuration "${CONFIGURATION}" \
-			   --verbosity "${MANAGED_BUILD_VERBOSITY}" \
-			   Mono.Unix.sln \
-			   "/bl:LogFile=${LOG_DIR}/Mono.Unix-build-${framework}.binlog" ${use_net6}
-	done
-
-	for framework in ${MONO_POSIX_TEST_FRAMEWORKS}; do
-		print_build_banner Building managed tests for framework ${framework}
-		dotnet build \
-			   -f "${framework}" \
-			   --configuration "${CONFIGURATION}" \
-			   --verbosity "${MANAGED_BUILD_VERBOSITY}" \
-			   Mono.Unix.Test.sln \
-			   "/bl:LogFile=${LOG_DIR}/Mono.Unix.Test-build-${framework}.binlog" ${use_net6}
-	done
+	print_build_banner Building managed tests
+	${MY_DIR}/eng/common/build.sh \
+			--restore \
+			--build \
+			--configuration "${CONFIGURATION}" \
+			--verbosity "${MANAGED_BUILD_VERBOSITY}" \
+			--projects ${MY_DIR}/Mono.Unix.Tests.sln \
+			"/bl:LogFile=${LOG_DIR}/${CONFIGURATION}/Mono.Unix.Tests-build.binlog"
 
 	MANAGED_BUILT="yes"
 }
@@ -322,16 +311,8 @@ function __build_test()
 		verbose="-v d"
 	fi
 
-	local use_net6
-
-	if [ "${USE_NET6}" == "yes" ]; then
-		use_net6="/p:UseNet6=True"
-	fi
-
 	local arch=""
-	local filter=""
 	if [ "${OS}" == "Darwin" ]; then
-		filter="--filter \"Category!=NotOnMac\""
 		case $(arch) in
 			i386) arch="-x64" ;;
 			arm64) arch="-arm64" ;;
@@ -340,22 +321,21 @@ function __build_test()
 	fi
 
 	local host_build_dir="$(get_build_dir "${HOST_BUILD_NAME}${arch}")"
-	local managed_top_dir="${MANAGED_OUTPUT_DIR}/${CONFIGURATION}"
 	local something_failed=no
+	print_build_banner Running tests
+	set -x
 	for framework in ${MONO_POSIX_TEST_FRAMEWORKS}; do
-		print_build_banner Running tests for framework ${framework}
-		cp "${host_build_dir}/lib"/libMono.Unix.* "${managed_top_dir}/${framework}"
-		set -x
-		dotnet test ${filter} \
-			   -f "${framework}" ${use_net6} \
-			   --verbosity="${MANAGED_BUILD_VERBOSITY}" \
-			   --configuration "${CONFIGURATION}" \
-			   --logger:"console;verbosity=detailed" \
-			   --logger "trx;LogFileName=${LOG_DIR}/Mono.Unix.Test-${framework}.trx" \
-			   "/bl:LogFile=${LOG_DIR}/Mono.Unix.Test-${framework}.binlog" \
-			   Mono.Unix.Test.sln || something_failed=yes
-		set +x
+		local managed_build_dir="${MANAGED_OUTPUT_DIR}/Mono.Unix.Tests/${CONFIGURATION}/${framework}"
+		mkdir -p "${managed_build_dir}"
+		cp "${host_build_dir}/lib"/libMono.Unix.* "${managed_build_dir}"
 	done
+
+	${MY_DIR}/eng/common/build.sh \
+			--restore \
+			--test \
+			--configuration "${CONFIGURATION}" \
+			--projects ${MY_DIR}/Mono.Unix.Tests.sln || something_failed=yes
+	set +x
 
 	if [ "${something_failed}" == "yes" ]; then
 		die Some tests failed
@@ -368,20 +348,17 @@ function __build_package()
 
 	build_if_necessary
 
-	local no_build
+	local build_action="--build"
 	if [ "${NO_BUILD}" == "yes" ]; then
-		no_build="--no-build"
-
-		dotnet build \
-			   --configuration "${CONFIGURATION}" \
-			   -t:Restore \
-			   Mono.Unix.sln
+		build_action=""
 	fi
 
-	dotnet pack ${no_build} \
-		   --include-symbols \
-		   --configuration "${CONFIGURATION}" \
-		   Mono.Unix.sln
+	${MY_DIR}/eng/common/build.sh \
+			--restore \
+			${build_action} \
+			--pack \
+			--configuration "${CONFIGURATION}" \
+			--projects ${MY_DIR}/Mono.Unix.sln
 }
 
 function missing_argument()
@@ -459,8 +436,6 @@ while (( "$#" )); do
 
 		-x|--no-build) NO_BUILD="yes"; shift ;;
 
-		-6|--net6) USE_NET6="yes"; shift ;;
-
 		-v|--verbose) VERBOSE="yes"; shift ;;
 
 		-b|--no-color) USE_COLOR=OFF; shift ;;
@@ -491,11 +466,6 @@ if [ -z "${MANAGED_BUILD_VERBOSITY}" ]; then
 	else
 		MANAGED_BUILD_VERBOSITY="${MANAGED_VERBOSITY_VERBOSE}"
 	fi
-fi
-
-if [ "${USE_NET6}" == "yes" ]; then
-	MONO_POSIX_FRAMEWORKS="${MONO_POSIX_FRAMEWORKS} net6.0"
-	MONO_POSIX_TEST_FRAMEWORKS="${MONO_POSIX_TEST_FRAMEWORKS} net6.0"
 fi
 
 if [ $# -eq 0 ]; then

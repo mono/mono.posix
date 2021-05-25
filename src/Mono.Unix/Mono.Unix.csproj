@@ -1,11 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;netstandard2.1;netcoreapp3.1;net45</TargetFrameworks>
-    <TargetFrameworks Condition=" '$(UseNet6)' == 'True' ">$(TargetFrameworks);net6.0</TargetFrameworks>
-    <AssemblyName>Mono.Unix</AssemblyName>
+    <TargetFrameworks>netstandard2.0;netstandard2.1;netcoreapp3.1;net6.0;net45</TargetFrameworks>
     <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
-    <PackageId>$(NugetPackageId)</PackageId>
     <Nullable>enable</Nullable>
+    <IsPackable>true</IsPackable>
   </PropertyGroup>
 
   <Import Project="../../Mono.Unix.Common.props" />

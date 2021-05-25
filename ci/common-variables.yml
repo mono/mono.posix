@@ -1,0 +1,144 @@
+
+variables:
+  # Cannot use key:value syntax in root defined variables
+  - name: _TeamName
+    value: DotNetCore
+  - name: _RunAsPublic
+    value: True
+  - name: _RunAsInternal
+    value: False
+  - name: _InternalBuildArgs
+    value: ''
+
+  - ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
+    - name: _RunAsPublic
+      value: False
+    - name: _RunAsInternal
+      value: True
+    - name: _SignType
+      value: real
+    # Publish-Build-Assets provides: MaestroAccessToken, BotAccount-dotnet-maestro-bot-PAT
+    - group: Publish-Build-Assets
+    - group: SDL_Settings
+    - name: _InternalBuildArgs
+      value: /p:DotNetSignType=$(_SignType) 
+        /p:TeamName=$(_TeamName)
+        /p:DotNetPublishUsingPipelines=true
+        /p:OfficialBuildId=$(BUILD.BUILDNUMBER)
+
+  - name: BuildDirName
+    value: artifacts
+  - name: LinuxPool
+    value: ubuntu-18.04
+  - name: MacPool
+    value: macos-10.15
+  - name: LinuxCompilerSuffix
+    value: -10
+  - name: BuildScriptCommonOptions
+    value: --no-color --verbose --managed-verbosity diag --configuration Release
+  - name: ArchiveNameBase
+    value: mono-posix
+  - name: HostArchiveNameBase
+    value: $(ArchiveNameBase)-host
+
+  # Linux
+  - name: LinuxHostBuildDir
+    value: $(BuildDirName)/host-linux-release/lib
+  - name: LinuxHostArchiveName
+    value: $(HostArchiveNameBase)-linux-x64
+  # Android
+  - name: AndroidArchiveNameBase
+    value: $(ArchiveNameBase)-android
+  - name: AndroidArm32BuildDir
+    value: $(BuildDirName)/android-arm32-release/lib
+  - name: AndroidArm32ArchiveName
+    value: $(AndroidArchiveNameBase)-arm32
+  - name: AndroidArm64BuildDir
+    value: $(BuildDirName)/android-arm64-release/lib
+  - name: AndroidArm64ArchiveName
+    value: $(AndroidArchiveNameBase)-arm64
+  - name: AndroidX64BuildDir
+    value: $(BuildDirName)/android-x64-release/lib
+  - name: AndroidX64ArchiveName
+    value: $(AndroidArchiveNameBase)-x64
+  - name: AndroidX86BuildDir
+    value: $(BuildDirName)/android-x86-release/lib
+  - name: AndroidX86ArchiveName
+    value: $(AndroidArchiveNameBase)-x86
+  # macOS
+  - name: MacHostArchiveNameBase
+    value: $(HostArchiveNameBase)-darwin
+  - name: MacHostX64ArchiveName
+    value: $(MacHostArchiveNameBase)-x64
+  - name: MacHostArm64ArchiveName
+    value: $(MacHostArchiveNameBase)-arm64
+  - name: MacHostBuildDirBase
+    value: $(BuildDirName)/host-darwin
+  - name: MacHostX64BuildDir
+    value: $(MacHostBuildDirBase)-x64-release/lib
+  - name: MacHostArm64BuildDir
+    value: $(MacHostBuildDirBase)-arm64-release/lib
+  # macCatalyst
+  - name: MacCatalystArchiveNameBase
+    value: $(ArchiveNameBase)-catalyst
+  - name: MacCatalystX64ArchiveName
+    value: $(MacCatalystArchiveNameBase)-x64
+  - name: MacCatalystArm64ArchiveName
+    value: $(MacCatalystArchiveNameBase)-arm64
+  - name: MacCatalystBuildDirBase
+    value: $(BuildDirName)/catalyst
+  - name: MacCatalystX64BuildDir
+    value: $(MacCatalystBuildDirBase)-x64-release/lib
+  - name: MacCatalystArm64BuildDir
+    value: $(MacCatalystBuildDirBase)-arm64-release/lib
+  # iOS
+  - name: MacIOSArchiveNameBase
+    value: $(ArchiveNameBase)-ios
+  - name: MacIOSArm64ArchiveName
+    value: $(MacIOSArchiveNameBase)-arm64
+  - name: MacIOSArmV7ArchiveName
+    value: $(MacIOSArchiveNameBase)-armv7
+  - name: MacIOSArmV7sArchiveName
+    value: $(MacIOSArchiveNameBase)-armv7s
+  - name: MacIOSSimArm64ArchiveName
+    value: $(MacIOSArchiveNameBase)-simarm64
+  - name: MacIOSSimX64ArchiveName
+    value: $(MacIOSArchiveNameBase)-simx64
+  - name: MacIOSBuildDirBase
+    value: $(BuildDirName)/ios
+  - name: MacIOSArm64BuildDir
+    value: $(MacIOSBuildDirBase)-arm64-release/lib
+  - name: MacIOSArmV7BuildDir
+    value: $(MacIOSBuildDirBase)-armv7-release/lib
+  - name: MacIOSArmV7sBuildDir
+    value: $(MacIOSBuildDirBase)-armv7s-release/lib
+  - name: MacIOSSimArm64BuildDir
+    value: $(MacIOSBuildDirBase)-simarm64-release/lib
+  - name: MacIOSSimX64BuildDir
+    value: $(MacIOSBuildDirBase)-simx64-release/lib
+  # tvOS
+  - name: MacTVOSArchiveNameBase
+    value: $(ArchiveNameBase)-tvos
+  - name: MacTVOSArm64ArchiveName
+    value: $(MacTVOSArchiveNameBase)-arm64
+  - name: MacTVOSSimX64ArchiveName
+    value: $(MacTVOSArchiveNameBase)-simx64
+  - name: MacTVOSBuildDirBase
+    value: $(BuildDirName)/tvos
+  - name: MacTVOSArm64BuildDir
+    value: $(MacTVOSBuildDirBase)-arm64-release/lib
+  - name: MacTVOSSimX64BuildDir
+    value: $(MacTVOSBuildDirBase)-simx64-release/lib
+  # managed
+  - name: ManagedArchiveName
+    value: $(ArchiveNameBase)-managed
+  - name: ManagedBuildDir
+    value: $(BuildDirName)/bin
+  - name: ManagedLogsDir
+    value: $(BuildDirName)/log
+  - name: ManagedTestResultsDir
+    value: $(BuildDirName)/TestResults
+  - name: ManagedLogsArchiveName
+    value: $(ArchiveNameBase)-managed-logs
+  - name: NuGetPackagesDir
+    value: $(BuildDirName)/packages

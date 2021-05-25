@@ -6,8 +6,12 @@ endif()
 
 cmake_minimum_required(VERSION ${MPH_REQUIRED_CMAKE_VERSION})
 
-file(STRINGS "../../Directory.Build.props" MPH_PRODUCT_VERSION_XML REGEX "^[ \t]*<ProductVersion>(.*)</ProductVersion>")
-string(REGEX REPLACE "^[ \t]*<ProductVersion>(.*)</ProductVersion>" "\\1" MPH_VERSION "${MPH_PRODUCT_VERSION_XML}")
+file(STRINGS "../../eng/Versions.props" MPH_VERSION_XML REGEX "^[ \t]*<VersionPrefix>(.*)</VersionPrefix>")
+string(REGEX REPLACE "^[ \t]*<VersionPrefix>(.*)</VersionPrefix>" "\\1" MPH_VERSION "${MPH_VERSION_XML}")
+
+if(NOT DEFINED MPH_VERSION)
+  message(FATAL_ERROR "Couldn't get version from Versions.props")
+endif()
 
 if(NOT DEFINED TARGET_PLATFORM)
   message(FATAL_ERROR "Please define the TARGET_PLATFORM variable on command line")

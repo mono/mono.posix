@@ -4,70 +4,17 @@ trigger:
       - main
       - release/*
 
+pr:
+  branches:
+    include:
+    - main
+    - release/*
+
 variables:
-  BuildDirName: build
-  LinuxPool: ubuntu-18.04
-  MacPool: macos-10.15
-  LinuxCompilerSuffix: -10
-  EnableNET6: false
-  BuildScriptCommonOptions: --no-color --verbose --managed-verbosity diag --configuration Release
-  ArchiveNameBase: mono-posix
-  HostArchiveNameBase: $(ArchiveNameBase)-host
-  # Linux
-  LinuxHostBuildDir: $(BuildDirName)/host-linux-release/lib
-  LinuxHostArchiveName: $(HostArchiveNameBase)-linux-x64
-  # Android
-  AndroidArchiveNameBase: $(ArchiveNameBase)-android
-  AndroidArm32BuildDir: $(BuildDirName)/android-arm32-release/lib
-  AndroidArm32ArchiveName: $(AndroidArchiveNameBase)-arm32
-  AndroidArm64BuildDir: $(BuildDirName)/android-arm64-release/lib
-  AndroidArm64ArchiveName: $(AndroidArchiveNameBase)-arm64
-  AndroidX64BuildDir: $(BuildDirName)/android-x64-release/lib
-  AndroidX64ArchiveName: $(AndroidArchiveNameBase)-x64
-  AndroidX86BuildDir: $(BuildDirName)/android-x86-release/lib
-  AndroidX86ArchiveName: $(AndroidArchiveNameBase)-x86
-  # macOS
-  MacHostArchiveNameBase: $(HostArchiveNameBase)-darwin
-  MacHostX64ArchiveName: $(MacHostArchiveNameBase)-x64
-  MacHostArm64ArchiveName: $(MacHostArchiveNameBase)-arm64
-  MacHostBuildDirBase: $(BuildDirName)/host-darwin
-  MacHostX64BuildDir: $(MacHostBuildDirBase)-x64-release/lib
-  MacHostArm64BuildDir: $(MacHostBuildDirBase)-arm64-release/lib
-  # macCatalyst
-  MacCatalystArchiveNameBase: $(ArchiveNameBase)-catalyst
-  MacCatalystX64ArchiveName: $(MacCatalystArchiveNameBase)-x64
-  MacCatalystArm64ArchiveName: $(MacCatalystArchiveNameBase)-arm64
-  MacCatalystBuildDirBase: $(BuildDirName)/catalyst
-  MacCatalystX64BuildDir: $(MacCatalystBuildDirBase)-x64-release/lib
-  MacCatalystArm64BuildDir: $(MacCatalystBuildDirBase)-arm64-release/lib
-  # iOS
-  MacIOSArchiveNameBase: $(ArchiveNameBase)-ios
-  MacIOSArm64ArchiveName: $(MacIOSArchiveNameBase)-arm64
-  MacIOSArmV7ArchiveName: $(MacIOSArchiveNameBase)-armv7
-  MacIOSArmV7sArchiveName: $(MacIOSArchiveNameBase)-armv7s
-  MacIOSSimArm64ArchiveName: $(MacIOSArchiveNameBase)-simarm64
-  MacIOSSimX64ArchiveName: $(MacIOSArchiveNameBase)-simx64
-  MacIOSBuildDirBase: $(BuildDirName)/ios
-  MacIOSArm64BuildDir: $(MacIOSBuildDirBase)-arm64-release/lib
-  MacIOSArmV7BuildDir: $(MacIOSBuildDirBase)-armv7-release/lib
-  MacIOSArmV7sBuildDir: $(MacIOSBuildDirBase)-armv7s-release/lib
-  MacIOSSimArm64BuildDir: $(MacIOSBuildDirBase)-simarm64-release/lib
-  MacIOSSimX64BuildDir: $(MacIOSBuildDirBase)-simx64-release/lib
-  # tvOS
-  MacTVOSArchiveNameBase: $(ArchiveNameBase)-tvos
-  MacTVOSArm64ArchiveName: $(MacTVOSArchiveNameBase)-arm64
-  MacTVOSSimX64ArchiveName: $(MacTVOSArchiveNameBase)-simx64
-  MacTVOSBuildDirBase: $(BuildDirName)/tvos
-  MacTVOSArm64BuildDir: $(MacTVOSBuildDirBase)-arm64-release/lib
-  MacTVOSSimX64BuildDir: $(MacTVOSBuildDirBase)-simx64-release/lib
-  # managed
-  ManagedArchiveName: $(ArchiveNameBase)-managed
-  ManagedBuildDir: $(BuildDirName)/managed/Release
-  ManagedLogsDir: $(BuildDirName)/logs
-  ManagedLogsArchiveName: $(ArchiveNameBase)-managed-logs
+  - template: /ci/common-variables.yml
 
 stages:
-- stage: Build
+- stage: build_artifacts
   jobs:
   - job: linux_build_host
     displayName: Build for Linux
@@ -217,11 +164,11 @@ stages:
     displayName: Build managed
     pool:
       vmImage: '$(MacPool)'
-    variables:
-      DotNetCoreVersion: 5.0.202
     workspace:
       clean: all
     steps:
+    - template: templates/mac-common.yaml
+
     - bash: |
         ./build.sh $(BuildScriptCommonOptions) managed
       displayName: Build
@@ -244,10 +191,9 @@ stages:
         artifactName: 'Managed'
         pathToPublish: $(Build.ArtifactStagingDirectory)
 
-- stage: Test
-  dependsOn: Build
-  variables:
-      DotNetCoreVersion: 5.0.202
+- stage: test
+  condition: ne('${{ variables._RunAsInternal }}', 'True')
+  dependsOn: build_artifacts
   jobs:
   - job: linux_test
     displayName: Test Linux
@@ -292,15 +238,8 @@ stages:
     - task: PublishTestResults@2
       inputs:
         testResultsFormat: 'VSTest'
-        testResultsFiles: '$(ManagedLogsDir)/*netcoreapp3.1.trx'
-        testRunTitle: 'Linux netcoreapp 3.1 tests'
-
-    - task: PublishTestResults@2
-      inputs:
-        testResultsFormat: 'VSTest'
-        testResultsFiles: '$(ManagedLogsDir)/*net6.0.trx'
-        testRunTitle: 'Linux net6 tests'
-      condition: eq(variables['EnableNET6'], true)
+        testResultsFiles: '$(ManagedTestResultsDir)/**/*.trx'
+        testRunTitle: 'Linux tests'
 
     - template: templates\fail-on-issue.yaml
 
@@ -354,206 +293,206 @@ stages:
     - task: PublishTestResults@2
       inputs:
         testResultsFormat: 'VSTest'
-        testResultsFiles: '$(ManagedLogsDir)/*netcoreapp3.1.trx'
-        testRunTitle: 'macOS netcoreapp 3.1 tests'
-
-    - task: PublishTestResults@2
-      inputs:
-        testResultsFormat: 'VSTest'
-        testResultsFiles: '$(ManagedLogsDir)/*net6.0.trx'
-        testRunTitle: 'macOS net6 tests'
-      condition: eq(variables['EnableNET6'], true)
+        testResultsFiles: '$(ManagedTestResultsDir)/**/*.trx'
+        testRunTitle: 'macOS tests'
 
     - template: templates\fail-on-issue.yaml
 
-- stage: Package
-  dependsOn: Build
-  variables:
-      DotNetCoreVersion: 5.0.202
+- stage: build_package
+  dependsOn: build_artifacts
   jobs:
-  - job: mac_package
-    displayName: Create NuGet packages
-    pool:
-      vmImage: '$(MacPool)'
-    workspace:
-      clean: all
-    steps:
-    - template: templates/mac-common.yaml
+  - template: /eng/common/templates/jobs/jobs.yml
+    parameters:
+      enableMicrobuild: true
+      enablePublishBuildArtifacts: true
+      enablePublishBuildAssets: true
+      enablePublishUsingPipelines: true
+      variables:
+        - _BuildConfig: Release
+      jobs:
 
-    - task: DownloadBuildArtifacts@0
-      displayName: Download host build artifacts
-      inputs:
-        artifactName: 'Host'
-        downloadPath: $(Build.ArtifactStagingDirectory)
+      - job: package
+        displayName: Create NuGet packages
+        pool:
+          ${{ if eq(variables['_RunAsInternal'], 'False') }}:
+            name: NetCorePublic-Pool
+            queue: BuildPool.Windows.10.Amd64.VS2019.Open
+          ${{ if eq(variables['_RunAsInternal'], 'True') }}:
+            name: NetCoreInternal-Pool
+            queue: BuildPool.Windows.10.Amd64.VS2019
+        workspace:
+          clean: all
+        steps:
 
-    - task: DownloadBuildArtifacts@0
-      displayName: Download managed build artifacts
-      inputs:
-        artifactName: 'Managed'
-        downloadPath: $(Build.ArtifactStagingDirectory)
+        - checkout: self
+          clean: true
+          submodules: recursive
 
-    - task: DownloadBuildArtifacts@0
-      displayName: Download managed build artifacts
-      inputs:
-        artifactName: 'Android'
-        downloadPath: $(Build.ArtifactStagingDirectory)
+        - task: DownloadBuildArtifacts@0
+          displayName: Download host build artifacts
+          inputs:
+            artifactName: 'Host'
+            downloadPath: $(Build.ArtifactStagingDirectory)
 
-    - task: DownloadBuildArtifacts@0
-      displayName: Download managed build artifacts
-      inputs:
-        artifactName: 'iOS'
-        downloadPath: $(Build.ArtifactStagingDirectory)
+        - task: DownloadBuildArtifacts@0
+          displayName: Download Android build artifacts
+          inputs:
+            artifactName: 'Android'
+            downloadPath: $(Build.ArtifactStagingDirectory)
 
-    - task: DownloadBuildArtifacts@0
-      displayName: Download managed build artifacts
-      inputs:
-        artifactName: 'macOS_Catalyst'
-        downloadPath: $(Build.ArtifactStagingDirectory)
+        - task: DownloadBuildArtifacts@0
+          displayName: Download iOS build artifacts
+          inputs:
+            artifactName: 'iOS'
+            downloadPath: $(Build.ArtifactStagingDirectory)
 
-    - task: DownloadBuildArtifacts@0
-      displayName: Download managed build artifacts
-      inputs:
-        artifactName: 'tvOS'
-        downloadPath: $(Build.ArtifactStagingDirectory)
+        - task: DownloadBuildArtifacts@0
+          displayName: Download macOS_Catalyst build artifacts
+          inputs:
+            artifactName: 'macOS_Catalyst'
+            downloadPath: $(Build.ArtifactStagingDirectory)
 
-    - template: templates/extract-artifact.yaml
-      parameters:
-        displayName: Extract Managed build
-        artifactName: 'Managed'
-        archiveName: '$(ManagedArchiveName)'
-        destinationFolder: '$(ManagedBuildDir)'
+        - task: DownloadBuildArtifacts@0
+          displayName: Download tvOS build artifacts
+          inputs:
+            artifactName: 'tvOS'
+            downloadPath: $(Build.ArtifactStagingDirectory)
 
-    - template: templates/extract-artifact.yaml
-      parameters:
-        displayName: Extract Linux host build
-        artifactName: 'Host'
-        archiveName: '$(LinuxHostArchiveName)'
-        destinationFolder: '$(LinuxHostBuildDir)'
+        - template: /ci/templates/extract-artifact.yaml
+          parameters:
+            displayName: Extract Linux host build
+            artifactName: 'Host'
+            archiveName: '$(LinuxHostArchiveName)'
+            destinationFolder: '$(LinuxHostBuildDir)'
 
-    - template: templates/extract-artifact.yaml
-      parameters:
-        displayName: Extract macOS arm64 host build
-        artifactName: 'Host'
-        archiveName: '$(MacHostArm64ArchiveName)'
-        destinationFolder: '$(MacHostArm64BuildDir)'
+        - template: /ci/templates/extract-artifact.yaml
+          parameters:
+            displayName: Extract macOS arm64 host build
+            artifactName: 'Host'
+            archiveName: '$(MacHostArm64ArchiveName)'
+            destinationFolder: '$(MacHostArm64BuildDir)'
 
-    - template: templates/extract-artifact.yaml
-      parameters:
-        displayName: Extract macOS x64 host build
-        artifactName: 'Host'
-        archiveName: '$(MacHostX64ArchiveName)'
-        destinationFolder: '$(MacHostX64BuildDir)'
+        - template: /ci/templates/extract-artifact.yaml
+          parameters:
+            displayName: Extract macOS x64 host build
+            artifactName: 'Host'
+            archiveName: '$(MacHostX64ArchiveName)'
+            destinationFolder: '$(MacHostX64BuildDir)'
 
-    - template: templates/extract-artifact.yaml
-      parameters:
-        displayName: Extract macOS Catalyst x64 build
-        artifactName: 'macOS_Catalyst'
-        archiveName: '$(MacCatalystX64ArchiveName)'
-        destinationFolder: '$(MacCatalystX64BuildDir)'
+        - template: /ci/templates/extract-artifact.yaml
+          parameters:
+            displayName: Extract macOS Catalyst x64 build
+            artifactName: 'macOS_Catalyst'
+            archiveName: '$(MacCatalystX64ArchiveName)'
+            destinationFolder: '$(MacCatalystX64BuildDir)'
 
-    - template: templates/extract-artifact.yaml
-      parameters:
-        displayName: Extract macOS Catalyst ARM64 build
-        artifactName: 'macOS_Catalyst'
-        archiveName: '$(MacCatalystArm64ArchiveName)'
-        destinationFolder: '$(MacCatalystArm64BuildDir)'
+        - template: /ci/templates/extract-artifact.yaml
+          parameters:
+            displayName: Extract macOS Catalyst ARM64 build
+            artifactName: 'macOS_Catalyst'
+            archiveName: '$(MacCatalystArm64ArchiveName)'
+            destinationFolder: '$(MacCatalystArm64BuildDir)'
 
-    - template: templates/extract-artifact.yaml
-      parameters:
-        displayName: Extract macOS arm64 host build
-        artifactName: 'Host'
-        archiveName: '$(MacHostArm64ArchiveName)'
-        destinationFolder: '$(MacHostArm64BuildDir)'
+        - template: /ci/templates/extract-artifact.yaml
+          parameters:
+            displayName: Extract macOS arm64 host build
+            artifactName: 'Host'
+            archiveName: '$(MacHostArm64ArchiveName)'
+            destinationFolder: '$(MacHostArm64BuildDir)'
 
-    - template: templates/extract-artifact.yaml
-      parameters:
-        displayName: Extract Android ARM32 build
-        artifactName: 'Android'
-        archiveName: '$(AndroidArm32ArchiveName)'
-        destinationFolder: '$(AndroidArm32BuildDir)'
+        - template: /ci/templates/extract-artifact.yaml
+          parameters:
+            displayName: Extract Android ARM32 build
+            artifactName: 'Android'
+            archiveName: '$(AndroidArm32ArchiveName)'
+            destinationFolder: '$(AndroidArm32BuildDir)'
 
-    - template: templates/extract-artifact.yaml
-      parameters:
-        displayName: Extract Android ARM64 build
-        artifactName: 'Android'
-        archiveName: '$(AndroidArm64ArchiveName)'
-        destinationFolder: '$(AndroidArm64BuildDir)'
+        - template: /ci/templates/extract-artifact.yaml
+          parameters:
+            displayName: Extract Android ARM64 build
+            artifactName: 'Android'
+            archiveName: '$(AndroidArm64ArchiveName)'
+            destinationFolder: '$(AndroidArm64BuildDir)'
 
-    - template: templates/extract-artifact.yaml
-      parameters:
-        displayName: Extract Android x86 build
-        artifactName: 'Android'
-        archiveName: '$(AndroidX86ArchiveName)'
-        destinationFolder: '$(AndroidX86BuildDir)'
+        - template: /ci/templates/extract-artifact.yaml
+          parameters:
+            displayName: Extract Android x86 build
+            artifactName: 'Android'
+            archiveName: '$(AndroidX86ArchiveName)'
+            destinationFolder: '$(AndroidX86BuildDir)'
 
-    - template: templates/extract-artifact.yaml
-      parameters:
-        displayName: Extract Android x86_64 build
-        artifactName: 'Android'
-        archiveName: '$(AndroidX64ArchiveName)'
-        destinationFolder: '$(AndroidX64BuildDir)'
+        - template: /ci/templates/extract-artifact.yaml
+          parameters:
+            displayName: Extract Android x86_64 build
+            artifactName: 'Android'
+            archiveName: '$(AndroidX64ArchiveName)'
+            destinationFolder: '$(AndroidX64BuildDir)'
 
-    - template: templates/extract-artifact.yaml
-      parameters:
-        displayName: Extract iOS ARM64 build
-        artifactName: 'iOS'
-        archiveName: '$(MacIOSArm64ArchiveName)'
-        destinationFolder: '$(MacIOSArm64BuildDir)'
+        - template: /ci/templates/extract-artifact.yaml
+          parameters:
+            displayName: Extract iOS ARM64 build
+            artifactName: 'iOS'
+            archiveName: '$(MacIOSArm64ArchiveName)'
+            destinationFolder: '$(MacIOSArm64BuildDir)'
 
-    - template: templates/extract-artifact.yaml
-      parameters:
-        displayName: Extract iOS ARMv7 build
-        artifactName: 'iOS'
-        archiveName: '$(MacIOSArmV7ArchiveName)'
-        destinationFolder: '$(MacIOSArmV7BuildDir)'
+        - template: /ci/templates/extract-artifact.yaml
+          parameters:
+            displayName: Extract iOS ARMv7 build
+            artifactName: 'iOS'
+            archiveName: '$(MacIOSArmV7ArchiveName)'
+            destinationFolder: '$(MacIOSArmV7BuildDir)'
 
-    - template: templates/extract-artifact.yaml
-      parameters:
-        displayName: Extract iOS ARMv7s build
-        artifactName: 'iOS'
-        archiveName: '$(MacIOSArmV7sArchiveName)'
-        destinationFolder: '$(MacIOSArmV7sBuildDir)'
+        - template: /ci/templates/extract-artifact.yaml
+          parameters:
+            displayName: Extract iOS ARMv7s build
+            artifactName: 'iOS'
+            archiveName: '$(MacIOSArmV7sArchiveName)'
+            destinationFolder: '$(MacIOSArmV7sBuildDir)'
 
-    - template: templates/extract-artifact.yaml
-      parameters:
-        displayName: Extract iOS ARM64 Simulator build
-        artifactName: 'iOS'
-        archiveName: '$(MacIOSSimArm64ArchiveName)'
-        destinationFolder: '$(MacIOSSimArm64BuildDir)'
+        - template: /ci/templates/extract-artifact.yaml
+          parameters:
+            displayName: Extract iOS ARM64 Simulator build
+            artifactName: 'iOS'
+            archiveName: '$(MacIOSSimArm64ArchiveName)'
+            destinationFolder: '$(MacIOSSimArm64BuildDir)'
 
-    - template: templates/extract-artifact.yaml
-      parameters:
-        displayName: Extract iOS x64 Simulator build
-        artifactName: 'iOS'
-        archiveName: '$(MacIOSSimX64ArchiveName)'
-        destinationFolder: '$(MacIOSSimX64BuildDir)'
+        - template: /ci/templates/extract-artifact.yaml
+          parameters:
+            displayName: Extract iOS x64 Simulator build
+            artifactName: 'iOS'
+            archiveName: '$(MacIOSSimX64ArchiveName)'
+            destinationFolder: '$(MacIOSSimX64BuildDir)'
 
-    - template: templates/extract-artifact.yaml
-      parameters:
-        displayName: Extract tvOS ARM64 build
-        artifactName: 'tvOS'
-        archiveName: '$(MacTVOSArm64ArchiveName)'
-        destinationFolder: '$(MacTVOSArm64BuildDir)'
+        - template: /ci/templates/extract-artifact.yaml
+          parameters:
+            displayName: Extract tvOS ARM64 build
+            artifactName: 'tvOS'
+            archiveName: '$(MacTVOSArm64ArchiveName)'
+            destinationFolder: '$(MacTVOSArm64BuildDir)'
 
-    - template: templates/extract-artifact.yaml
-      parameters:
-        displayName: Extract tvOS x64 Simulator build
-        artifactName: 'tvOS'
-        archiveName: '$(MacTVOSSimX64ArchiveName)'
-        destinationFolder: '$(MacTVOSSimX64BuildDir)'
+        - template: /ci/templates/extract-artifact.yaml
+          parameters:
+            displayName: Extract tvOS x64 Simulator build
+            artifactName: 'tvOS'
+            archiveName: '$(MacTVOSSimX64ArchiveName)'
+            destinationFolder: '$(MacTVOSSimX64BuildDir)'
 
-    - bash: |
-        ./build.sh $(BuildScriptCommonOptions) --no-build package
+        - powershell: |
+            & eng\common\Build.ps1 -restore -build -sign -pack -publish -ci -configuration $(_BuildConfig) -projects $(Build.SourcesDirectory)\Mono.Unix.sln /p:PackageAllNativeLibs=true $(_InternalBuildArgs)
+          displayName: Build 
+        - task: PublishBuildArtifacts@1
+          displayName: Upload NuGets
+          inputs:
+            artifactName: 'NuGet'
+            pathToPublish: $(NuGetPackagesDir)
 
-    - task: CopyFiles@2
-      displayName: Copy NuGet files
-      inputs:
-        contents: '$(ManagedBuildDir)/*.nupkg'
-        flattenFolders: true
-        targetFolder: $(Build.ArtifactStagingDirectory)/nugets
-
-    - task: PublishBuildArtifacts@1
-      displayName: Upload NuGets
-      inputs:
-        artifactName: 'NuGet'
-        pathToPublish: $(Build.ArtifactStagingDirectory)/nugets
+############ POST BUILD ARCADE LOGIC ############
+- ${{ if eq(variables['_RunAsInternal'], 'True') }}:
+  - template: /eng/common/templates/post-build/post-build.yml
+    parameters:
+      validateDependsOn: build_package
+      publishingInfraVersion: 3
+      enableSourceLinkValidation: false
+      enableSigningValidation: false
+      enableSymbolValidation: false
+      enableNugetValidation: true
