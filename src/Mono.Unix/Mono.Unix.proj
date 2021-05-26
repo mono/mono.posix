@@ -205,4 +205,26 @@
       </Content>
     </ItemGroup>
   </Target>
+
+  <PropertyGroup>
+    <TargetsForTfmSpecificContentInPackage>$(TargetsForTfmSpecificContentInPackage);_IncludeDllConfigInNuGetPackage</TargetsForTfmSpecificContentInPackage>
+  </PropertyGroup>
+  <Target Name="_IncludeDllConfigInNuGetPackage">
+    <GetNuGetShortFolderName
+        TargetFrameworkMoniker="$(TargetFrameworkMoniker)"
+        TargetPlatformMoniker="$(TargetPlatformMoniker)">
+      <Output TaskParameter="NuGetShortFolderName" PropertyName="_NuGetShortFolderName" />
+    </GetNuGetShortFolderName>
+    <ItemGroup>
+      <TfmSpecificPackageFile Include="$(MSBuildThisFileDirectory)Mono.Unix.dll.config">
+        <PackagePath>lib/$(_NuGetShortFolderName)</PackagePath>
+      </TfmSpecificPackageFile>
+    </ItemGroup>
+  </Target>
+
+  <ItemGroup>
+    <Content Include="$(MSBuildThisFileDirectory)Mono.Unix.targets">
+      <PackagePath>build</PackagePath>
+    </Content>
+  </ItemGroup>
 </Project>
