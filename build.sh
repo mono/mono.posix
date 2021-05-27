@@ -11,6 +11,7 @@ ALL_TARGETS="host android ios tvos catalyst wasm managed test package"
 VERBOSE="no"
 JOBS=""
 REBUILD="no"
+PACKAGE_ALL_NATIVE_LIBS="no"
 MANAGED_VERBOSITY="quiet"
 MANAGED_VERBOSITY_VERBOSE="detailed"
 CONFIGURATION="Release"
@@ -87,10 +88,11 @@ Where OPTIONS is one or more of:
                                iOS default: ${IOS_ABIS}
                                tvOS default: ${TVOS_ABIS}
                                catalyst default: ${CATALYST_ABIS}
-  -x, --no-build            do not build native runtime (for the 'test` target) or the managed code
-                            (for the 'pack' target). The necessary native and managed libraries must
+  -x, --no-build            do not build native runtime (for the 'test' target) or the managed code
+                            (for the 'package' target). The necessary native and managed libraries must
                             be present in their correct location.  This optin is mostly useful for CI.
-
+  -e, --pack-all            package all the native libraries when running the 'package' target, not just
+                            those built locally. Default: ${PACKAGE_ALL_NATIVE_LIBS}
   -h, --help                show help
 
 And TARGETS is one or more of:
@@ -353,12 +355,19 @@ function __build_package()
 		build_action=""
 	fi
 
+	if [ "${PACKAGE_ALL_NATIVE_LIBS}" == "yes" ]; then
+		export PackageAllNativeLibs="true"
+	else
+		export PackageAllNativeLibs="false"
+	fi
+
 	${MY_DIR}/eng/common/build.sh \
 			--restore \
 			${build_action} \
 			--pack \
 			--configuration "${CONFIGURATION}" \
-			--projects ${MY_DIR}/Mono.Unix.sln
+			--projects ${MY_DIR}/Mono.Unix.sln \
+			"/bl:LogFile=${LOG_DIR}/${CONFIGURATION}/Mono.Unix-package.binlog"
 }
 
 function missing_argument()
@@ -435,6 +444,8 @@ while (( "$#" )); do
 			;;
 
 		-x|--no-build) NO_BUILD="yes"; shift ;;
+
+		-e|--pack-all) PACKAGE_ALL_NATIVE_LIBS="yes"; shift ;;
 
 		-v|--verbose) VERBOSE="yes"; shift ;;
 
