@@ -195,7 +195,9 @@ function __build_host()
 		build_common ${HOST_BUILD_NAME}-x64 -DTARGET_PLATFORM=host-${OS_LOWER}-x64
 		build_common ${HOST_BUILD_NAME}-arm64 -DTARGET_PLATFORM=host-${OS_LOWER}-arm64
 	else
-		build_common ${HOST_BUILD_NAME} -DTARGET_PLATFORM=host-${OS_LOWER}
+		build_common ${HOST_BUILD_NAME}-x64 -DTARGET_PLATFORM=host-${OS_LOWER}-x64
+		build_common ${HOST_BUILD_NAME}-arm64 -DTARGET_PLATFORM=host-${OS_LOWER}-arm64
+		build_common ${HOST_BUILD_NAME}-arm32 -DTARGET_PLATFORM=host-${OS_LOWER}-arm32
 	fi
 
 	HOST_BUILT="yes"
@@ -318,7 +320,15 @@ function __build_test()
 		case $(arch) in
 			i386) arch="-x64" ;;
 			arm64) arch="-arm64" ;;
-			*) die "Unknown host architecture: $(arch)" ;;
+			*) die "Unknown macOS host architecture: $(arch)" ;;
+		esac
+	elif [ "${OS}" == "Linux" ]; then
+		case $(arch) in
+			i686) die 32-bit x86 Linux build not supported ;;
+			x86_64) arch="-x64" ;;
+			armv7l) arch="-arm32" ;;
+			arm64) arch="-arm64" ;;
+			*) die "Unknown Linux host architecture: $(arch)" ;;
 		esac
 	fi
 

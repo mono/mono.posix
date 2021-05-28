@@ -31,9 +31,21 @@ stages:
 
     - template: templates/pack-artifact.yaml
       parameters:
-        buildDir: '$(LinuxHostBuildDir)'
-        archiveName: '$(LinuxHostArchiveName)'
-        displayName: 'Archive Linux host build'
+        buildDir: '$(LinuxHostX64BuildDir)'
+        archiveName: '$(LinuxHostX64ArchiveName)'
+        displayName: 'Archive Linux host X86-64 build'
+
+    - template: templates/pack-artifact.yaml
+      parameters:
+        buildDir: '$(LinuxHostArm64BuildDir)'
+        archiveName: '$(LinuxHostArm64ArchiveName)'
+        displayName: 'Archive Linux host ARM64 build'
+
+    - template: templates/pack-artifact.yaml
+      parameters:
+        buildDir: '$(LinuxHostArm32BuildDir)'
+        archiveName: '$(LinuxHostArm32ArchiveName)'
+        displayName: 'Archive Linux host ARM32 (Hard Float) build'
 
     - task: PublishBuildArtifacts@1
       displayName: Upload Artifacts
@@ -218,10 +230,10 @@ stages:
 
     - template: templates/extract-artifact.yaml
       parameters:
-        displayName: Extract Linux host build
+        displayName: Extract Linux host X86-64 build
         artifactName: 'Host'
-        archiveName: '$(LinuxHostArchiveName)'
-        destinationFolder: '$(LinuxHostBuildDir)'
+        archiveName: '$(LinuxHostX64ArchiveName)'
+        destinationFolder: '$(LinuxHostX64BuildDir)'
 
     - template: templates/extract-artifact.yaml
       parameters:
@@ -360,10 +372,24 @@ stages:
 
         - template: /ci/templates/extract-artifact.yaml
           parameters:
-            displayName: Extract Linux host build
+            displayName: Extract Linux host X86-64 build
             artifactName: 'Host'
-            archiveName: '$(LinuxHostArchiveName)'
-            destinationFolder: '$(LinuxHostBuildDir)'
+            archiveName: '$(LinuxHostX64ArchiveName)'
+            destinationFolder: '$(LinuxHostX64BuildDir)'
+
+        - template: /ci/templates/extract-artifact.yaml
+          parameters:
+            displayName: Extract Linux host ARM64 build
+            artifactName: 'Host'
+            archiveName: '$(LinuxHostArm64ArchiveName)'
+            destinationFolder: '$(LinuxHostArm64BuildDir)'
+
+        - template: /ci/templates/extract-artifact.yaml
+          parameters:
+            displayName: Extract Linux host ARM32 build
+            artifactName: 'Host'
+            archiveName: '$(LinuxHostArm32ArchiveName)'
+            destinationFolder: '$(LinuxHostArm32BuildDir)'
 
         - template: /ci/templates/extract-artifact.yaml
           parameters:
