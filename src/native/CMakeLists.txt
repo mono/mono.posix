@@ -22,6 +22,7 @@ endif()
 #
 include(${CMAKE_CURRENT_LIST_DIR}/../../cmake/toolchain.android.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/../../cmake/toolchain.apple.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/../../cmake/toolchain.linux.cmake)
 
 project(
   Mono.Unix
@@ -74,7 +75,7 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
-set(CMAKE_SKIP_INSTALL_RPATH TRUE)
+set(CMAKE_SKIP_INSTALL_RPATH True)
 set(CMAKE_SKIP_RPATH True)
 
 set(CMAKE_CXX_STANDARD 17)
@@ -133,6 +134,10 @@ else()
 
   if(ANDROID)
     set(IS_ANDROID True)
+  endif()
+
+  if(NOT ANDROID AND CMAKE_HOST_SYSTEM_NAME STREQUAL Linux)
+    set(IS_LINUX True)
   endif()
 
   # TODO: WASM must be defined in a toolchain file
@@ -675,8 +680,8 @@ endif()
 #
 if(IS_LINUX OR IS_ANDROID)
   if(IS_LINUX)
-    set(OBJCOPY "objcopy")
-    set(STRIP "strip")
+    set(OBJCOPY "${TOOLCHAIN_PREFIX}objcopy")
+    set(STRIP "${TOOLCHAIN_PREFIX}strip")
   else()
     set(OBJCOPY "${ANDROID_TOOLCHAIN_ROOT}/bin/llvm-objcopy${ANDROID_TOOLCHAIN_SUFFIX}")
     set(STRIP "${ANDROID_TOOLCHAIN_ROOT}/bin/llvm-strip${ANDROID_TOOLCHAIN_SUFFIX}")

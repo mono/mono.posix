@@ -5,5 +5,5 @@ steps:
 
     - bash: |
         sudo apt -y update
-        sudo apt -f -u install ninja-build -y
+        sudo apt -f -u install ninja-build g++-arm-linux-gnueabihf g++-aarch64-linux-gnu -y
       displayName: 'Install ninja'

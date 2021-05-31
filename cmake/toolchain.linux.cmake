@@ -1,0 +1,28 @@
+if(TARGET_PLATFORM MATCHES "^host-linux-.*")
+  set(IS_CROSS_BUILD True)
+  if(TARGET_PLATFORM STREQUAL host-linux-arm64)
+    set(CMAKE_SYSTEM_PROCESSOR aarch64)
+    set(TRIPLE "aarch64-linux-gnu" CACHE STRING "" FORCE)
+  elseif(TARGET_PLATFORM STREQUAL host-linux-arm32)
+    set(CMAKE_SYSTEM_PROCESSOR armv7l)
+    set(TRIPLE "arm-linux-gnueabihf" CACHE STRING "" FORCE)
+  else()
+    set(IS_CROSS_BUILD False)
+    set(TRIPLE "" CACHE STRING "" FORCE)
+    set(TOOLCHAIN_PREFIX "" CACHE STRING "" FORCE)
+  endif()
+
+  if(IS_CROSS_BUILD)
+    set(CMAKE_SYSTEM_NAME Linux)
+    set(CMAKE_CROSSCOMPILING True)
+
+    set(TOOLCHAIN_PREFIX "${TRIPLE}-" CACHE STRING "" FORCE)
+
+    set(CMAKE_C_COMPILER ${TRIPLE}-gcc)
+    set(CMAKE_CXX_COMPILER ${TRIPLE}-g++)
+
+    set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
+    set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
+    set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
+  endif()
+endif()

@@ -27,8 +27,28 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <_NativeLib Include="host-linux" Condition=" '$([MSBuild]::IsOSPlatform(Linux))' == 'true' or '$(PackageAllNativeLibs)' == 'true' ">
+    <_NativeLib Include="host-linux-x64" Condition=" '$([MSBuild]::IsOSPlatform(Linux))' == 'true' or '$(PackageAllNativeLibs)' == 'true' ">
       <PackagePath>runtimes/linux-x64/native</PackagePath>
+      <LibraryPrefix>$(_LinuxLibraryPrefix)</LibraryPrefix>
+      <SharedSuffix>$(_LinuxSharedNativeLibrarySuffix)</SharedSuffix>
+      <StaticSuffix>$(_LinuxStaticNativeLibrarySuffix)</StaticSuffix>
+      <DebugSuffix>$(_LinuxDebugNativeLibrarySuffix)</DebugSuffix>
+      <HasDebugLibrary>$(_LinuxHasDebugNativeLibrary)</HasDebugLibrary>
+      <HasSharedLibrary>true</HasSharedLibrary>
+    </_NativeLib>
+
+    <_NativeLib Include="host-linux-arm64" Condition=" '$([MSBuild]::IsOSPlatform(Linux))' == 'true' or '$(PackageAllNativeLibs)' == 'true' ">
+      <PackagePath>runtimes/linux-arm64/native</PackagePath>
+      <LibraryPrefix>$(_LinuxLibraryPrefix)</LibraryPrefix>
+      <SharedSuffix>$(_LinuxSharedNativeLibrarySuffix)</SharedSuffix>
+      <StaticSuffix>$(_LinuxStaticNativeLibrarySuffix)</StaticSuffix>
+      <DebugSuffix>$(_LinuxDebugNativeLibrarySuffix)</DebugSuffix>
+      <HasDebugLibrary>$(_LinuxHasDebugNativeLibrary)</HasDebugLibrary>
+      <HasSharedLibrary>true</HasSharedLibrary>
+    </_NativeLib>
+
+    <_NativeLib Include="host-linux-arm32" Condition=" '$([MSBuild]::IsOSPlatform(Linux))' == 'true' or '$(PackageAllNativeLibs)' == 'true' ">
+      <PackagePath>runtimes/linux-arm/native</PackagePath>
       <LibraryPrefix>$(_LinuxLibraryPrefix)</LibraryPrefix>
       <SharedSuffix>$(_LinuxSharedNativeLibrarySuffix)</SharedSuffix>
       <StaticSuffix>$(_LinuxStaticNativeLibrarySuffix)</StaticSuffix>

@@ -42,10 +42,23 @@ variables:
     value: $(ArchiveNameBase)-host
 
   # Linux
-  - name: LinuxHostBuildDir
-    value: $(BuildDirName)/host-linux-release/lib
-  - name: LinuxHostArchiveName
-    value: $(HostArchiveNameBase)-linux-x64
+  - name: LinuxHostArchiveNameBase
+    value: $(HostArchiveNameBase)-linux
+  - name: LinuxHostBuildDirBase
+    value: $(BuildDirName)/host-linux
+  - name: LinuxHostX64BuildDir
+    value: $(LinuxHostBuildDirBase)-x64-release/lib
+  - name: LinuxHostX64ArchiveName
+    value: $(LinuxHostArchiveNameBase)-x64
+  - name: LinuxHostArm64BuildDir
+    value: $(LinuxHostBuildDirBase)-arm64-release/lib
+  - name: LinuxHostArm64ArchiveName
+    value: $(LinuxHostArchiveNameBase)-arm64
+  - name: LinuxHostArm32BuildDir
+    value: $(LinuxHostBuildDirBase)-arm32-release/lib
+  - name: LinuxHostArm32ArchiveName
+    value: $(LinuxHostArchiveNameBase)-arm32
+
   # Android
   - name: AndroidArchiveNameBase
     value: $(ArchiveNameBase)-android
