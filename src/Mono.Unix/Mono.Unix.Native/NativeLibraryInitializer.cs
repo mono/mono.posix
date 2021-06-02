@@ -19,13 +19,13 @@ namespace Mono.Unix.Native
 
 		static IntPtr DllImportResolver(string libraryName, Assembly assembly, DllImportSearchPath? searchPath)
 		{
-			// Mostly for tests running in-repository
-			if (File.Exists (monoUnixLibrarySiblingPath)) {
-				return NativeLibrary.Load (monoUnixLibrarySiblingPath);
-			}
-
 			// We could check if the file exists, but let's instead `Load` throw an exception here
 			if (String.Compare (libraryName, MonoUnixLibraryName, StringComparison.OrdinalIgnoreCase) == 0) {
+				// Mostly for tests running in-repository
+				if (File.Exists (monoUnixLibrarySiblingPath)) {
+					return NativeLibrary.Load (monoUnixLibrarySiblingPath);
+				}
+
 				return NativeLibrary.Load (monoUnixLibraryRuntimesPath);
 			}
 
