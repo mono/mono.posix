@@ -77,8 +77,17 @@ namespace Mono.Unix.Native
 
 		static bool AppendLinuxArchitecture (StringBuilder sb)
 		{
-			if (RuntimeInformation.OSArchitecture == Architecture.X64) {
+			switch (RuntimeInformation.OSArchitecture) {
+				case Architecture.X64:
 					sb.Append ("x64");
+					return true;
+
+				case Architecture.Arm64:
+					sb.Append ("arm64");
+					return true;
+
+				case Architecture.Arm:
+					sb.Append ("arm");
 					return true;
 			}
 
