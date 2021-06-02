@@ -42,6 +42,9 @@ namespace Mono.Unix {
 		static UnixSignal ()
 		{
 			Stdlib.VersionCheck ();
+#if NETCOREAPP3_0_OR_GREATER
+			NativeLibraryInitializer.Init ();
+#endif // NETCOREAPP3_0_OR_GREATER
 		}
 
 		public UnixSignal (Signum signum)

@@ -35,6 +35,8 @@
 using System;
 using System.Runtime.InteropServices;
 
+using Mono.Unix.Native;
+
 namespace Mono.Unix {
 
 	public class Catalog {
@@ -47,6 +49,13 @@ namespace Mono.Unix {
 			IntPtr codeset);
 		[DllImport("intl", CallingConvention=CallingConvention.Cdecl)]
 		static extern IntPtr textdomain (IntPtr domainname);
+
+#if NETCOREAPP3_0_OR_GREATER
+		static Catalog ()
+		{
+			NativeLibraryInitializer.Init ();
+		}
+#endif // NETCOREAPP3_0_OR_GREATER
 
 		public static void Init (String package, String localedir)
 		{
