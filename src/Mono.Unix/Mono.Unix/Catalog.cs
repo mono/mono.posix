@@ -50,13 +50,6 @@ namespace Mono.Unix {
 		[DllImport("intl", CallingConvention=CallingConvention.Cdecl)]
 		static extern IntPtr textdomain (IntPtr domainname);
 
-#if NETCOREAPP3_0_OR_GREATER
-		static Catalog ()
-		{
-			NativeLibraryInitializer.Init ();
-		}
-#endif // NETCOREAPP3_0_OR_GREATER
-
 		public static void Init (String package, String localedir)
 		{
 			IntPtr ipackage, ilocaledir, iutf8;

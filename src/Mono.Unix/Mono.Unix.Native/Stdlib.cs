@@ -424,9 +424,6 @@ namespace Mono.Unix.Native {
 		static Stdlib ()
 		{
 			VersionCheck ();
-#if NETCOREAPP3_0_OR_GREATER
-			NativeLibraryInitializer.Init ();
-#endif // NETCOREAPP3_0_OR_GREATER
 		}
 
 		internal Stdlib () {}
