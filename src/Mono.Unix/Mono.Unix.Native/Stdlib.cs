@@ -13,10 +13,10 @@
 // distribute, sublicense, and/or sell copies of the Software, and to
 // permit persons to whom the Software is furnished to do so, subject to
 // the following conditions:
-// 
+//
 // The above copyright notice and this permission notice shall be
 // included in all copies or substantial portions of the Software.
-// 
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
 // EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
@@ -41,134 +41,134 @@ namespace Mono.Unix.Native {
 	public enum Errno : int {
 		// errors & their values liberally copied from
 		// FC2 /usr/include/asm/errno.h
-		
-		EPERM           =   1, // Operation not permitted 
-		ENOENT          =   2, // No such file or directory 
-		ESRCH           =   3, // No such process 
-		EINTR           =   4, // Interrupted system call 
-		EIO             =   5, // I/O error 
-		ENXIO           =   6, // No such device or address 
-		E2BIG           =   7, // Arg list too long 
-		ENOEXEC         =   8, // Exec format error 
-		EBADF           =   9, // Bad file number 
-		ECHILD          =  10, // No child processes 
-		EAGAIN          =  11, // Try again 
-		ENOMEM          =  12, // Out of memory 
-		EACCES          =  13, // Permission denied 
-		EFAULT          =  14, // Bad address 
-		ENOTBLK         =  15, // Block device required 
-		EBUSY           =  16, // Device or resource busy 
-		EEXIST          =  17, // File exists 
-		EXDEV           =  18, // Cross-device link 
-		ENODEV          =  19, // No such device 
-		ENOTDIR         =  20, // Not a directory 
-		EISDIR          =  21, // Is a directory 
-		EINVAL          =  22, // Invalid argument 
-		ENFILE          =  23, // File table overflow 
-		EMFILE          =  24, // Too many open files 
-		ENOTTY          =  25, // Not a typewriter 
-		ETXTBSY         =  26, // Text file busy 
-		EFBIG           =  27, // File too large 
-		ENOSPC          =  28, // No space left on device 
-		ESPIPE          =  29, // Illegal seek 
-		EROFS           =  30, // Read-only file system 
-		EMLINK          =  31, // Too many links 
-		EPIPE           =  32, // Broken pipe 
-		EDOM            =  33, // Math argument out of domain of func 
-		ERANGE          =  34, // Math result not representable 
-		EDEADLK         =  35, // Resource deadlock would occur 
-		ENAMETOOLONG    =  36, // File name too long 
-		ENOLCK          =  37, // No record locks available 
-		ENOSYS          =  38, // Function not implemented 
-		ENOTEMPTY       =  39, // Directory not empty 
-		ELOOP           =  40, // Too many symbolic links encountered 
-		EWOULDBLOCK     =  EAGAIN, // Operation would block 
-		ENOMSG          =  42, // No message of desired type 
-		EIDRM           =  43, // Identifier removed 
-		ECHRNG          =  44, // Channel number out of range 
-		EL2NSYNC        =  45, // Level 2 not synchronized 
-		EL3HLT          =  46, // Level 3 halted 
-		EL3RST          =  47, // Level 3 reset 
-		ELNRNG          =  48, // Link number out of range 
-		EUNATCH         =  49, // Protocol driver not attached 
-		ENOCSI          =  50, // No CSI structure available 
-		EL2HLT          =  51, // Level 2 halted 
-		EBADE           =  52, // Invalid exchange 
-		EBADR           =  53, // Invalid request descriptor 
-		EXFULL          =  54, // Exchange full 
-		ENOANO          =  55, // No anode 
-		EBADRQC         =  56, // Invalid request code 
-		EBADSLT         =  57, // Invalid slot 
-                      
-		EDEADLOCK	      =  EDEADLK,
-                      
-		EBFONT          =  59, // Bad font file format 
-		ENOSTR          =  60, // Device not a stream 
-		ENODATA         =  61, // No data available 
-		ETIME           =  62, // Timer expired 
-		ENOSR           =  63, // Out of streams resources 
-		ENONET          =  64, // Machine is not on the network 
-		ENOPKG          =  65, // Package not installed 
-		EREMOTE         =  66, // Object is remote 
-		ENOLINK         =  67, // Link has been severed 
-		EADV            =  68, // Advertise error 
-		ESRMNT          =  69, // Srmount error 
-		ECOMM           =  70, // Communication error on send 
-		EPROTO          =  71, // Protocol error 
-		EMULTIHOP       =  72, // Multihop attempted 
-		EDOTDOT         =  73, // RFS specific error 
-		EBADMSG         =  74, // Not a data message 
-		EOVERFLOW       =  75, // Value too large for defined data type 
-		ENOTUNIQ        =  76, // Name not unique on network 
-		EBADFD          =  77, // File descriptor in bad state 
-		EREMCHG         =  78, // Remote address changed 
-		ELIBACC         =  79, // Can not access a needed shared library 
-		ELIBBAD         =  80, // Accessing a corrupted shared library 
-		ELIBSCN         =  81, // .lib section in a.out corrupted 
-		ELIBMAX         =  82, // Attempting to link in too many shared libraries 
-		ELIBEXEC        =  83, // Cannot exec a shared library directly 
-		EILSEQ          =  84, // Illegal byte sequence 
-		ERESTART        =  85, // Interrupted system call should be restarted 
-		ESTRPIPE        =  86, // Streams pipe error 
-		EUSERS          =  87, // Too many users 
-		ENOTSOCK        =  88, // Socket operation on non-socket 
-		EDESTADDRREQ    =  89, // Destination address required 
-		EMSGSIZE        =  90, // Message too long 
-		EPROTOTYPE      =  91, // Protocol wrong type for socket 
-		ENOPROTOOPT     =  92, // Protocol not available 
-		EPROTONOSUPPORT =  93, // Protocol not supported 
-		ESOCKTNOSUPPORT	=  94, // Socket type not supported 
-		EOPNOTSUPP      =  95, // Operation not supported on transport endpoint 
-		EPFNOSUPPORT    =  96, // Protocol family not supported 
-		EAFNOSUPPORT    =  97, // Address family not supported by protocol 
-		EADDRINUSE      =  98, // Address already in use 
-		EADDRNOTAVAIL   =  99, // Cannot assign requested address 
-		ENETDOWN        = 100, // Network is down 
-		ENETUNREACH     = 101, // Network is unreachable 
-		ENETRESET       = 102, // Network dropped connection because of reset 
-		ECONNABORTED    = 103, // Software caused connection abort 
-		ECONNRESET      = 104, // Connection reset by peer 
-		ENOBUFS         = 105, // No buffer space available 
-		EISCONN         = 106, // Transport endpoint is already connected 
-		ENOTCONN        = 107, // Transport endpoint is not connected 
-		ESHUTDOWN       = 108, // Cannot send after transport endpoint shutdown 
-		ETOOMANYREFS    = 109, // Too many references: cannot splice 
-		ETIMEDOUT       = 110, // Connection timed out 
-		ECONNREFUSED    = 111, // Connection refused 
-		EHOSTDOWN       = 112, // Host is down 
-		EHOSTUNREACH    = 113, // No route to host 
-		EALREADY        = 114, // Operation already in progress 
-		EINPROGRESS     = 115, // Operation now in progress 
-		ESTALE          = 116, // Stale NFS file handle 
-		EUCLEAN         = 117, // Structure needs cleaning 
-		ENOTNAM         = 118, // Not a XENIX named type file 
-		ENAVAIL         = 119, // No XENIX semaphores available 
-		EISNAM          = 120, // Is a named type file 
-		EREMOTEIO       = 121, // Remote I/O error 
-		EDQUOT          = 122, // Quota exceeded 
 
-		ENOMEDIUM       = 123, // No medium found 
-		EMEDIUMTYPE     = 124, // Wrong medium type 
+		EPERM           =   1, // Operation not permitted
+		ENOENT          =   2, // No such file or directory
+		ESRCH           =   3, // No such process
+		EINTR           =   4, // Interrupted system call
+		EIO             =   5, // I/O error
+		ENXIO           =   6, // No such device or address
+		E2BIG           =   7, // Arg list too long
+		ENOEXEC         =   8, // Exec format error
+		EBADF           =   9, // Bad file number
+		ECHILD          =  10, // No child processes
+		EAGAIN          =  11, // Try again
+		ENOMEM          =  12, // Out of memory
+		EACCES          =  13, // Permission denied
+		EFAULT          =  14, // Bad address
+		ENOTBLK         =  15, // Block device required
+		EBUSY           =  16, // Device or resource busy
+		EEXIST          =  17, // File exists
+		EXDEV           =  18, // Cross-device link
+		ENODEV          =  19, // No such device
+		ENOTDIR         =  20, // Not a directory
+		EISDIR          =  21, // Is a directory
+		EINVAL          =  22, // Invalid argument
+		ENFILE          =  23, // File table overflow
+		EMFILE          =  24, // Too many open files
+		ENOTTY          =  25, // Not a typewriter
+		ETXTBSY         =  26, // Text file busy
+		EFBIG           =  27, // File too large
+		ENOSPC          =  28, // No space left on device
+		ESPIPE          =  29, // Illegal seek
+		EROFS           =  30, // Read-only file system
+		EMLINK          =  31, // Too many links
+		EPIPE           =  32, // Broken pipe
+		EDOM            =  33, // Math argument out of domain of func
+		ERANGE          =  34, // Math result not representable
+		EDEADLK         =  35, // Resource deadlock would occur
+		ENAMETOOLONG    =  36, // File name too long
+		ENOLCK          =  37, // No record locks available
+		ENOSYS          =  38, // Function not implemented
+		ENOTEMPTY       =  39, // Directory not empty
+		ELOOP           =  40, // Too many symbolic links encountered
+		EWOULDBLOCK     =  EAGAIN, // Operation would block
+		ENOMSG          =  42, // No message of desired type
+		EIDRM           =  43, // Identifier removed
+		ECHRNG          =  44, // Channel number out of range
+		EL2NSYNC        =  45, // Level 2 not synchronized
+		EL3HLT          =  46, // Level 3 halted
+		EL3RST          =  47, // Level 3 reset
+		ELNRNG          =  48, // Link number out of range
+		EUNATCH         =  49, // Protocol driver not attached
+		ENOCSI          =  50, // No CSI structure available
+		EL2HLT          =  51, // Level 2 halted
+		EBADE           =  52, // Invalid exchange
+		EBADR           =  53, // Invalid request descriptor
+		EXFULL          =  54, // Exchange full
+		ENOANO          =  55, // No anode
+		EBADRQC         =  56, // Invalid request code
+		EBADSLT         =  57, // Invalid slot
+
+		EDEADLOCK	      =  EDEADLK,
+
+		EBFONT          =  59, // Bad font file format
+		ENOSTR          =  60, // Device not a stream
+		ENODATA         =  61, // No data available
+		ETIME           =  62, // Timer expired
+		ENOSR           =  63, // Out of streams resources
+		ENONET          =  64, // Machine is not on the network
+		ENOPKG          =  65, // Package not installed
+		EREMOTE         =  66, // Object is remote
+		ENOLINK         =  67, // Link has been severed
+		EADV            =  68, // Advertise error
+		ESRMNT          =  69, // Srmount error
+		ECOMM           =  70, // Communication error on send
+		EPROTO          =  71, // Protocol error
+		EMULTIHOP       =  72, // Multihop attempted
+		EDOTDOT         =  73, // RFS specific error
+		EBADMSG         =  74, // Not a data message
+		EOVERFLOW       =  75, // Value too large for defined data type
+		ENOTUNIQ        =  76, // Name not unique on network
+		EBADFD          =  77, // File descriptor in bad state
+		EREMCHG         =  78, // Remote address changed
+		ELIBACC         =  79, // Can not access a needed shared library
+		ELIBBAD         =  80, // Accessing a corrupted shared library
+		ELIBSCN         =  81, // .lib section in a.out corrupted
+		ELIBMAX         =  82, // Attempting to link in too many shared libraries
+		ELIBEXEC        =  83, // Cannot exec a shared library directly
+		EILSEQ          =  84, // Illegal byte sequence
+		ERESTART        =  85, // Interrupted system call should be restarted
+		ESTRPIPE        =  86, // Streams pipe error
+		EUSERS          =  87, // Too many users
+		ENOTSOCK        =  88, // Socket operation on non-socket
+		EDESTADDRREQ    =  89, // Destination address required
+		EMSGSIZE        =  90, // Message too long
+		EPROTOTYPE      =  91, // Protocol wrong type for socket
+		ENOPROTOOPT     =  92, // Protocol not available
+		EPROTONOSUPPORT =  93, // Protocol not supported
+		ESOCKTNOSUPPORT	=  94, // Socket type not supported
+		EOPNOTSUPP      =  95, // Operation not supported on transport endpoint
+		EPFNOSUPPORT    =  96, // Protocol family not supported
+		EAFNOSUPPORT    =  97, // Address family not supported by protocol
+		EADDRINUSE      =  98, // Address already in use
+		EADDRNOTAVAIL   =  99, // Cannot assign requested address
+		ENETDOWN        = 100, // Network is down
+		ENETUNREACH     = 101, // Network is unreachable
+		ENETRESET       = 102, // Network dropped connection because of reset
+		ECONNABORTED    = 103, // Software caused connection abort
+		ECONNRESET      = 104, // Connection reset by peer
+		ENOBUFS         = 105, // No buffer space available
+		EISCONN         = 106, // Transport endpoint is already connected
+		ENOTCONN        = 107, // Transport endpoint is not connected
+		ESHUTDOWN       = 108, // Cannot send after transport endpoint shutdown
+		ETOOMANYREFS    = 109, // Too many references: cannot splice
+		ETIMEDOUT       = 110, // Connection timed out
+		ECONNREFUSED    = 111, // Connection refused
+		EHOSTDOWN       = 112, // Host is down
+		EHOSTUNREACH    = 113, // No route to host
+		EALREADY        = 114, // Operation already in progress
+		EINPROGRESS     = 115, // Operation now in progress
+		ESTALE          = 116, // Stale NFS file handle
+		EUCLEAN         = 117, // Structure needs cleaning
+		ENOTNAM         = 118, // Not a XENIX named type file
+		ENAVAIL         = 119, // No XENIX semaphores available
+		EISNAM          = 120, // Is a named type file
+		EREMOTEIO       = 121, // Remote I/O error
+		EDQUOT          = 122, // Quota exceeded
+
+		ENOMEDIUM       = 123, // No medium found
+		EMEDIUMTYPE     = 124, // Wrong medium type
 
 		ECANCELED       = 125,
 		ENOKEY          = 126,
@@ -203,11 +203,11 @@ namespace Mono.Unix.Native {
 
 	#region Classes
 
-	public sealed class FilePosition : MarshalByRefObject, IDisposable 
+	public sealed class FilePosition : MarshalByRefObject, IDisposable
 		, IEquatable <FilePosition>
 	{
 
-		private static readonly int FilePositionDumpSize = 
+		private static readonly int FilePositionDumpSize =
 			Stdlib.DumpFilePosition (null, new HandleRef (null, IntPtr.Zero), 0);
 
 		private HandleRef pos;
@@ -331,11 +331,11 @@ namespace Mono.Unix.Native {
 			CdeclFunction _fprintf = new CdeclFunction (Stdlib.LIBC, "fprintf", typeof(int));
 			fprintf = new XPrintf (_fprintf.Invoke);
 
-			CdeclFunction _snprintf = new CdeclFunction (Stdlib.MPH, 
+			CdeclFunction _snprintf = new CdeclFunction (Stdlib.MPH,
 					"Mono_Posix_Stdlib_snprintf", typeof(int));
 			snprintf = new XPrintf (_snprintf.Invoke);
 
-			CdeclFunction _syslog = new CdeclFunction (Syscall.MPH, 
+			CdeclFunction _syslog = new CdeclFunction (Syscall.MPH,
 					"Mono_Posix_Stdlib_syslog2", typeof(int));
 			syslog = new XPrintf (_syslog.Invoke);
 		}
@@ -366,19 +366,19 @@ namespace Mono.Unix.Native {
 	//        `void' return types should be replaced with `int'.
 	//        Rationality: `void'-return functions typically require a
 	//        complicated call sequence, such as clear errno, then call, then
-	//        check errno to see if any errors occurred.  This sequence can't 
-	//        be done safely in managed code, as errno may change as part of 
+	//        check errno to see if any errors occurred.  This sequence can't
+	//        be done safely in managed code, as errno may change as part of
 	//        the P/Invoke mechanism.
 	//        Instead, add a Mono.Unix export which does:
 	//          errno = 0;
 	//          INVOKE SYSCALL;
 	//          return errno == 0 ? 0 : -1;
 	//        This lets managed code check the return value in the usual manner.
-	//  (4) Exceptions SHOULD NOT be thrown.  EXCEPTIONS: 
-	//      - If you're wrapping *broken* methods which make assumptions about 
-	//        input data, such as that an argument refers to N bytes of data.  
+	//  (4) Exceptions SHOULD NOT be thrown.  EXCEPTIONS:
+	//      - If you're wrapping *broken* methods which make assumptions about
+	//        input data, such as that an argument refers to N bytes of data.
 	//        This is currently limited to cuserid(3) and encrypt(3).
-	//      - If you call functions which themselves generate exceptions.  
+	//      - If you call functions which themselves generate exceptions.
 	//        This is the case for using NativeConvert, which will throw an
 	//        exception if an invalid/unsupported value is used.
 	//
@@ -424,6 +424,9 @@ namespace Mono.Unix.Native {
 		static Stdlib ()
 		{
 			VersionCheck ();
+#if NETCOREAPP3_0_OR_GREATER
+			NativeLibraryInitializer.Init ();
+#endif // NETCOREAPP3_0_OR_GREATER
 		}
 
 		internal Stdlib () {}
@@ -492,19 +495,19 @@ namespace Mono.Unix.Native {
 
 		private static void _ErrorHandler (int signum)
 		{
-			Console.Error.WriteLine ("Error handler invoked for signum " + 
+			Console.Error.WriteLine ("Error handler invoked for signum " +
 					signum + ".  Don't do that.");
 		}
 
 		private static void _DefaultHandler (int signum)
 		{
-			Console.Error.WriteLine ("Default handler invoked for signum " + 
+			Console.Error.WriteLine ("Default handler invoked for signum " +
 					signum + ".  Don't do that.");
 		}
 
 		private static void _IgnoreHandler (int signum)
 		{
-			Console.Error.WriteLine ("Ignore handler invoked for signum " + 
+			Console.Error.WriteLine ("Ignore handler invoked for signum " +
 					signum + ".  Don't do that.");
 		}
 
@@ -524,7 +527,7 @@ namespace Mono.Unix.Native {
 		private static extern IntPtr sys_signal (int signum, IntPtr handler);
 
 		[CLSCompliant (false)]
-		[Obsolete ("This is not safe; " + 
+		[Obsolete ("This is not safe; " +
 				"use Mono.Unix.UnixSignal for signal delivery or SetSignalAction()")]
 		public static SignalHandler signal (Signum signum, SignalHandler handler)
 		{
@@ -567,7 +570,7 @@ namespace Mono.Unix.Native {
 		{
 			return SetSignalAction (NativeConvert.FromRealTimeSignum (rts), action);
 		}
-		
+
 		private static int SetSignalAction (int signum, SignalAction action)
 		{
 			IntPtr handler = IntPtr.Zero;
@@ -696,7 +699,7 @@ namespace Mono.Unix.Native {
 		[DllImport (LIBC, CallingConvention=CallingConvention.Cdecl, SetLastError=true)]
 		public static extern int rename (
 				[MarshalAs (UnmanagedType.CustomMarshaler, MarshalTypeRef=typeof(FileNameMarshaler))]
-				string oldpath, 
+				string oldpath,
 				[MarshalAs (UnmanagedType.CustomMarshaler, MarshalTypeRef=typeof(FileNameMarshaler))]
 				string newpath);
 
@@ -750,7 +753,7 @@ namespace Mono.Unix.Native {
 				[MarshalAs (UnmanagedType.CustomMarshaler, MarshalTypeRef=typeof(FileNameMarshaler))]
 				string path, string mode, IntPtr stream);
 
-		[DllImport (MPH, CallingConvention=CallingConvention.Cdecl, 
+		[DllImport (MPH, CallingConvention=CallingConvention.Cdecl,
 				SetLastError=true, EntryPoint="Mono_Posix_Stdlib_setbuf")]
 		public static extern int setbuf (IntPtr stream, IntPtr buf);
 
@@ -820,7 +823,7 @@ namespace Mono.Unix.Native {
 
 		[DllImport (MPH, CallingConvention=CallingConvention.Cdecl,
 				EntryPoint="Mono_Posix_Stdlib_snprintf")]
-		private static extern int sys_snprintf (StringBuilder s, ulong n, 
+		private static extern int sys_snprintf (StringBuilder s, ulong n,
 				string format, string message);
 
 		[CLSCompliant (false)]
@@ -840,7 +843,7 @@ namespace Mono.Unix.Native {
 		[CLSCompliant (false)]
 		[Obsolete ("Not necessarily portable due to cdecl restrictions.\n" +
 				"Use snprintf (StringBuilder, string) instead.")]
-		public static int snprintf (StringBuilder s, ulong n, 
+		public static int snprintf (StringBuilder s, ulong n,
 				string format, params object[] parameters)
 		{
 			if (n > (ulong) s.Capacity)
@@ -949,7 +952,7 @@ namespace Mono.Unix.Native {
 
 		[DllImport (MPH, CallingConvention=CallingConvention.Cdecl,
 				SetLastError=true, EntryPoint="Mono_Posix_Stdlib_fread")]
-		private static extern ulong sys_fread ([Out] byte[] ptr, 
+		private static extern ulong sys_fread ([Out] byte[] ptr,
 				ulong size, ulong nmemb, IntPtr stream);
 
 		[CLSCompliant (false)]
@@ -979,7 +982,7 @@ namespace Mono.Unix.Native {
 
 		[DllImport (MPH, CallingConvention=CallingConvention.Cdecl,
 				SetLastError=true, EntryPoint="Mono_Posix_Stdlib_fwrite")]
-		private static extern ulong sys_fwrite (byte[] ptr, 
+		private static extern ulong sys_fwrite (byte[] ptr,
 				ulong size, ulong nmemb, IntPtr stream);
 
 		[CLSCompliant (false)]
@@ -1045,7 +1048,7 @@ namespace Mono.Unix.Native {
 				SetLastError=true, EntryPoint="Mono_Posix_Stdlib_ferror")]
 		public static extern int ferror (IntPtr stream);
 
-		[DllImport (MPH, CallingConvention=CallingConvention.Cdecl, 
+		[DllImport (MPH, CallingConvention=CallingConvention.Cdecl,
 				SetLastError=true, EntryPoint="Mono_Posix_Stdlib_perror")]
 		private static extern int perror (string s, int err);
 
