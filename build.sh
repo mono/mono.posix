@@ -197,7 +197,7 @@ function __build_host()
 	else
 		build_common ${HOST_BUILD_NAME}-x64 -DTARGET_PLATFORM=host-${OS_LOWER}-x64
 		build_common ${HOST_BUILD_NAME}-arm64 -DTARGET_PLATFORM=host-${OS_LOWER}-arm64
-		build_common ${HOST_BUILD_NAME}-arm32 -DTARGET_PLATFORM=host-${OS_LOWER}-arm32
+		build_common ${HOST_BUILD_NAME}-arm -DTARGET_PLATFORM=host-${OS_LOWER}-arm
 	fi
 
 	HOST_BUILT="yes"

@@ -55,9 +55,9 @@ variables:
   - name: LinuxHostArm64ArchiveName
     value: $(LinuxHostArchiveNameBase)-arm64
   - name: LinuxHostArm32BuildDir
-    value: $(LinuxHostBuildDirBase)-arm32-release/lib
+    value: $(LinuxHostBuildDirBase)-arm-release/lib
   - name: LinuxHostArm32ArchiveName
-    value: $(LinuxHostArchiveNameBase)-arm32
+    value: $(LinuxHostArchiveNameBase)-arm
 
   # Android
   - name: AndroidArchiveNameBase

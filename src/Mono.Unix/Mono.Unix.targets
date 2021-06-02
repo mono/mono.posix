@@ -25,7 +25,7 @@
       <DSOExtension>so</DSOExtension>
       <FolderName>%(Identity)</FolderName>
     </_MonoUnixRuntimeId>
-    <_MonoUnixRuntimeId Include="linux-arm32">
+    <_MonoUnixRuntimeId Include="linux-arm">
       <DSOExtension>so</DSOExtension>
       <FolderName>%(Identity)</FolderName>
     </_MonoUnixRuntimeId>

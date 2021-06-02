@@ -47,7 +47,7 @@
       <HasSharedLibrary>true</HasSharedLibrary>
     </_NativeLib>
 
-    <_NativeLib Include="host-linux-arm32" Condition=" '$([MSBuild]::IsOSPlatform(Linux))' == 'true' or '$(PackageAllNativeLibs)' == 'true' ">
+    <_NativeLib Include="host-linux-arm" Condition=" '$([MSBuild]::IsOSPlatform(Linux))' == 'true' or '$(PackageAllNativeLibs)' == 'true' ">
       <PackagePath>runtimes/linux-arm/native</PackagePath>
       <LibraryPrefix>$(_LinuxLibraryPrefix)</LibraryPrefix>
       <SharedSuffix>$(_LinuxSharedNativeLibrarySuffix)</SharedSuffix>
