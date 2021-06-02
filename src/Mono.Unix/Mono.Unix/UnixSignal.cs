@@ -14,10 +14,10 @@
 // distribute, sublicense, and/or sell copies of the Software, and to
 // permit persons to whom the Software is furnished to do so, subject to
 // the following conditions:
-// 
+//
 // The above copyright notice and this permission notice shall be
 // included in all copies or substantial portions of the Software.
-// 
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
 // EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
@@ -69,7 +69,7 @@ namespace Mono.Unix {
 			get {
 				if (IsRealTimeSignal)
 					throw new InvalidOperationException ("This signal is a RealTimeSignum");
-				return NativeConvert.ToSignum (signum); 
+				return NativeConvert.ToSignum (signum);
 			}
 		}
 
@@ -102,7 +102,7 @@ namespace Mono.Unix {
 		[UnmanagedFunctionPointer (CallingConvention.Cdecl)]
 		delegate int Mono_Posix_RuntimeIsShuttingDown ();
 		static Mono_Posix_RuntimeIsShuttingDown ShuttingDown = RuntimeShuttingDownCallback;
-		
+
 		static int RuntimeShuttingDownCallback ()
 		{
 			return Environment.HasShutdownStarted ? 1 : 0;
@@ -189,7 +189,7 @@ namespace Mono.Unix {
 			if (exitContext)
 				throw new InvalidOperationException ("exitContext is not supported");
 			if (millisecondsTimeout == 0)
-				return IsSet;		
+				return IsSet;
 			return WaitAny (new UnixSignal[]{this}, millisecondsTimeout) == 0;
 		}
 		#endregion
@@ -207,7 +207,7 @@ namespace Mono.Unix {
 			return WaitAny (signals, (int) ms);
 		}
 
-			
+
 		public static unsafe int WaitAny (UnixSignal[] signals, int millisecondsTimeout)
 		{
 			if (signals == null)
@@ -224,4 +224,3 @@ namespace Mono.Unix {
 		}
 	}
 }
-

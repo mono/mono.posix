@@ -47,11 +47,11 @@ namespace Mono.Unix {
 			IntPtr codeset);
 		[DllImport("intl", CallingConvention=CallingConvention.Cdecl)]
 		static extern IntPtr textdomain (IntPtr domainname);
-		
+
 		public static void Init (String package, String localedir)
 		{
 			IntPtr ipackage, ilocaledir, iutf8;
-			MarshalStrings (package, out ipackage, localedir, out ilocaledir, 
+			MarshalStrings (package, out ipackage, localedir, out ilocaledir,
 					"UTF-8", out iutf8);
 			try {
 				if (bindtextdomain (ipackage, ilocaledir) == IntPtr.Zero)
@@ -68,7 +68,7 @@ namespace Mono.Unix {
 			}
 		}
 
-		private static void MarshalStrings (string s1, out IntPtr p1, 
+		private static void MarshalStrings (string s1, out IntPtr p1,
 				string s2, out IntPtr p2, string? s3, out IntPtr p3)
 		{
 			p1 = p2 = p3 = IntPtr.Zero;
@@ -90,10 +90,10 @@ namespace Mono.Unix {
 				}
 			}
 		}
-	
+
 		[DllImport("intl", CallingConvention=CallingConvention.Cdecl)]
 		static extern IntPtr gettext (IntPtr instring);
-		
+
 		public static String GetString (String s)
 		{
 			IntPtr ints = UnixMarshal.StringToHeap (s);
@@ -108,10 +108,10 @@ namespace Mono.Unix {
 				UnixMarshal.FreeHeap (ints);
 			}
 		}
-	
+
 		[DllImport("intl", CallingConvention=CallingConvention.Cdecl)]
 		static extern IntPtr ngettext (IntPtr singular, IntPtr plural, Int32 n);
-		
+
 		public static String GetPluralString (String s, String p, Int32 n)
 		{
 			IntPtr ints, intp;
@@ -133,4 +133,3 @@ namespace Mono.Unix {
 		}
 	}
 }
-
