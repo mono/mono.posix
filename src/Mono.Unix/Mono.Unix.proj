@@ -211,7 +211,7 @@
   <ItemGroup>
     <_NativeLib Update="@(_NativeLib)"
                 RuntimesPackagePath="runtimes/%(_NativeLib.RuntimeIdentifier)/native"
-                AuxPackagePath="aux/%(_NativeLib.RuntimeIdentifier)/native" />
+                AuxPackagePath="auxiliary/%(_NativeLib.RuntimeIdentifier)/native" />
 
     <!--
     For RIDs that *don't* support shared libraries, we want to put the static
@@ -219,9 +219,9 @@
 
     For RIDs that *do* support shared libraries, we want to instead put the
     shared library into `runtimes/<rid>/native/` and the static library into
-    `aux/<rid>/native/`.
+    `auxiliary/<rid>/native/`.
 
-    Debug symbols, if available, always go into `aux/<rid>/native/`.
+    Debug symbols, if available, always go into `auxiliary/<rid>/native/`.
 
     The idea is to avoid putting files into `runtimes/<rid>/native/` if they
     aren't actually needed by `dotnet publish` for that `<rid>`. This is because
