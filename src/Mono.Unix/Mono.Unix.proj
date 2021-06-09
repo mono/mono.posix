@@ -28,7 +28,7 @@
 
   <ItemGroup>
     <_NativeLib Include="host-linux-x64" Condition=" '$([MSBuild]::IsOSPlatform(Linux))' == 'true' or '$(PackageAllNativeLibs)' == 'true' ">
-      <PackagePath>runtimes/linux-x64/native</PackagePath>
+      <RuntimeIdentifier>linux-x64</RuntimeIdentifier>
       <LibraryPrefix>$(_LinuxLibraryPrefix)</LibraryPrefix>
       <SharedSuffix>$(_LinuxSharedNativeLibrarySuffix)</SharedSuffix>
       <StaticSuffix>$(_LinuxStaticNativeLibrarySuffix)</StaticSuffix>
@@ -38,7 +38,7 @@
     </_NativeLib>
 
     <_NativeLib Include="host-linux-arm64" Condition=" '$([MSBuild]::IsOSPlatform(Linux))' == 'true' or '$(PackageAllNativeLibs)' == 'true' ">
-      <PackagePath>runtimes/linux-arm64/native</PackagePath>
+      <RuntimeIdentifier>linux-arm64</RuntimeIdentifier>
       <LibraryPrefix>$(_LinuxLibraryPrefix)</LibraryPrefix>
       <SharedSuffix>$(_LinuxSharedNativeLibrarySuffix)</SharedSuffix>
       <StaticSuffix>$(_LinuxStaticNativeLibrarySuffix)</StaticSuffix>
@@ -48,7 +48,7 @@
     </_NativeLib>
 
     <_NativeLib Include="host-linux-arm" Condition=" '$([MSBuild]::IsOSPlatform(Linux))' == 'true' or '$(PackageAllNativeLibs)' == 'true' ">
-      <PackagePath>runtimes/linux-arm/native</PackagePath>
+      <RuntimeIdentifier>linux-arm</RuntimeIdentifier>
       <LibraryPrefix>$(_LinuxLibraryPrefix)</LibraryPrefix>
       <SharedSuffix>$(_LinuxSharedNativeLibrarySuffix)</SharedSuffix>
       <StaticSuffix>$(_LinuxStaticNativeLibrarySuffix)</StaticSuffix>
@@ -58,7 +58,7 @@
     </_NativeLib>
 
     <_NativeLib Include="host-darwin-x64" Condition=" '$([MSBuild]::IsOSPlatform(OSX))' == 'true' or '$(PackageAllNativeLibs)' == 'true' ">
-      <PackagePath>runtimes/osx-x64/native</PackagePath>
+      <RuntimeIdentifier>osx-x64</RuntimeIdentifier>
       <LibraryPrefix>$(_DarwinLibraryPrefix)</LibraryPrefix>
       <SharedSuffix>$(_DarwinSharedNativeLibrarySuffix)</SharedSuffix>
       <StaticSuffix>$(_DarwinStaticNativeLibrarySuffix)</StaticSuffix>
@@ -68,7 +68,7 @@
     </_NativeLib>
 
     <_NativeLib Include="host-darwin-arm64" Condition=" '$([MSBuild]::IsOSPlatform(OSX))' == 'true' or '$(PackageAllNativeLibs)' == 'true' ">
-      <PackagePath>runtimes/osx-arm64/native</PackagePath>
+      <RuntimeIdentifier>osx-arm64</RuntimeIdentifier>
       <LibraryPrefix>$(_DarwinLibraryPrefix)</LibraryPrefix>
       <SharedSuffix>$(_DarwinSharedNativeLibrarySuffix)</SharedSuffix>
       <StaticSuffix>$(_DarwinStaticNativeLibrarySuffix)</StaticSuffix>
@@ -78,7 +78,7 @@
     </_NativeLib>
 
     <_NativeLib Include="android-arm32" Condition=" '$([MSBuild]::IsOSPlatform(Linux))' == 'true' or '$(PackageAllNativeLibs)' == 'true' ">
-      <PackagePath>runtimes/android-arm/native</PackagePath>
+      <RuntimeIdentifier>android-arm</RuntimeIdentifier>
       <LibraryPrefix>$(_LinuxLibraryPrefix)</LibraryPrefix>
       <SharedSuffix>$(_LinuxSharedNativeLibrarySuffix)</SharedSuffix>
       <StaticSuffix>$(_LinuxStaticNativeLibrarySuffix)</StaticSuffix>
@@ -88,7 +88,7 @@
     </_NativeLib>
 
     <_NativeLib Include="android-arm64" Condition=" '$([MSBuild]::IsOSPlatform(Linux))' == 'true' or '$(PackageAllNativeLibs)' == 'true' ">
-      <PackagePath>runtimes/android-arm64/native</PackagePath>
+      <RuntimeIdentifier>android-arm64</RuntimeIdentifier>
       <LibraryPrefix>$(_LinuxLibraryPrefix)</LibraryPrefix>
       <SharedSuffix>$(_LinuxSharedNativeLibrarySuffix)</SharedSuffix>
       <StaticSuffix>$(_LinuxStaticNativeLibrarySuffix)</StaticSuffix>
@@ -98,7 +98,7 @@
     </_NativeLib>
 
     <_NativeLib Include="android-x86" Condition=" '$([MSBuild]::IsOSPlatform(Linux))' == 'true' or '$(PackageAllNativeLibs)' == 'true' ">
-      <PackagePath>runtimes/android-x86/native</PackagePath>
+      <RuntimeIdentifier>android-x86</RuntimeIdentifier>
       <LibraryPrefix>$(_LinuxLibraryPrefix)</LibraryPrefix>
       <SharedSuffix>$(_LinuxSharedNativeLibrarySuffix)</SharedSuffix>
       <StaticSuffix>$(_LinuxStaticNativeLibrarySuffix)</StaticSuffix>
@@ -108,7 +108,7 @@
     </_NativeLib>
 
     <_NativeLib Include="android-x64" Condition=" '$([MSBuild]::IsOSPlatform(Linux))' == 'true' or '$(PackageAllNativeLibs)' == 'true' ">
-      <PackagePath>runtimes/android-x64/native</PackagePath>
+      <RuntimeIdentifier>android-x64</RuntimeIdentifier>
       <LibraryPrefix>$(_LinuxLibraryPrefix)</LibraryPrefix>
       <SharedSuffix>$(_LinuxSharedNativeLibrarySuffix)</SharedSuffix>
       <StaticSuffix>$(_LinuxStaticNativeLibrarySuffix)</StaticSuffix>
@@ -118,7 +118,7 @@
     </_NativeLib>
 
     <_NativeLib Include="catalyst-arm64" Condition=" '$([MSBuild]::IsOSPlatform(OSX))' == 'true' or '$(PackageAllNativeLibs)' == 'true'">
-      <PackagePath>runtimes/maccatalyst-arm64/native</PackagePath>
+      <RuntimeIdentifier>maccatalyst-arm64</RuntimeIdentifier>
       <LibraryPrefix>$(_DarwinLibraryPrefix)</LibraryPrefix>
       <SharedSuffix>$(_DarwinSharedNativeLibrarySuffix)</SharedSuffix>
       <StaticSuffix>$(_DarwinStaticNativeLibrarySuffix)</StaticSuffix>
@@ -128,7 +128,7 @@
     </_NativeLib>
 
     <_NativeLib Include="catalyst-x64" Condition=" '$([MSBuild]::IsOSPlatform(OSX))' == 'true' or '$(PackageAllNativeLibs)' == 'true' ">
-      <PackagePath>runtimes/maccatalyst-x64/native</PackagePath>
+      <RuntimeIdentifier>maccatalyst-x64</RuntimeIdentifier>
       <LibraryPrefix>$(_DarwinLibraryPrefix)</LibraryPrefix>
       <SharedSuffix>$(_DarwinSharedNativeLibrarySuffix)</SharedSuffix>
       <StaticSuffix>$(_DarwinStaticNativeLibrarySuffix)</StaticSuffix>
@@ -138,7 +138,7 @@
     </_NativeLib>
 
     <_NativeLib Include="ios-arm64" Condition=" '$([MSBuild]::IsOSPlatform(OSX))' == 'true' or '$(PackageAllNativeLibs)' == 'true' ">
-      <PackagePath>runtimes/ios-arm64/native</PackagePath>
+      <RuntimeIdentifier>ios-arm64</RuntimeIdentifier>
       <LibraryPrefix>$(_DarwinLibraryPrefix)</LibraryPrefix>
       <SharedSuffix>$(_DarwinSharedNativeLibrarySuffix)</SharedSuffix>
       <StaticSuffix>$(_DarwinStaticNativeLibrarySuffix)</StaticSuffix>
@@ -148,7 +148,7 @@
     </_NativeLib>
 
     <_NativeLib Include="ios-armv7" Condition=" '$([MSBuild]::IsOSPlatform(OSX))' == 'true' or '$(PackageAllNativeLibs)' == 'true' ">
-      <PackagePath>runtimes/ios-arm/native</PackagePath>
+      <RuntimeIdentifier>ios-arm</RuntimeIdentifier>
       <LibraryPrefix>$(_DarwinLibraryPrefix)</LibraryPrefix>
       <SharedSuffix>$(_DarwinSharedNativeLibrarySuffix)</SharedSuffix>
       <StaticSuffix>$(_DarwinStaticNativeLibrarySuffix)</StaticSuffix>
@@ -158,7 +158,7 @@
     </_NativeLib>
 
     <_NativeLib Include="ios-armv7s" Condition=" '$([MSBuild]::IsOSPlatform(OSX))' == 'true' or '$(PackageAllNativeLibs)' == 'true' ">
-      <PackagePath>runtimes/ios-armv7s/native</PackagePath> <!-- TODO: this needs to be a fat binary -->
+      <RuntimeIdentifier>ios-armv7s</RuntimeIdentifier> <!-- TODO: this needs to be a fat binary -->
       <LibraryPrefix>$(_DarwinLibraryPrefix)</LibraryPrefix>
       <SharedSuffix>$(_DarwinSharedNativeLibrarySuffix)</SharedSuffix>
       <StaticSuffix>$(_DarwinStaticNativeLibrarySuffix)</StaticSuffix>
@@ -168,7 +168,7 @@
     </_NativeLib>
 
     <_NativeLib Include="ios-simarm64" Condition=" '$([MSBuild]::IsOSPlatform(OSX))' == 'true' or '$(PackageAllNativeLibs)' == 'true' ">
-      <PackagePath>runtimes/iossimulator-arm64/native</PackagePath>
+      <RuntimeIdentifier>iossimulator-arm64</RuntimeIdentifier>
       <LibraryPrefix>$(_DarwinLibraryPrefix)</LibraryPrefix>
       <SharedSuffix>$(_DarwinSharedNativeLibrarySuffix)</SharedSuffix>
       <StaticSuffix>$(_DarwinStaticNativeLibrarySuffix)</StaticSuffix>
@@ -178,7 +178,7 @@
     </_NativeLib>
 
     <_NativeLib Include="ios-simx64" Condition=" '$([MSBuild]::IsOSPlatform(OSX))' == 'true' or '$(PackageAllNativeLibs)' == 'true' ">
-      <PackagePath>runtimes/iossimulator-x64/native</PackagePath>
+      <RuntimeIdentifier>iossimulator-x64</RuntimeIdentifier>
       <LibraryPrefix>$(_DarwinLibraryPrefix)</LibraryPrefix>
       <SharedSuffix>$(_DarwinSharedNativeLibrarySuffix)</SharedSuffix>
       <StaticSuffix>$(_DarwinStaticNativeLibrarySuffix)</StaticSuffix>
@@ -188,7 +188,7 @@
     </_NativeLib>
 
     <_NativeLib Include="tvos-arm64" Condition=" '$([MSBuild]::IsOSPlatform(OSX))' == 'true' or '$(PackageAllNativeLibs)' == 'true' ">
-      <PackagePath>runtimes/tvos-arm64/native</PackagePath>
+      <RuntimeIdentifier>tvos-arm64</RuntimeIdentifier>
       <LibraryPrefix>$(_DarwinLibraryPrefix)</LibraryPrefix>
       <SharedSuffix>$(_DarwinSharedNativeLibrarySuffix)</SharedSuffix>
       <StaticSuffix>$(_DarwinStaticNativeLibrarySuffix)</StaticSuffix>
@@ -198,7 +198,7 @@
     </_NativeLib>
 
     <_NativeLib Include="tvos-simx64" Condition=" '$([MSBuild]::IsOSPlatform(OSX))' == 'true' or '$(PackageAllNativeLibs)' == 'true' ">
-      <PackagePath>runtimes/tvossimulator-x64/native</PackagePath>
+      <RuntimeIdentifier>tvossimulator-x64</RuntimeIdentifier>
       <LibraryPrefix>$(_DarwinLibraryPrefix)</LibraryPrefix>
       <SharedSuffix>$(_DarwinSharedNativeLibrarySuffix)</SharedSuffix>
       <StaticSuffix>$(_DarwinStaticNativeLibrarySuffix)</StaticSuffix>
@@ -208,20 +208,53 @@
     </_NativeLib>
   </ItemGroup>
 
+  <ItemGroup>
+    <_NativeLib Update="@(_NativeLib)"
+                RuntimesPackagePath="runtimes/%(_NativeLib.RuntimeIdentifier)/native"
+                AuxPackagePath="aux/%(_NativeLib.RuntimeIdentifier)/native" />
+
+    <!--
+    For RIDs that *don't* support shared libraries, we want to put the static
+    library into `runtimes/<rid>/native/`.
+
+    For RIDs that *do* support shared libraries, we want to instead put the
+    shared library into `runtimes/<rid>/native/` and the static library into
+    `aux/<rid>/native/`.
+
+    Debug symbols, if available, always go into `aux/<rid>/native/`.
+
+    The idea is to avoid putting files into `runtimes/<rid>/native/` if they
+    aren't actually needed by `dotnet publish` for that `<rid>`. This is because
+    the publish logic isn't smart enough to figure out that it should exclude
+    e.g. static libraries when publishing for a RID that supports shared
+    libraries.
+    -->
+
+    <_NativeLib Update="@(_NativeLib->WithMetadataValue('HasSharedLibrary', 'false'))"
+                StaticPackagePath="%(_NativeLib.RuntimesPackagePath)" />
+
+    <_NativeLib Update="@(_NativeLib->WithMetadataValue('HasSharedLibrary', 'true'))"
+                SharedPackagePath="%(_NativeLib.RuntimesPackagePath)"
+                StaticPackagePath="%(_NativeLib.AuxPackagePath)" />
+
+    <_NativeLib Update="@(_NativeLib->WithMetadataValue('HasDebugLibrary', 'true'))"
+                DebugPackagePath="%(_NativeLib.AuxPackagePath)" />
+  </ItemGroup>
+
   <Target Name="_GetNativeLibraries">
     <ItemGroup>
+      <Content Include="$(BuildDirTop)/%(_NativeLib.Identity)-$(NativeConfiguration)/lib/%(_NativeLib.LibraryPrefix)Mono.Unix.%(_NativeLib.StaticSuffix)">
+        <PackagePath>%(_NativeLib.StaticPackagePath)</PackagePath>
+      </Content>
+
       <Content Include="$(BuildDirTop)/%(_NativeLib.Identity)-$(NativeConfiguration)/lib/%(_NativeLib.LibraryPrefix)Mono.Unix.%(_NativeLib.SharedSuffix)"
                Condition=" '%(_NativeLib.HasSharedLibrary)' == 'true' ">
-        <PackagePath>%(_NativeLib.PackagePath)</PackagePath>
+        <PackagePath>%(_NativeLib.SharedPackagePath)</PackagePath>
       </Content>
 
       <Content Include="$(BuildDirTop)/%(_NativeLib.Identity)-$(NativeConfiguration)/lib/%(_NativeLib.LibraryPrefix)Mono.Unix.%(_NativeLib.DebugSuffix)"
                Condition=" '%(_NativeLib.HasDebugLibrary)' == 'true' ">
-        <PackagePath>%(_NativeLib.PackagePath)</PackagePath>
-      </Content>
-
-      <Content Include="$(BuildDirTop)/%(_NativeLib.Identity)-$(NativeConfiguration)/lib/%(_NativeLib.LibraryPrefix)Mono.Unix.%(_NativeLib.StaticSuffix)">
-        <PackagePath>%(_NativeLib.PackagePath)</PackagePath>
+        <PackagePath>%(_NativeLib.DebugPackagePath)</PackagePath>
       </Content>
     </ItemGroup>
   </Target>
