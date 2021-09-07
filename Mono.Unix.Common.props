@@ -15,8 +15,4 @@
     <StrongNameKeyId>Open</StrongNameKeyId>
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
-
-  <PropertyGroup Condition=" '$([MSBuild]::IsOSPlatform(Windows))' == 'false' ">
-    <DefineConstants>$(DefineConstants);FORCE_USE_LIBC_NOT_MSVC</DefineConstants>
-  </PropertyGroup>
 </Project>

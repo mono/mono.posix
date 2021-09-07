@@ -384,11 +384,7 @@ namespace Mono.Unix.Native {
 	//
 	public class Stdlib
 	{
-#if FORCE_USE_LIBC_NOT_MSVC
 		internal const string LIBC = "c";
-#else
-		internal const string LIBC = "msvcrt";
-#endif
 		internal const string MPH  = "Mono.Unix";
 
 		// It is possible for Mono.Posix and Mono.Unix to get out of sync,
