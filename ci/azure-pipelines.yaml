@@ -370,6 +370,12 @@ stages:
             artifactName: 'tvOS'
             downloadPath: $(Build.ArtifactStagingDirectory)
 
+        - task: DownloadBuildArtifacts@0
+          displayName: Download managed build artifacts
+          inputs:
+            artifactName: 'Managed'
+            downloadPath: $(Build.ArtifactStagingDirectory)
+
         - template: /ci/templates/extract-artifact.yaml
           parameters:
             displayName: Extract Linux host X86-64 build
@@ -502,6 +508,13 @@ stages:
             artifactName: 'tvOS'
             archiveName: '$(MacTVOSSimX64ArchiveName)'
             destinationFolder: '$(MacTVOSSimX64BuildDir)'
+
+        - template: templates/extract-artifact.yaml
+          parameters:
+            displayName: Extract Managed build
+            artifactName: 'Managed'
+            archiveName: '$(ManagedArchiveName)'
+            destinationFolder: '$(ManagedBuildDir)'
 
         - powershell: |
             & eng\common\Build.ps1 -restore -build -sign -pack -publish -ci -configuration $(_BuildConfig) -projects $(Build.SourcesDirectory)\Mono.Unix.sln /p:PackageAllNativeLibs=true $(_InternalBuildArgs)
