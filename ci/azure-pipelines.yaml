@@ -509,7 +509,7 @@ stages:
             archiveName: '$(MacTVOSSimX64ArchiveName)'
             destinationFolder: '$(MacTVOSSimX64BuildDir)'
 
-        - template: templates/extract-artifact.yaml
+        - template: /ci/templates/extract-artifact.yaml
           parameters:
             displayName: Extract Managed build
             artifactName: 'Managed'
