@@ -100,6 +100,8 @@
 //
 
 #ifdef EA_BSD
+#include<array>
+#include<stdlib.h>
 
 struct BsdNamespaceInfo {
 	const char *name;
@@ -125,22 +127,21 @@ static int bsd_check_flags (int32_t flags)
 // On FreeBSD, we need to convert "user.blah" into namespace 1 and attribute
 // name "blah", or maybe "6.blah" into namespace 6 attribute "blah"
 static int
-bsd_handle_nsprefix (const char *name, char **_name, int *namespace)
+bsd_handle_nsprefix (const char *name, char **_name, int *namespace_num)
 {
-	int i;
 	gchar **components = g_strsplit (name, ".", 2);
 
 	// Find namespace number from textual representation
-	for (i = 0; i < G_N_ELEMENTS(bsd_extattr_namespaces); i++)
+	for (size_t i = 0; i < std::size(bsd_extattr_namespaces); i++)
 		if (strcmp (bsd_extattr_namespaces[i].name, components[0]) == 0) {
-			*namespace = bsd_extattr_namespaces[i].value;
+			*namespace_num = bsd_extattr_namespaces[i].value;
 			break;
 		}
 
-	if (*namespace == 0) {
+	if (*namespace_num == 0) {
 		// Perhaps they specified the namespace number themselves..?
 		char *endptr;
-		*namespace = (int) strtol (components[0], &endptr, 10);
+		*namespace_num = (int) strtol (components[0], &endptr, 10);
 		if (*endptr != '\0')
 			return -1;
 	}
@@ -153,15 +154,14 @@ bsd_handle_nsprefix (const char *name, char **_name, int *namespace)
 static void
 init_attrlists (char *attrlists[])
 {
-	memset (attrlists, 0, G_N_ELEMENTS(bsd_extattr_namespaces) * sizeof(char*));
+	memset (attrlists, 0, std::size(bsd_extattr_namespaces) * sizeof(char*));
 }
 
 static void
 free_attrlists (char *attrlists[])
 {
-	int i;
-	for (i = 0; i < G_N_ELEMENTS(bsd_extattr_namespaces); i++)
-		g_free (attrlists[i]);
+	for (size_t i = 0; i < std::size(bsd_extattr_namespaces); i++)
+		free (attrlists[i]);
 }
 
 // Counts the number of attributes in the result of a
@@ -221,7 +221,6 @@ static char
 static ssize_t
 bsd_combine_lists (char *attrlists[], char *dest, size_t dest_size_needed, size_t dest_size)
 {
-	int i;
 	if (!dest)
 		return dest_size_needed;
 
@@ -230,7 +229,7 @@ bsd_combine_lists (char *attrlists[], char *dest, size_t dest_size_needed, size_
 		return -1;
 	}
 
-	for (i = 0; i < G_N_ELEMENTS(bsd_extattr_namespaces); i++)
+	for (size_t i = 0; i < std::size(bsd_extattr_namespaces); i++)
 		if (attrlists[i])
 			dest = bsd_convert_list (bsd_extattr_namespaces[i].name, attrlists[i], strlen (attrlists[i]), dest);
 
@@ -241,21 +240,20 @@ static mph_ssize_t
 bsd_listxattr (const char *path, void *list, mph_size_t size)
 {
 	size_t full_size = 0;
-	int i;
-	char *attrlists[G_N_ELEMENTS(bsd_extattr_namespaces)];
+	char *attrlists[std::size(bsd_extattr_namespaces)];
 
 	init_attrlists (attrlists);
-	for (i = 0; i < G_N_ELEMENTS(bsd_extattr_namespaces); i++) {
+	for (size_t i = 0; i < std::size(bsd_extattr_namespaces); i++) {
 		size_t buf_size;
 		int num_attrs;
 
 		buf_size = (size_t) extattr_list_file (path, i + 1, nullptr, 0);
-		if (buf_size == -1)
+		if (buf_size == (size_t)-1)
 			continue;
 
-		attrlists[i] = g_malloc0 (buf_size + 1);
+		attrlists[i] = calloc(buf_size + 1);
 		buf_size = (size_t) extattr_list_file (path, i + 1, attrlists[i], buf_size);
-		if (buf_size == -1)
+		if (buf_size == (size_t)-1)
 			continue;
 
 		num_attrs = count_num_attrs(attrlists[i], buf_size);
@@ -271,21 +269,20 @@ static mph_ssize_t
 bsd_llistxattr (const char *path, void *list, mph_size_t size)
 {
 	size_t full_size = 0;
-	int i;
-	char *attrlists[G_N_ELEMENTS(bsd_extattr_namespaces)];
+	char *attrlists[std::size(bsd_extattr_namespaces)];
 
 	init_attrlists (attrlists);
-	for (i = 0; i < G_N_ELEMENTS(bsd_extattr_namespaces); i++) {
+	for (size_t i = 0; i < std::size(bsd_extattr_namespaces); i++) {
 		size_t buf_size;
 		int num_attrs;
 
 		buf_size = (size_t) extattr_list_link (path, i + 1, nullptr, 0);
-		if (buf_size == -1)
+		if (buf_size == (size_t)-1)
 			continue;
 
-		attrlists[i] = g_malloc0 (buf_size + 1);
+		attrlists[i] = calloc(buf_size + 1);
 		buf_size = (size_t) extattr_list_link (path, i + 1, attrlists[i], buf_size);
-		if (buf_size == -1)
+		if (buf_size == (size_t)-1)
 			continue;
 
 		num_attrs = count_num_attrs(attrlists[i], buf_size);
@@ -301,21 +298,20 @@ static mph_ssize_t
 bsd_flistxattr (int fd, void *list, mph_size_t size)
 {
 	size_t full_size = 0;
-	int i;
-	char *attrlists[G_N_ELEMENTS(bsd_extattr_namespaces)];
+	char *attrlists[std::size(bsd_extattr_namespaces)];
 
 	init_attrlists (attrlists);
-	for (i = 0; i < G_N_ELEMENTS(bsd_extattr_namespaces); i++) {
+	for (size_t i = 0; i < std::size(bsd_extattr_namespaces); i++) {
 		size_t buf_size;
 		int num_attrs;
 
 		buf_size = (size_t) extattr_list_fd (fd, i + 1, nullptr, 0);
-		if (buf_size == -1)
+		if (buf_size == (size_t)-1)
 			continue;
 
-		attrlists[i] = g_malloc0 (buf_size + 1);
+		attrlists[i] = calloc(buf_size + 1);
 		buf_size = (size_t) extattr_list_fd (fd, i + 1, attrlists[i], buf_size);
-		if (buf_size == -1)
+		if (buf_size == (size_t)-1)
 			continue;
 
 		num_attrs = count_num_attrs(attrlists[i], buf_size);
@@ -356,13 +352,13 @@ Mono_Posix_Syscall_setxattr (const char *path, const char *name, unsigned char *
 #else /* EA_UNIX */
 	{
 		char *_name;
-		int namespace;
+		int namespace_num;
 		if (bsd_check_flags (flags) == -1)
 			return -1;
-		if (bsd_handle_nsprefix (name, &_name, &namespace) == -1)
+		if (bsd_handle_nsprefix (name, &_name, &namespace_num) == -1)
 			return -1;
-		ret = extattr_set_file (path, namespace, _name, value, (size_t) size);
-		g_free (_name);
+		ret = extattr_set_file (path, namespace_num, _name, value, (size_t) size);
+		free (_name);
 	}
 #endif /* EA_UNIX */
 
@@ -389,13 +385,13 @@ Mono_Posix_Syscall_lsetxattr (const char *path, const char *name, unsigned char 
 #else /* EA_UNIX */
 	{
 		char *_name;
-		int namespace;
+		int namespace_num;
 		if (bsd_check_flags (flags) == -1)
 			return -1;
-		if (bsd_handle_nsprefix (name, &_name, &namespace) == -1)
+		if (bsd_handle_nsprefix (name, &_name, &namespace_num) == -1)
 			return -1;
-		ret = extattr_set_link (path, namespace, _name, value, (size_t) size);
-		g_free (_name);
+		ret = extattr_set_link (path, namespace_num, _name, value, (size_t) size);
+		free (_name);
 	}
 #endif /* EA_UNIX */
 
@@ -426,13 +422,13 @@ Mono_Posix_Syscall_fsetxattr (int fd, const char *name, unsigned char *value, mp
 #else /* EA_UNIX */
 	{
 		char *_name;
-		int namespace;
+		int namespace_num;
 		if (bsd_check_flags (flags) == -1)
 			return -1;
-		if (bsd_handle_nsprefix (name, &_name, &namespace) == -1)
+		if (bsd_handle_nsprefix (name, &_name, &namespace_num) == -1)
 			return -1;
-		ret = extattr_set_fd (fd, namespace, _name, value, (size_t) size);
-		g_free (_name);
+		ret = extattr_set_fd (fd, namespace_num, _name, value, (size_t) size);
+		free (_name);
 	}
 #endif /* EA_UNIX */
 
@@ -457,11 +453,11 @@ Mono_Posix_Syscall_getxattr (const char *path, const char *name, unsigned char *
 #else /* EA_UNIX */
 	{
 		char *_name;
-		int namespace;
-		if (bsd_handle_nsprefix (name, &_name, &namespace) == -1)
+		int namespace_num;
+		if (bsd_handle_nsprefix (name, &_name, &namespace_num) == -1)
 			return -1;
-		ret = extattr_get_file (path, namespace, _name, value, (size_t) size);
-		g_free (_name);
+		ret = extattr_get_file (path, namespace_num, _name, value, (size_t) size);
+		free (_name);
 	}
 #endif /* EA_UNIX */
 
@@ -483,11 +479,11 @@ Mono_Posix_Syscall_lgetxattr (const char *path, const char *name, unsigned char 
 #else /* EA_UNIX */
 	{
 		char *_name;
-		int namespace;
-		if (bsd_handle_nsprefix (name, &_name, &namespace) == -1)
+		int namespace_num;
+		if (bsd_handle_nsprefix (name, &_name, &namespace_num) == -1)
 			return -1;
-		ret = extattr_get_link (path, namespace, _name, value, (size_t) size);
-		g_free (_name);
+		ret = extattr_get_link (path, namespace_num, _name, value, (size_t) size);
+		free (_name);
 	}
 #endif /* EA_UNIX */
 
@@ -513,11 +509,11 @@ Mono_Posix_Syscall_fgetxattr (int fd, const char *name, unsigned char *value, mp
 #else /* EA_UNIX */
 	{
 		char *_name;
-		int namespace;
-		if (bsd_handle_nsprefix (name, &_name, &namespace) == -1)
+		int namespace_num;
+		if (bsd_handle_nsprefix (name, &_name, &namespace_num) == -1)
 			return -1;
-		ret = extattr_get_fd (fd, namespace, _name, value, (size_t) size);
-		g_free (_name);
+		ret = extattr_get_fd (fd, namespace_num, _name, value, (size_t) size);
+		free (_name);
 	}
 #endif /* EA_UNIX */
 
@@ -590,11 +586,11 @@ Mono_Posix_Syscall_removexattr (const char *path, const char *name)
 #else /* EA_UNIX */
 	{
 		char *_name;
-		int namespace;
-		if (bsd_handle_nsprefix (name, &_name, &namespace) == -1)
+		int namespace_num;
+		if (bsd_handle_nsprefix (name, &_name, &namespace_num) == -1)
 			return -1;
-		ret = extattr_delete_file (path, namespace, _name);
-		g_free (_name);
+		ret = extattr_delete_file (path, namespace_num, _name);
+		free (_name);
 	}
 #endif /* EA_UNIX */
 
@@ -612,11 +608,11 @@ Mono_Posix_Syscall_lremovexattr (const char *path, const char *name)
 #else /* EA_UNIX */
 	{
 		char *_name;
-		int namespace;
-		if (bsd_handle_nsprefix (name, &_name, &namespace) == -1)
+		int namespace_num;
+		if (bsd_handle_nsprefix (name, &_name, &namespace_num) == -1)
 			return -1;
-		ret = extattr_delete_link (path, namespace, _name);
-		g_free (_name);
+		ret = extattr_delete_link (path, namespace_num, _name);
+		free (_name);
 	}
 #endif /* EA_UNIX */
 
@@ -638,11 +634,11 @@ Mono_Posix_Syscall_fremovexattr (int fd, const char *name)
 #else /* EA_UNIX */
 	{
 		char *_name;
-		int namespace;
-		if (bsd_handle_nsprefix (name, &_name, &namespace) == -1)
+		int namespace_num;
+		if (bsd_handle_nsprefix (name, &_name, &namespace_num) == -1)
 			return -1;
-		ret = extattr_delete_fd (fd, namespace, _name);
-		g_free (_name);
+		ret = extattr_delete_fd (fd, namespace_num, _name);
+		free (_name);
 	}
 #endif /* EA_UNIX */
 
