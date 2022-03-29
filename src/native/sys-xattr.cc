@@ -251,7 +251,7 @@ bsd_listxattr (const char *path, void *list, mph_size_t size)
 		if (buf_size == (size_t)-1)
 			continue;
 
-		attrlists[i] = calloc(buf_size + 1);
+		attrlists[i] = (char*)calloc(buf_size + 1, 1);
 		buf_size = (size_t) extattr_list_file (path, i + 1, attrlists[i], buf_size);
 		if (buf_size == (size_t)-1)
 			continue;
@@ -280,7 +280,7 @@ bsd_llistxattr (const char *path, void *list, mph_size_t size)
 		if (buf_size == (size_t)-1)
 			continue;
 
-		attrlists[i] = calloc(buf_size + 1);
+		attrlists[i] = (char*)calloc(buf_size + 1, 1);
 		buf_size = (size_t) extattr_list_link (path, i + 1, attrlists[i], buf_size);
 		if (buf_size == (size_t)-1)
 			continue;
@@ -309,7 +309,7 @@ bsd_flistxattr (int fd, void *list, mph_size_t size)
 		if (buf_size == (size_t)-1)
 			continue;
 
-		attrlists[i] = calloc(buf_size + 1);
+		attrlists[i] = (char*)calloc(buf_size + 1, 1);
 		buf_size = (size_t) extattr_list_fd (fd, i + 1, attrlists[i], buf_size);
 		if (buf_size == (size_t)-1)
 			continue;
