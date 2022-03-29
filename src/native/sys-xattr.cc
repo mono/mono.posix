@@ -102,6 +102,8 @@
 #ifdef EA_BSD
 #include<array>
 #include<stdlib.h>
+#include<string>
+
 
 struct BsdNamespaceInfo {
 	const char *name;
@@ -127,27 +129,28 @@ static int bsd_check_flags (int32_t flags)
 // On FreeBSD, we need to convert "user.blah" into namespace 1 and attribute
 // name "blah", or maybe "6.blah" into namespace 6 attribute "blah"
 static int
-bsd_handle_nsprefix (const char *name, char **_name, int *namespace_num)
+bsd_handle_nsprefix (std::string name, std::string & attribute_name, int & namespace_num)
 {
-	gchar **components = g_strsplit (name, ".", 2);
+	const size_t delimpos = name.find(".");
+	const std::string ns = name.substr(0, delimpos);
 
 	// Find namespace number from textual representation
 	for (size_t i = 0; i < std::size(bsd_extattr_namespaces); i++)
-		if (strcmp (bsd_extattr_namespaces[i].name, components[0]) == 0) {
-			*namespace_num = bsd_extattr_namespaces[i].value;
+		if (strcmp (bsd_extattr_namespaces[i].name, ns.c_str()) == 0) {
+			namespace_num = bsd_extattr_namespaces[i].value;
 			break;
 		}
 
-	if (*namespace_num == 0) {
+	if (namespace_num == 0) {
 		// Perhaps they specified the namespace number themselves..?
 		char *endptr;
-		*namespace_num = (int) strtol (components[0], &endptr, 10);
+		namespace_num = (int) strtol (ns.c_str(), &endptr, 10);
 		if (*endptr != '\0')
 			return -1;
 	}
 
-	*_name = g_strdup (components[1]);
-	g_strfreev (components);
+	//By doing the substring at the moment we want to assign, we save a memcopy
+	attribute_name = name.substr(delimpos+1);
 	return 0;
 }
 
@@ -351,14 +354,13 @@ Mono_Posix_Syscall_setxattr (const char *path, const char *name, unsigned char *
 	}
 #else /* EA_UNIX */
 	{
-		char *_name;
+		std::string _name;
 		int namespace_num;
 		if (bsd_check_flags (flags) == -1)
 			return -1;
-		if (bsd_handle_nsprefix (name, &_name, &namespace_num) == -1)
+		if (bsd_handle_nsprefix (name, _name, namespace_num) == -1)
 			return -1;
-		ret = extattr_set_file (path, namespace_num, _name, value, (size_t) size);
-		free (_name);
+		ret = extattr_set_file (path, namespace_num, _name.c_str(), value, (size_t) size);
 	}
 #endif /* EA_UNIX */
 
@@ -384,14 +386,13 @@ Mono_Posix_Syscall_lsetxattr (const char *path, const char *name, unsigned char 
 	}
 #else /* EA_UNIX */
 	{
-		char *_name;
+		std::string _name;
 		int namespace_num;
 		if (bsd_check_flags (flags) == -1)
 			return -1;
-		if (bsd_handle_nsprefix (name, &_name, &namespace_num) == -1)
+		if (bsd_handle_nsprefix (name, _name, namespace_num) == -1)
 			return -1;
-		ret = extattr_set_link (path, namespace_num, _name, value, (size_t) size);
-		free (_name);
+		ret = extattr_set_link (path, namespace_num, _name.c_str(), value, (size_t) size);
 	}
 #endif /* EA_UNIX */
 
@@ -421,14 +422,13 @@ Mono_Posix_Syscall_fsetxattr (int fd, const char *name, unsigned char *value, mp
 	}
 #else /* EA_UNIX */
 	{
-		char *_name;
+		std::string _name;
 		int namespace_num;
 		if (bsd_check_flags (flags) == -1)
 			return -1;
-		if (bsd_handle_nsprefix (name, &_name, &namespace_num) == -1)
+		if (bsd_handle_nsprefix (name, _name, namespace_num) == -1)
 			return -1;
-		ret = extattr_set_fd (fd, namespace_num, _name, value, (size_t) size);
-		free (_name);
+		ret = extattr_set_fd (fd, namespace_num, _name.c_str(), value, (size_t) size);
 	}
 #endif /* EA_UNIX */
 
@@ -452,12 +452,11 @@ Mono_Posix_Syscall_getxattr (const char *path, const char *name, unsigned char *
 #endif /* __APPLE__ */
 #else /* EA_UNIX */
 	{
-		char *_name;
+		std::string _name;
 		int namespace_num;
-		if (bsd_handle_nsprefix (name, &_name, &namespace_num) == -1)
+		if (bsd_handle_nsprefix (name, _name, namespace_num) == -1)
 			return -1;
-		ret = extattr_get_file (path, namespace_num, _name, value, (size_t) size);
-		free (_name);
+		ret = extattr_get_file (path, namespace_num, _name.c_str(), value, (size_t) size);
 	}
 #endif /* EA_UNIX */
 
@@ -478,12 +477,11 @@ Mono_Posix_Syscall_lgetxattr (const char *path, const char *name, unsigned char 
 	ret = lgetxattr (path, name, value, (size_t) size);
 #else /* EA_UNIX */
 	{
-		char *_name;
+		std::string _name;
 		int namespace_num;
-		if (bsd_handle_nsprefix (name, &_name, &namespace_num) == -1)
+		if (bsd_handle_nsprefix (name, _name, namespace_num) == -1)
 			return -1;
-		ret = extattr_get_link (path, namespace_num, _name, value, (size_t) size);
-		free (_name);
+		ret = extattr_get_link (path, namespace_num, _name.c_str(), value, (size_t) size);
 	}
 #endif /* EA_UNIX */
 
@@ -508,12 +506,11 @@ Mono_Posix_Syscall_fgetxattr (int fd, const char *name, unsigned char *value, mp
 #endif /* __APPLE__ */
 #else /* EA_UNIX */
 	{
-		char *_name;
+		std::string _name;
 		int namespace_num;
-		if (bsd_handle_nsprefix (name, &_name, &namespace_num) == -1)
+		if (bsd_handle_nsprefix (name, _name, namespace_num) == -1)
 			return -1;
-		ret = extattr_get_fd (fd, namespace_num, _name, value, (size_t) size);
-		free (_name);
+		ret = extattr_get_fd (fd, namespace_num, _name.c_str(), value, (size_t) size);
 	}
 #endif /* EA_UNIX */
 
@@ -585,12 +582,11 @@ Mono_Posix_Syscall_removexattr (const char *path, const char *name)
 #endif /* __APPLE__ */
 #else /* EA_UNIX */
 	{
-		char *_name;
+		std::string _name;
 		int namespace_num;
-		if (bsd_handle_nsprefix (name, &_name, &namespace_num) == -1)
+		if (bsd_handle_nsprefix (name, _name, namespace_num) == -1)
 			return -1;
-		ret = extattr_delete_file (path, namespace_num, _name);
-		free (_name);
+		ret = extattr_delete_file (path, namespace_num, _name.c_str());
 	}
 #endif /* EA_UNIX */
 
@@ -607,12 +603,11 @@ Mono_Posix_Syscall_lremovexattr (const char *path, const char *name)
 	ret = lremovexattr (path, name);
 #else /* EA_UNIX */
 	{
-		char *_name;
+		std::string _name;
 		int namespace_num;
-		if (bsd_handle_nsprefix (name, &_name, &namespace_num) == -1)
+		if (bsd_handle_nsprefix (name, _name, namespace_num) == -1)
 			return -1;
-		ret = extattr_delete_link (path, namespace_num, _name);
-		free (_name);
+		ret = extattr_delete_link (path, namespace_num, _name.c_str());
 	}
 #endif /* EA_UNIX */
 
@@ -633,12 +628,11 @@ Mono_Posix_Syscall_fremovexattr (int fd, const char *name)
 #endif /* __APPLE__ */
 #else /* EA_UNIX */
 	{
-		char *_name;
+		std::string _name;
 		int namespace_num;
-		if (bsd_handle_nsprefix (name, &_name, &namespace_num) == -1)
+		if (bsd_handle_nsprefix (name, _name, namespace_num) == -1)
 			return -1;
-		ret = extattr_delete_fd (fd, namespace_num, _name);
-		free (_name);
+		ret = extattr_delete_fd (fd, namespace_num, _name.c_str());
 	}
 #endif /* EA_UNIX */
 
