@@ -29,6 +29,10 @@
       <DSOExtension>so</DSOExtension>
       <FolderName>%(Identity)</FolderName>
     </_MonoUnixRuntimeId>
+    <_MonoUnixRuntimeId Include="linux-armv6">
+      <DSOExtension>so</DSOExtension>
+      <FolderName>%(Identity)</FolderName>
+    </_MonoUnixRuntimeId>
     <_MonoUnixRuntimeId Include="osx-arm64">
       <DSOExtension>dylib</DSOExtension>
       <FolderName>%(Identity)</FolderName>

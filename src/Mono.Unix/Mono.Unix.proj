@@ -57,6 +57,16 @@
       <HasSharedLibrary>true</HasSharedLibrary>
     </_NativeLib>
 
+    <_NativeLib Include="host-linux-armv6" Condition=" '$([MSBuild]::IsOSPlatform(Linux))' == 'true' or '$(PackageAllNativeLibs)' == 'true' ">
+      <RuntimeIdentifier>linux-armv6</RuntimeIdentifier>
+      <LibraryPrefix>$(_LinuxLibraryPrefix)</LibraryPrefix>
+      <SharedSuffix>$(_LinuxSharedNativeLibrarySuffix)</SharedSuffix>
+      <StaticSuffix>$(_LinuxStaticNativeLibrarySuffix)</StaticSuffix>
+      <DebugSuffix>$(_LinuxDebugNativeLibrarySuffix)</DebugSuffix>
+      <HasDebugLibrary>$(_LinuxHasDebugNativeLibrary)</HasDebugLibrary>
+      <HasSharedLibrary>true</HasSharedLibrary>
+    </_NativeLib>
+
     <_NativeLib Include="host-darwin-x64" Condition=" '$([MSBuild]::IsOSPlatform(OSX))' == 'true' or '$(PackageAllNativeLibs)' == 'true' ">
       <RuntimeIdentifier>osx-x64</RuntimeIdentifier>
       <LibraryPrefix>$(_DarwinLibraryPrefix)</LibraryPrefix>
