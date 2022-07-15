@@ -198,6 +198,7 @@ function __build_host()
 		build_common ${HOST_BUILD_NAME}-x64 -DTARGET_PLATFORM=host-${OS_LOWER}-x64
 		build_common ${HOST_BUILD_NAME}-arm64 -DTARGET_PLATFORM=host-${OS_LOWER}-arm64
 		build_common ${HOST_BUILD_NAME}-arm -DTARGET_PLATFORM=host-${OS_LOWER}-arm
+		build_common ${HOST_BUILD_NAME}-armv6 -DTARGET_PLATFORM=host-${OS_LOWER}-armv6
 	fi
 
 	HOST_BUILT="yes"
@@ -327,6 +328,7 @@ function __build_test()
 			i686) die 32-bit x86 Linux build not supported ;;
 			x86_64) arch="-x64" ;;
 			armv7l) arch="-arm32" ;;
+			armv6l) arch="-armv6" ;;
 			arm64) arch="-arm64" ;;
 			*) die "Unknown Linux host architecture: $(arch)" ;;
 		esac

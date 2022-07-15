@@ -47,6 +47,12 @@ stages:
         archiveName: '$(LinuxHostArm32ArchiveName)'
         displayName: 'Archive Linux host ARM32 (Hard Float) build'
 
+    - template: templates/pack-artifact.yaml
+      parameters:
+        buildDir: '$(LinuxHostArmv6BuildDir)'
+        archiveName: '$(LinuxHostArmv6ArchiveName)'
+        displayName: 'Archive Linux host ARMv6 build'
+
     - task: PublishBuildArtifacts@1
       displayName: Upload Artifacts
       inputs:
@@ -396,6 +402,13 @@ stages:
             artifactName: 'Host'
             archiveName: '$(LinuxHostArm32ArchiveName)'
             destinationFolder: '$(LinuxHostArm32BuildDir)'
+
+        - template: /ci/templates/extract-artifact.yaml
+          parameters:
+            displayName: Extract Linux host ARMv6 build
+            artifactName: 'Host'
+            archiveName: '$(LinuxHostArmv6ArchiveName)'
+            destinationFolder: '$(LinuxHostArmv6BuildDir)'
 
         - template: /ci/templates/extract-artifact.yaml
           parameters:
