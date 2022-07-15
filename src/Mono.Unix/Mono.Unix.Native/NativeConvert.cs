@@ -210,7 +210,7 @@ namespace Mono.Unix.Native {
 
 		public static DateTime ToDateTime (long time, long nanoTime)
 		{
-			return FromTimeT (time).AddMilliseconds (nanoTime / 1000);
+			return FromTimeT (time).AddMilliseconds (nanoTime / 1_000_000);
 		}
 
 		public static long FromDateTime (DateTime time)
