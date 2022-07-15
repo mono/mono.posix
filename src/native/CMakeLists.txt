@@ -186,6 +186,15 @@ if(APPLE)
   set(HOST_MACROS
     _DARWIN_C_SOURCE
     )
+
+    # Apple platforms like macOS/iOS allow targeting older operating system versions with a single SDK,
+    # the mere presence of a symbol in the SDK doesn't tell us whether the deployment target really supports it.
+    # The compiler raises a warning when using an unsupported API, turn that into an error so check_symbol_exists()
+    # can correctly identify whether the API is supported on the target.
+    check_cxx_compiler_flag("-Wunguarded-availability" "C_SUPPORTS_WUNGUARDED_AVAILABILITY")
+    if(C_SUPPORTS_WUNGUARDED_AVAILABILITY)
+      set(CMAKE_REQUIRED_FLAGS "${CMAKE_REQUIRED_FLAGS} -Werror=unguarded-availability")
+    endif()
 endif()
 
 macro(_compiler_has_flag _lang _flag)
