@@ -210,7 +210,7 @@ stages:
         pathToPublish: $(Build.ArtifactStagingDirectory)
 
 - stage: test
-  condition: ne('${{ variables._RunAsInternal }}', 'True')
+  condition: and(ne('${{ variables._RunAsInternal }}', 'True'), succeeded('build_artifacts'))
   dependsOn: build_artifacts
   jobs:
   - job: linux_test
