@@ -16,4 +16,7 @@
     <Compile Include="./Mono.Unix*/*.cs" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Update="Microsoft.NET.Test.Sdk" Version="17.4.0-preview-20220726-02" />
+  </ItemGroup>
 </Project>
