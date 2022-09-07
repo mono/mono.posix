@@ -333,7 +333,7 @@ stages:
         displayName: Create NuGet packages
         pool:
           ${{ if eq(variables['_RunAsInternal'], 'False') }}:
-            name: NetCore1ESPool-Public
+            name: NetCore-Public
             demands: ImageOverride -equals Build.Windows.10.Amd64.VS2019.Open
           ${{ if eq(variables['_RunAsInternal'], 'True') }}:
             name: NetCore1ESPool-Internal
