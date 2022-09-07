@@ -31,7 +31,7 @@ variables:
   - name: LinuxPool
     value: ubuntu-18.04
   - name: MacPool
-    value: macOS-12
+    value: macos-11
   - name: LinuxCompilerSuffix
     value: -10
   - name: BuildScriptCommonOptions
