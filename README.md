@@ -37,11 +37,11 @@ While the native and managed code in this repository should work fine
 across the entire spectrum of Unix and Unix-like systems, the only
 supported operating systems are the following:
 
-  * **Linux** (binaries are built on Ubuntu 18.04 currently, but they
+  * **Linux** (binaries are built on Ubuntu 20.04 currently, but they
     **should** work on older distributions, including ones not derived
     from Ubuntu or Debian)
 	* Supported architectures: `x86-64`
-  * **macOS** (binaries are built on macOS 10.16, targetting macOS 10.9 at
+  * **macOS** (binaries are built on macOS 12, targetting macOS 10.15 at
     the minimum)
 	* Supported architectures: `x86-64`, `arm64`
   * **iOS** builds target version 10.0 at the minimum
