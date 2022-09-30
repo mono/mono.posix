@@ -1,6 +1,6 @@
 # Build status
 
-[![Build Status](https://dev.azure.com/dnceng/public/_apis/build/status/mono/mono-mono.posix?branchName=main)](https://dev.azure.com/dnceng/public/_build/latest?definitionId=966&branchName=main)
+[![Build Status](https://dev.azure.com/dnceng-public/public/_apis/build/status/mono/mono-mono.posix?branchName=main)](https://dev.azure.com/dnceng-public/public/_build/latest?definitionId=189&branchName=main)
 
 <!-- markdown-toc start - Don't edit this section. Run M-x markdown-toc-refresh-toc -->
 **Table of Contents**
