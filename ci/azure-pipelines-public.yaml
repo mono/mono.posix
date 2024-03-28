@@ -210,7 +210,7 @@ stages:
         pathToPublish: $(Build.ArtifactStagingDirectory)
 
 - stage: test
-  condition: and(ne('${{ variables._RunAsInternal }}', 'True'), succeeded('build_artifacts'))
+  condition: succeeded('build_artifacts')
   dependsOn: build_artifacts
   jobs:
   - job: linux_test
@@ -332,12 +332,8 @@ stages:
       - job: package
         displayName: Create NuGet packages
         pool:
-          ${{ if eq(variables['_RunAsInternal'], 'False') }}:
-            name: NetCore-Public
-            demands: ImageOverride -equals windows.vs2019.amd64.open
-          ${{ if eq(variables['_RunAsInternal'], 'True') }}:
-            name: NetCore1ESPool-Internal
-            demands: ImageOverride -equals windows.vs2019.amd64
+          name: NetCore-Public
+          demands: ImageOverride -equals windows.vs2019.amd64.open
         workspace:
           clean: all
         steps:
@@ -537,14 +533,3 @@ stages:
           inputs:
             artifactName: 'NuGet'
             pathToPublish: $(NuGetPackagesDir)
-
-############ POST BUILD ARCADE LOGIC ############
-- ${{ if eq(variables['_RunAsInternal'], 'True') }}:
-  - template: /eng/common/templates/post-build/post-build.yml
-    parameters:
-      validateDependsOn: build_package
-      publishingInfraVersion: 3
-      enableSourceLinkValidation: false
-      enableSigningValidation: false
-      enableSymbolValidation: false
-      enableNugetValidation: true

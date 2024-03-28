@@ -16,38 +16,46 @@ steps:
       ./build.sh $(BuildScriptCommonOptions) ios
     displayName: Build
 
-  - template: pack-artifact.yaml
+  - template: pack-artifact.yaml@self
     parameters:
       displayName: Archive iOS arm64 build
       buildDir: ${{ parameters.buildDirArm64 }}
       archiveName: ${{ parameters.archiveNameArm64 }}
 
-  - template: pack-artifact.yaml
+  - template: pack-artifact.yaml@self
     parameters:
       displayName: Archive iOS armv7 build
       buildDir: ${{ parameters.buildDirArmV7 }}
       archiveName: ${{ parameters.archiveNameArmV7 }}
 
-  - template: pack-artifact.yaml
+  - template: pack-artifact.yaml@self
     parameters:
       displayName: Archive iOS armv7s build
       buildDir: ${{ parameters.buildDirArmV7s }}
       archiveName: ${{ parameters.archiveNameArmV7s }}
 
-  - template: pack-artifact.yaml
+  - template: pack-artifact.yaml@self
     parameters:
       displayName: Archive iOS simulator arm64 build
       buildDir: ${{ parameters.buildDirSimArm64 }}
       archiveName: ${{ parameters.archiveNameSimArm64 }}
 
-  - template: pack-artifact.yaml
+  - template: pack-artifact.yaml@self
     parameters:
       displayName: Archive iOS simulator x64 build
       buildDir: ${{ parameters.buildDirSimX64 }}
       archiveName: ${{ parameters.archiveNameSimX64 }}
 
-  - task: PublishBuildArtifacts@1
-    displayName: Upload Artifacts
-    inputs:
-      artifactName: ${{ parameters.publishArtifactName }}
-      pathToPublish: $(Build.ArtifactStagingDirectory)
+  - ${{ if ne(variables['System.TeamProject'], 'public') }}:
+    - task: 1ES.PublishBuildArtifacts@1
+      displayName: Upload Artifacts
+      inputs:
+        ArtifactName: ${{ parameters.publishArtifactName }}
+        PathtoPublish: $(Build.ArtifactStagingDirectory)
+
+  - ${{ else }}:
+    - task: PublishBuildArtifacts@1
+      displayName: Upload Artifacts
+      inputs:
+        artifactName: ${{ parameters.publishArtifactName }}
+        pathToPublish: $(Build.ArtifactStagingDirectory)

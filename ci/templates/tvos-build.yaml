@@ -10,20 +10,28 @@ steps:
       ./build.sh $(BuildScriptCommonOptions) tvos
     displayName: Build
 
-  - template: pack-artifact.yaml
+  - template: pack-artifact.yaml@self
     parameters:
       displayName: Archive tvOS arm64 build
       buildDir: ${{ parameters.buildDirArm64 }}
       archiveName: ${{ parameters.archiveNameArm64 }}
 
-  - template: pack-artifact.yaml
+  - template: pack-artifact.yaml@self
     parameters:
       displayName: Archive tvOS simulator x64 build
       buildDir: ${{ parameters.buildDirSimX64 }}
       archiveName: ${{ parameters.archiveNameSimX64 }}
 
-  - task: PublishBuildArtifacts@1
-    displayName: Upload Artifacts
-    inputs:
-      artifactName: ${{ parameters.publishArtifactName }}
-      pathToPublish: $(Build.ArtifactStagingDirectory)
+  - ${{ if ne(variables['System.TeamProject'], 'public') }}:
+    - task: 1ES.PublishBuildArtifacts@1
+      displayName: Upload Artifacts
+      inputs:
+        ArtifactName: ${{ parameters.publishArtifactName }}
+        PathtoPublish: $(Build.ArtifactStagingDirectory)
+
+  - ${{ else }}:
+    - task: PublishBuildArtifacts@1
+      displayName: Upload Artifacts
+      inputs:
+        artifactName: ${{ parameters.publishArtifactName }}
+        pathToPublish: $(Build.ArtifactStagingDirectory)

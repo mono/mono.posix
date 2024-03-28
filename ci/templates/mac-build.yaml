@@ -11,20 +11,28 @@ steps:
       ./build.sh $(BuildScriptCommonOptions) ${{ parameters.buildTarget }}
     displayName: Build
 
-  - template: pack-artifact.yaml
+  - template: pack-artifact.yaml@self
     parameters:
       displayName: Archive macOS ${{ parameters.buildTarget }} x86_64 build
       buildDir: ${{ parameters.x64BuildDir }}
       archiveName: ${{ parameters.x64ArchiveName }}
 
-  - template: pack-artifact.yaml
+  - template: pack-artifact.yaml@self
     parameters:
       displayName: Archive macOS ${{ parameters.buildTarget }} ARM64 build
       buildDir: ${{ parameters.arm64BuildDir }}
       archiveName: ${{ parameters.arm64ArchiveName }}
 
-  - task: PublishBuildArtifacts@1
-    displayName: Upload Artifacts
-    inputs:
-      artifactName: ${{ parameters.publishArtifactName }}
-      pathToPublish: $(Build.ArtifactStagingDirectory)
+  - ${{ if ne(variables['System.TeamProject'], 'public') }}:
+    - task: 1ES.PublishBuildArtifacts@1
+      displayName: Upload Artifacts
+      inputs:
+        ArtifactName: ${{ parameters.publishArtifactName }}
+        PathtoPublish: $(Build.ArtifactStagingDirectory)
+
+  - ${{ else }}:
+    - task: PublishBuildArtifacts@1
+      displayName: Upload Artifacts
+      inputs:
+        artifactName: ${{ parameters.publishArtifactName }}
+        pathToPublish: $(Build.ArtifactStagingDirectory)

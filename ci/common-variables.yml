@@ -3,18 +3,16 @@ variables:
   # Cannot use key:value syntax in root defined variables
   - name: _TeamName
     value: DotNetCore
-  - name: _RunAsPublic
-    value: True
-  - name: _RunAsInternal
-    value: False
   - name: _InternalBuildArgs
     value: ''
+  - name: MacPool
+    value: macos-12
+  - name: LinuxPool
+    value: ubuntu-20.04
 
-  - ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
-    - name: _RunAsPublic
-      value: False
-    - name: _RunAsInternal
-      value: True
+  - ${{ if ne(variables['System.TeamProject'], 'public') }}:
+    - name: LinuxPool
+      value: 1es-ubuntu-2004
     - name: _SignType
       value: real
     # Publish-Build-Assets provides: MaestroAccessToken, BotAccount-dotnet-maestro-bot-PAT
@@ -32,10 +30,6 @@ variables:
 
   - name: BuildDirName
     value: artifacts
-  - name: LinuxPool
-    value: ubuntu-20.04
-  - name: MacPool
-    value: macos-12
   - name: LinuxCompilerSuffix
     value: -10
   - name: BuildScriptCommonOptions
