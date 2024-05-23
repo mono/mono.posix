@@ -213,6 +213,7 @@ Mono_Posix_Stdlib_fprintf (FILE* stream, const char* format, const char* message
 		return -1;
 	}
 
+	// codeql[cpp/non-constant-format] this is an fprintf wrapper for managed code so we can't have a constant string
 	return fprintf (stream, format, message);
 }
 

@@ -73,6 +73,7 @@ Mono_Posix_FromIn6Addr (struct Mono_Posix_In6Addr* source, struct in6_addr* dest
 		return -1;
 	}
 
+	// codeql[cpp/overflow-buffer] the overflow is intentional here, source->addr0 and addr1 are adjacent in memory
 	memcpy (&((struct in6_addr*)destination)->s6_addr, &source->addr0, 16);
 	return 0;
 }
@@ -84,6 +85,7 @@ Mono_Posix_ToIn6Addr (struct in6_addr* source, struct Mono_Posix_In6Addr* destin
 		return -1;
 	}
 
+	// codeql[cpp/overflow-buffer] the overflow is intentional here, destination->addr0 and addr1 are adjacent in memory
 	memcpy (&destination->addr0, &source->s6_addr, 16);
 	return 0;
 }
