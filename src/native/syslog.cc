@@ -39,6 +39,7 @@ Mono_Posix_Syscall_closelog ()
 int
 Mono_Posix_Syscall_syslog (int priority, const char* message)
 {
+	// codeql[cpp/non-constant-format] this is a syslog wrapper for managed code so we can't have a constant string
 	syslog (priority, message);
 	return 0;
 }
