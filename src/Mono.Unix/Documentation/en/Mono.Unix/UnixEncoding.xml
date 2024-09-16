@@ -19,7 +19,7 @@
     encoding.  The operating system kernel only maintains a sequence of bytes
     for the filename, with no encoding implied.  This makes it non-trivial (or
     impossible) to determine what encoding a filename is in -- it could be
-    UTF-8, ASCII, Shift-JIS, or some binary data inserted by a freak 
+    UTF-8, ASCII, Shift-JIS, or some binary data inserted by a 
     <c>touch</c>(1) accident (try <c>touch "$(printf "test\xffname")"</c>
     within a <c>bash</c>(1) shell for an example).</para>
       <para>On the other hand, developers and users expect filenames to be
@@ -170,7 +170,7 @@
         <item>
           <term>A</term>
           <description>
-            <para>Because <c>byte[]</c> is fugly to work with, so it would need to 
+            <para>Because <c>byte[]</c> is not pleasant to work with, so it would need to 
         be offered in addition to the string versions, which would double all 
         the file-related APIs.  Do you really want to explain the difference
         between these APIs?</para>

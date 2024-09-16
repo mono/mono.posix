@@ -56,7 +56,7 @@ static constexpr char mph_unknown[] = "Unknown error ";
  * we can say the following:
  *   - If errnum is a valid error number, a pointer to a constant string is
  *     returned.  Thus, the prototype *lies* (it's not really a char*).
- *     `buf' is unchanged (WTF?).
+ *     `buf' is unchanged.
  *   - If errnum is an *invalid* error number, an error message is copied
  *     into `buf' and `buf' is returned.  The error message returned is
  *     "Unknown error %i", where %i is the input errnum.
