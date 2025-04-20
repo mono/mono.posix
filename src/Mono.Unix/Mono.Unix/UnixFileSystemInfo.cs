@@ -100,11 +100,19 @@ namespace Mono.Unix {
 			}
 		}
 
-		public ulong Device {
+		public long Device {
+			get {AssertValid (); return Convert.ToInt64 (stat.st_dev);}
+		}
+
+		public ulong DeviceUnsigned {
 			get {AssertValid (); return stat.st_dev;}
 		}
 
-		public ulong Inode {
+		public long Inode {
+			get {AssertValid (); return Convert.ToInt64 (stat.st_ino);}
+		}
+
+		public ulong InodeUnsigned {
 			get {AssertValid (); return stat.st_ino;}
 		}
 
@@ -155,7 +163,11 @@ namespace Mono.Unix {
 			}
 		}
 
-		public ulong LinkCount {
+		public long LinkCount {
+			get {AssertValid (); return Convert.ToInt64 (stat.st_nlink);}
+		}
+
+		public ulong LinkCountUnsigned {
 			get {AssertValid (); return stat.st_nlink;}
 		}
 
@@ -175,7 +187,11 @@ namespace Mono.Unix {
 			get {AssertValid (); return stat.st_gid;}
 		}
 
-		public ulong DeviceType {
+		public long DeviceType {
+			get {AssertValid (); return Convert.ToInt64 (stat.st_rdev);}
+		}
+
+		public ulong DeviceTypeUnsigned {
 			get {AssertValid (); return stat.st_rdev;}
 		}
 
