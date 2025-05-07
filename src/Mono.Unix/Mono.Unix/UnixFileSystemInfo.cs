@@ -104,8 +104,18 @@ namespace Mono.Unix {
 			get {AssertValid (); return Convert.ToInt64 (stat.st_dev);}
 		}
 
+		[CLSCompliant(false)]
+		public ulong DeviceUnsigned {
+			get {AssertValid (); return stat.st_dev;}
+		}
+
 		public long Inode {
 			get {AssertValid (); return Convert.ToInt64 (stat.st_ino);}
+		}
+
+		[CLSCompliant(false)]
+		public ulong InodeUnsigned {
+			get {AssertValid (); return stat.st_ino;}
 		}
 
 		[CLSCompliant (false)]
@@ -159,6 +169,11 @@ namespace Mono.Unix {
 			get {AssertValid (); return Convert.ToInt64 (stat.st_nlink);}
 		}
 
+		[CLSCompliant(false)]
+		public ulong LinkCountUnsigned {
+			get {AssertValid (); return stat.st_nlink;}
+		}
+
 		public UnixUserInfo OwnerUser {
 			get {AssertValid (); return new UnixUserInfo (stat.st_uid);}
 		}
@@ -179,16 +194,21 @@ namespace Mono.Unix {
 			get {AssertValid (); return Convert.ToInt64 (stat.st_rdev);}
 		}
 
+		[CLSCompliant(false)]
+		public ulong DeviceTypeUnsigned {
+			get {AssertValid (); return stat.st_rdev;}
+		}
+
 		public long Length {
-			get {AssertValid (); return (long) stat.st_size;}
+			get {AssertValid (); return stat.st_size;}
 		}
 
 		public long BlockSize {
-			get {AssertValid (); return (long) stat.st_blksize;}
+			get {AssertValid (); return stat.st_blksize;}
 		}
 
 		public long BlocksAllocated {
-			get {AssertValid (); return (long) stat.st_blocks;}
+			get {AssertValid (); return stat.st_blocks;}
 		}
 
 		public DateTime LastAccessTime {
