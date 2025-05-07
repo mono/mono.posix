@@ -104,6 +104,7 @@ namespace Mono.Unix {
 			get {AssertValid (); return Convert.ToInt64 (stat.st_dev);}
 		}
 
+		[CLSCompliant(false)]
 		public ulong DeviceUnsigned {
 			get {AssertValid (); return stat.st_dev;}
 		}
@@ -112,6 +113,7 @@ namespace Mono.Unix {
 			get {AssertValid (); return Convert.ToInt64 (stat.st_ino);}
 		}
 
+		[CLSCompliant(false)]
 		public ulong InodeUnsigned {
 			get {AssertValid (); return stat.st_ino;}
 		}
@@ -167,6 +169,7 @@ namespace Mono.Unix {
 			get {AssertValid (); return Convert.ToInt64 (stat.st_nlink);}
 		}
 
+		[CLSCompliant(false)]
 		public ulong LinkCountUnsigned {
 			get {AssertValid (); return stat.st_nlink;}
 		}
@@ -175,7 +178,7 @@ namespace Mono.Unix {
 			get {AssertValid (); return new UnixUserInfo (stat.st_uid);}
 		}
 
-		public uint OwnerUserId {
+		public long OwnerUserId {
 			get {AssertValid (); return stat.st_uid;}
 		}
 
@@ -183,7 +186,7 @@ namespace Mono.Unix {
 			get {AssertValid (); return new UnixGroupInfo (stat.st_gid);}
 		}
 
-		public uint OwnerGroupId {
+		public long OwnerGroupId {
 			get {AssertValid (); return stat.st_gid;}
 		}
 
@@ -191,6 +194,7 @@ namespace Mono.Unix {
 			get {AssertValid (); return Convert.ToInt64 (stat.st_rdev);}
 		}
 
+		[CLSCompliant(false)]
 		public ulong DeviceTypeUnsigned {
 			get {AssertValid (); return stat.st_rdev;}
 		}
