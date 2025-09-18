@@ -8,11 +8,11 @@ variables:
   - name: MacPool
     value: macos-13
   - name: LinuxPool
-    value: ubuntu-20.04
+    value: ubuntu-22.04
 
   - ${{ if ne(variables['System.TeamProject'], 'public') }}:
     - name: LinuxPool
-      value: 1es-ubuntu-2004
+      value: 1es-ubuntu-2204
     - name: _SignType
       value: real
     # Publish-Build-Assets provides: MaestroAccessToken, BotAccount-dotnet-maestro-bot-PAT
