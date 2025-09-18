@@ -263,7 +263,6 @@ extends:
             steps:
 
             - checkout: self
-              clean: true
               submodules: recursive
 
             - task: DownloadBuildArtifacts@0
