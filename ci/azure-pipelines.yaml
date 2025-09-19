@@ -38,8 +38,6 @@ extends:
           name: $(DncEngInternalBuildPool)
           image: '$(LinuxPool)'
           os: linux
-        workspace:
-          clean: all
         steps:
         - template: /ci/templates/linux-common.yaml@self
 
@@ -83,8 +81,6 @@ extends:
           name: $(DncEngInternalBuildPool)
           image: '$(LinuxPool)'
           os: linux
-        workspace:
-          clean: all
         steps:
         - template: /ci/templates/linux-common.yaml@self
 
@@ -128,8 +124,6 @@ extends:
           name: Azure Pipelines
           vmImage: '$(MacPool)'
           os: macOS
-        workspace:
-          clean: all
         steps:
         - template: /ci/templates/mac-common.yaml@self
 
@@ -148,8 +142,6 @@ extends:
           name: Azure Pipelines
           vmImage: '$(MacPool)'
           os: macOS
-        workspace:
-          clean: all
         steps:
         - template: /ci/templates/mac-common.yaml@self
 
@@ -168,8 +160,6 @@ extends:
           name: Azure Pipelines
           vmImage: '$(MacPool)'
           os: macOS
-        workspace:
-          clean: all
         steps:
         - template: /ci/templates/mac-common.yaml@self
 
@@ -193,8 +183,6 @@ extends:
           name: Azure Pipelines
           vmImage: '$(MacPool)'
           os: macOS
-        workspace:
-          clean: all
         steps:
         - template: /ci/templates/mac-common.yaml@self
 
@@ -212,8 +200,6 @@ extends:
           name: Azure Pipelines
           vmImage: '$(MacPool)'
           os: macOS
-        workspace:
-          clean: all
         steps:
         - template: /ci/templates/mac-common.yaml@self
 
@@ -258,13 +244,7 @@ extends:
               name: $(DncEngInternalBuildPool)
               image: windows.vs2019.amd64
               os: windows
-            workspace:
-              clean: all
             steps:
-
-            - checkout: self
-              submodules: recursive
-
             - task: DownloadBuildArtifacts@0
               displayName: Download host build artifacts
               inputs:

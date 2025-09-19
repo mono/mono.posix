@@ -20,8 +20,6 @@ stages:
     displayName: Build for Linux
     pool:
       vmImage: '$(LinuxPool)'
-    workspace:
-      clean: all
     steps:
     - template: templates/linux-common.yaml
 
@@ -63,8 +61,6 @@ stages:
     displayName: Build for Android
     pool:
       vmImage: '$(LinuxPool)'
-    workspace:
-      clean: all
     steps:
     - template: templates/linux-common.yaml
 
@@ -106,8 +102,6 @@ stages:
     displayName: Build for macOS
     pool:
       vmImage: '$(MacPool)'
-    workspace:
-      clean: all
     steps:
     - template: templates/mac-common.yaml
 
@@ -124,8 +118,6 @@ stages:
     displayName: Build for macOS Catalyst
     pool:
       vmImage: '$(MacPool)'
-    workspace:
-      clean: all
     steps:
     - template: templates/mac-common.yaml
 
@@ -142,8 +134,6 @@ stages:
     displayName: Build for iOS
     pool:
       vmImage: '$(MacPool)'
-    workspace:
-      clean: all
     steps:
     - template: templates/mac-common.yaml
 
@@ -165,8 +155,6 @@ stages:
     displayName: Build for tvOS
     pool:
       vmImage: '$(MacPool)'
-    workspace:
-      clean: all
     steps:
     - template: templates/mac-common.yaml
 
@@ -182,8 +170,6 @@ stages:
     displayName: Build managed
     pool:
       vmImage: '$(MacPool)'
-    workspace:
-      clean: all
     steps:
     - template: templates/mac-common.yaml
 
@@ -217,8 +203,6 @@ stages:
     displayName: Test Linux
     pool:
       vmImage: '$(LinuxPool)'
-    workspace:
-      clean: all
     steps:
     - template: templates/linux-common.yaml
 
@@ -265,8 +249,6 @@ stages:
     displayName: Test macOS
     pool:
       vmImage: '$(MacPool)'
-    workspace:
-      clean: all
     steps:
     - template: templates/mac-common.yaml
 
@@ -334,12 +316,7 @@ stages:
         pool:
           name: NetCore-Public
           demands: ImageOverride -equals windows.vs2019.amd64.open
-        workspace:
-          clean: all
         steps:
-
-        - checkout: self
-          submodules: recursive
 
         - task: DownloadBuildArtifacts@0
           displayName: Download host build artifacts
