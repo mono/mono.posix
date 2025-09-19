@@ -1,7 +1,7 @@
 steps:
-  - checkout: self
-    clean: true
-    submodules: recursive
+  - bash: |
+      git submodule update --init --recursive
+    displayName: Update submodules
 
   - bash: |
       brew install ninja
