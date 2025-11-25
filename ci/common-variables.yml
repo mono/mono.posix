@@ -6,7 +6,7 @@ variables:
   - name: _InternalBuildArgs
     value: ''
   - name: MacPool
-    value: macos-13
+    value: macos-14
   - name: LinuxPool
     value: ubuntu-22.04
 
