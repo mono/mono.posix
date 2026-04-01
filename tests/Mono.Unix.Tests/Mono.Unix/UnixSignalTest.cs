@@ -92,8 +92,8 @@ namespace MonoTests.Mono.Unix {
 			a.Join();
 			b.Join();
 			c.Join();
-			Assert.HasCount(1, s1, "Expected 1 signal raised");
-			Assert.HasCount(1, s2, "Expected 1 signal raised");
+			Assert.AreEqual(1, s1.Count, "Expected 1 signal raised");
+			Assert.AreEqual(1, s2.Count, "Expected 1 signal raised");
 		}
 
 		[TestMethod]
@@ -228,7 +228,7 @@ namespace MonoTests.Mono.Unix {
 				}
 				return;
 			}
-			Assert.IsTrue (false, "#1 No available RT signal");
+			Assert.Fail ("#1 No available RT signal");
 		}
 
 		[TestMethod]
@@ -253,10 +253,10 @@ namespace MonoTests.Mono.Unix {
 						return;
 					}
 				} catch (ArgumentException) { /*skip the ones that are unavailable*/
-						Assert.IsTrue (false, "#1 Could not register second signal handler");
+						Assert.Fail ("#1 Could not register second signal handler");
 				}
 			}
-			Assert.IsTrue (false, "#2 No available RT signal");
+			Assert.Fail ("#2 No available RT signal");
 		}
 
 		[TestMethod]
