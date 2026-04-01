@@ -72,7 +72,7 @@ namespace MonoTests.Mono.Unix {
 			for (int i=0; i<65; ++i)
 				signals[i] = s1;
 			
-			Assert.That(UnixSignal.WaitAny(signals, new TimeSpan(0,0,1)), Is.EqualTo(-1));
+			Assert.AreEqual(-1, UnixSignal.WaitAny(signals, new TimeSpan(0,0,1)));
 		}
 
 		[TestMethod]
@@ -92,8 +92,8 @@ namespace MonoTests.Mono.Unix {
 			a.Join();
 			b.Join();
 			c.Join();
-			Assert.That(s1.Count, Is.EqualTo(1), "Expected 1 signal raised");
-			Assert.That(s2.Count, Is.EqualTo(1), "Expected 1 signal raised");
+			Assert.HasCount(1, s1, "Expected 1 signal raised");
+			Assert.HasCount(1, s2, "Expected 1 signal raised");
 		}
 
 		[TestMethod]
@@ -119,7 +119,7 @@ namespace MonoTests.Mono.Unix {
 		public void TestSignumProperty ()
 		{
 			UnixSignal signal1 = new UnixSignal (Signum.SIGSEGV);
-			Assert.That (signal1.Signum, Is.EqualTo (Signum.SIGSEGV));
+			Assert.AreEqual (Signum.SIGSEGV, signal1.Signum);
 		}
 	
 		[TestMethod]
@@ -130,13 +130,13 @@ namespace MonoTests.Mono.Unix {
 				return;
 
 			int rtsigOffset = Utilities.FindFirstFreeRTSignal ();
-			Assert.That (rtsigOffset, Is.GreaterThan (-1), "No available RT signals");
+			Assert.IsGreaterThan (-1, rtsigOffset, "No available RT signals");
 
 			RealTimeSignum rts = new RealTimeSignum (rtsigOffset);
 			using (UnixSignal s = new UnixSignal (rts))
 			{
-				Assert.That(s.IsRealTimeSignal);
-				Assert.That(s.RealTimeSignum, Is.EqualTo (rts));
+				Assert.IsTrue(s.IsRealTimeSignal);
+				Assert.AreEqual(rts, s.RealTimeSignum);
 			}
 		}
 
@@ -148,7 +148,7 @@ namespace MonoTests.Mono.Unix {
 				return;
 
 			int rtsigOffset = Utilities.FindFirstFreeRTSignal ();
-			Assert.That (rtsigOffset, Is.GreaterThan (-1), "No available RT signals");
+			Assert.IsGreaterThan (-1, rtsigOffset, "No available RT signals");
 
 			Assert.Throws<InvalidOperationException> (() => {
 				UnixSignal signal1 = new UnixSignal (new RealTimeSignum (rtsigOffset));
@@ -164,11 +164,11 @@ namespace MonoTests.Mono.Unix {
 				return;
 
 			int rtsigOffset = Utilities.FindFirstFreeRTSignal ();
-			Assert.That (rtsigOffset, Is.GreaterThan (-1), "No available RT signals");
+			Assert.IsGreaterThan (-1, rtsigOffset, "No available RT signals");
 
 			RealTimeSignum rts = new RealTimeSignum (rtsigOffset);
 			UnixSignal signal1 = new UnixSignal (rts);
-			Assert.That (signal1.RealTimeSignum, Is.EqualTo (rts));
+			Assert.AreEqual (rts, signal1.RealTimeSignum);
 		}
 	
 		[TestMethod]
@@ -192,7 +192,7 @@ namespace MonoTests.Mono.Unix {
 				return;
 
 			int rtsigOffset = Utilities.FindFirstFreeRTSignal ();
-			Assert.That (rtsigOffset, Is.GreaterThan (-1), "No available RT signals");
+			Assert.IsGreaterThan (-1, rtsigOffset, "No available RT signals");
 
 			RealTimeSignum rts = new RealTimeSignum (rtsigOffset);
 			using (UnixSignal signal = new UnixSignal (rts))
