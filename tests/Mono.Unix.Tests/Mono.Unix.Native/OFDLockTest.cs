@@ -66,7 +66,7 @@ namespace MonoTests.Mono.Unix.Native
 			if (Syscall.fcntl (fd1, FcntlCommand.F_OFD_SETLKW, ref flock1) < 0) {
 				// Old kernels and non-linux systems should return EINVAL
 				if (Stdlib.GetLastError () == Errno.EINVAL)
-					Assert.Ignore ("F_OFD_SETLKW does not seem to be supported.");
+					Assert.Inconclusive ("F_OFD_SETLKW does not seem to be supported.");
 				UnixMarshal.ThrowExceptionForLastError ();
 			}
 

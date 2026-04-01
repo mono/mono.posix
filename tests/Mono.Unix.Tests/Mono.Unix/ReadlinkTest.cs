@@ -122,7 +122,7 @@ namespace MonoTests.Mono.Unix
 		public void ReadLinkAt ()
 		{
 			if (!HaveReadlinkAt)
-				Assert.Ignore ("No ReadlinkAt.");
+				Assert.Inconclusive ("No ReadlinkAt.");
 
 			foreach (string s in Targets) {
 				CreateLink (s);
@@ -149,7 +149,7 @@ namespace MonoTests.Mono.Unix
 		public void TryReadLinkAt ()
 		{
 			if (!HaveReadlinkAt)
-				Assert.Ignore ("No ReadlinkAt.");
+				Assert.Inconclusive ("No ReadlinkAt.");
 
 			foreach (string s in Targets) {
 				CreateLink (s);
@@ -188,7 +188,7 @@ namespace MonoTests.Mono.Unix
 		public void readlinkat_byte ()
 		{
 			if (!HaveReadlinkAt)
-				Assert.Ignore ("No ReadlinkAt.");
+				Assert.Inconclusive ("No ReadlinkAt.");
 
 			foreach (string s in Targets) {
 				CreateLink (s);
@@ -242,7 +242,7 @@ namespace MonoTests.Mono.Unix
 		public void readlinkat_char ()
 		{
 			if (!HaveReadlinkAt)
-				Assert.Ignore ("No ReadlinkAt.");
+				Assert.Inconclusive ("No ReadlinkAt.");
 
 			foreach (string s in Targets) {
 				CreateLink (s);

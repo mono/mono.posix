@@ -29,12 +29,12 @@ namespace MonoTests.Mono.Unix.Native
 			try {
 				fd = Syscall.memfd_create ("mono-test", 0);
 			} catch (EntryPointNotFoundException) {
-				Assert.Ignore ("memfd_create() not available");
+				Assert.Inconclusive ("memfd_create() not available");
 				return;
 			}
 			if (fd < 0 && Stdlib.GetLastError () == Errno.ENOSYS)
 				// Might happen on a new libc + old kernel
-				Assert.Ignore ("memfd_create() returns ENOSYS");
+				Assert.Inconclusive ("memfd_create() returns ENOSYS");
 			if (fd < 0)
 				UnixMarshal.ThrowExceptionForLastError ();
 

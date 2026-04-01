@@ -257,7 +257,7 @@ namespace MonoTests.Mono.Unix.Native
 		public void In6Addr ()
 		{
 			if (!Socket.OSSupportsIPv6)
-				Assert.Ignore ("OS does not support IPv6.");
+				Assert.Inconclusive ("OS does not support IPv6.");
 
 			var ip6 = IPAddress.IPv6Loopback;
 			var in6Addr = NativeConvert.ToIn6Addr (ip6);
@@ -329,7 +329,7 @@ namespace MonoTests.Mono.Unix.Native
 		public void SockaddrIn6Test ()
 		{
 			if (!Socket.OSSupportsIPv6)
-				Assert.Ignore ("OS does not support IPv6.");
+				Assert.Inconclusive ("OS does not support IPv6.");
 
 			var address1 = new SockaddrIn6 {
 				sin6_family = UnixAddressFamily.AF_INET6,
@@ -413,7 +413,7 @@ namespace MonoTests.Mono.Unix.Native
 		public void IPv6 ()
 		{
 			if (!Socket.OSSupportsIPv6)
-				Assert.Ignore ("OS does not support IPv6.");
+				Assert.Inconclusive ("OS does not support IPv6.");
 
 			var address = new SockaddrIn6 {
 				sin6_family = UnixAddressFamily.AF_INET6,

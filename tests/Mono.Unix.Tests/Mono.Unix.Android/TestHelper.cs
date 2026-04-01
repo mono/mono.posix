@@ -22,7 +22,7 @@ namespace Mono.Unix.Android
 		public static bool CanUseRealTimeSignals ()
 		{
 			if (!areRealTimeSignalsSafe) {
-				Assert.Ignore ("Real-time signals aren't supported on this Android architecture");
+				Assert.Inconclusive ("Real-time signals aren't supported on this Android architecture");
 				return false;
 			}
 
