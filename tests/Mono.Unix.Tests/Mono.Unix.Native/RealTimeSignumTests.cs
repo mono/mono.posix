@@ -73,7 +73,7 @@ namespace MonoTests.Mono.Unix.Native {
 				return;
 			RealTimeSignum rts1 = new RealTimeSignum (0);
 			RealTimeSignum rts2 = new RealTimeSignum (0);
-			Assert.AreEqual (rts2.GetHashCode (), rts1.GetHashCode ()));
+			Assert.AreEqual (rts2.GetHashCode (), rts1.GetHashCode ());
 		}
 
 		[TestMethod]
