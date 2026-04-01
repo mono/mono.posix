@@ -9,6 +9,7 @@
 // (c) 2003 Ximian, Inc. (http://www.ximian.com)
 // 
 
+#pragma warning disable CA2022 // Avoid inexact read with 'Mono.Unix.StdioFileStream.Read(byte[], int, int)'
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
