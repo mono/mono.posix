@@ -4,6 +4,9 @@
     <AssemblyName>Mono.Unix.Tests</AssemblyName>
     <TestRunnerName>MSTest</TestRunnerName>
     <TestRunnerAdditionalArguments Condition="'$([MSBuild]::IsOSPlatform(OSX))' == 'true'">--filter "Category!=NotOnMac"</TestRunnerAdditionalArguments>
+
+    <!-- MSTEST0017: Assertion arguments should be passed in the correct order. Consider fixing later. -->
+    <NoWarn>$(NoWarn);MSTEST0017</NoWarn>
   </PropertyGroup>
 
   <Import Project="../../Mono.Unix.Common.props" />
