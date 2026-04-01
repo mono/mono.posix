@@ -51,8 +51,8 @@ namespace MonoTests.Mono.Unix.Native {
 				return;
 			RealTimeSignum rts1 = new RealTimeSignum (0);
 			RealTimeSignum rts2 = new RealTimeSignum (0);
-			Assert.That (rts1 == rts2, Is.True);
-			Assert.That (rts1 != rts2, Is.False);
+			Assert.IsTrue (rts1 == rts2);
+			Assert.IsFalse (rts1 != rts2);
 		}
 
 		[TestMethod]
@@ -62,8 +62,8 @@ namespace MonoTests.Mono.Unix.Native {
 				return;
 			RealTimeSignum rts1 = new RealTimeSignum (0);
 			RealTimeSignum rts2 = new RealTimeSignum (1);
-			Assert.That (rts1 == rts2, Is.False);
-			Assert.That (rts1 != rts2, Is.True);
+			Assert.IsFalse (rts1 == rts2);
+			Assert.IsTrue (rts1 != rts2);
 		}
 
 		[TestMethod]
@@ -73,7 +73,7 @@ namespace MonoTests.Mono.Unix.Native {
 				return;
 			RealTimeSignum rts1 = new RealTimeSignum (0);
 			RealTimeSignum rts2 = new RealTimeSignum (0);
-			Assert.That (rts1.GetHashCode (), Is.EqualTo(rts2.GetHashCode ()));
+			Assert.AreEqual (rts2.GetHashCode (), rts1.GetHashCode ()));
 		}
 
 		[TestMethod]
@@ -83,7 +83,7 @@ namespace MonoTests.Mono.Unix.Native {
 				return;
 			RealTimeSignum rts1 = new RealTimeSignum (0);
 			RealTimeSignum rts2 = new RealTimeSignum (1);
-			Assert.That (rts1.GetHashCode (), Is.Not.EqualTo(rts2.GetHashCode ()));
+			Assert.AreNotEqual (rts2.GetHashCode (), rts1.GetHashCode ());
 		}
 
 		[TestMethod]
@@ -93,10 +93,10 @@ namespace MonoTests.Mono.Unix.Native {
 				return;
 
 			int rtsigOffset = Utilities.FindFirstFreeRTSignal ();
-			Assert.That (rtsigOffset, Is.GreaterThan (-1), "No available RT signals");
+			Assert.IsGreaterThan (-1, rtsigOffset, "No available RT signals");
 
 			UnixSignal signal1 = new UnixSignal(new RealTimeSignum (rtsigOffset));
-			Assert.That (signal1.IsRealTimeSignal, Is.True);
+			Assert.IsTrue (signal1.IsRealTimeSignal);
 		}
 
 		[TestMethod]
@@ -105,7 +105,7 @@ namespace MonoTests.Mono.Unix.Native {
 			if (!TestHelper.CanUseRealTimeSignals ())
 				return;
 			UnixSignal signal1 = new UnixSignal (Signum.SIGSEGV);
-			Assert.That (signal1.IsRealTimeSignal, Is.False);
+			Assert.IsFalse (signal1.IsRealTimeSignal);
 		}
 
 	}
