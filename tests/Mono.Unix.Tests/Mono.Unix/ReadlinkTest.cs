@@ -173,7 +173,7 @@ namespace MonoTests.Mono.Unix
 					long r = Syscall.readlink (link, buf);
 					if (r < 0)
 						UnixMarshal.ThrowExceptionForLastError ();
-					Assert.That(buf.Length, Is.GreaterThanOrEqualTo(r));
+					Assert.IsGreaterThanOrEqualTo(r, buf.Length);
 					if (r == buf.Length)
 						buf = new byte[checked (buf.Length * 2)];
 					else
@@ -199,7 +199,7 @@ namespace MonoTests.Mono.Unix
 					long r = Syscall.readlinkat (TempFD, "link", buf);
 					if (r < 0)
 						UnixMarshal.ThrowExceptionForLastError ();
-					Assert.That(buf.Length, Is.GreaterThanOrEqualTo(r));
+					Assert.IsGreaterThanOrEqualTo(r, buf.Length);
 					if (r == buf.Length)
 						buf = new byte[checked (buf.Length * 2)];
 					else
@@ -226,7 +226,7 @@ namespace MonoTests.Mono.Unix
 					if (r < 0)
 						UnixMarshal.ThrowExceptionForLastError ();
 					Assert.AreEqual (r, sb.Length);
-					Assert.That(sb.Capacity, Is.GreaterThanOrEqualTo(r));
+					Assert.IsGreaterThanOrEqualTo(r, sb.Capacity);
 					if (r == sb.Capacity)
 						checked { sb.Capacity *= 2; }
 					else
@@ -255,7 +255,7 @@ namespace MonoTests.Mono.Unix
 					if (r < 0)
 						UnixMarshal.ThrowExceptionForLastError ();
 					Assert.AreEqual (r, sb.Length);
-					Assert.That(sb.Capacity, Is.GreaterThanOrEqualTo(r));
+					Assert.IsGreaterThanOrEqualTo(r, sb.Capacity);
 					if (r == sb.Capacity)
 						checked { sb.Capacity *= 2; }
 					else
