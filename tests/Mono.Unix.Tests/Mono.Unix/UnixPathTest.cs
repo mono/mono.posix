@@ -7,7 +7,7 @@
 // (c) 2006 Jonathan Pryor
 //
 
-using NUnit.Framework;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.IO;
 using System;
 using System.Text;
@@ -16,12 +16,12 @@ using Mono.Unix;
 namespace MonoTests.Mono.Unix
 {
 
-	[TestFixture, Category ("NotDotNet"), Category ("NotOnWindows")]
+	[TestClass, TestCategory ("NotDotNet"), TestCategory ("NotOnWindows")]
 	public class UnixPathTest {
 
 		private static readonly char DSC = UnixPath.DirectorySeparatorChar;
 
-		[Test]
+		[TestMethod]
 		public void Combine ()
 		{
 			string path, expected;

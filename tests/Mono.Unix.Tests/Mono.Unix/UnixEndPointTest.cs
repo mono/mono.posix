@@ -12,16 +12,16 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 
-using NUnit.Framework;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Mono.Unix;
 
 namespace MonoTests.Mono.Unix {
 
-	[TestFixture, Category ("NotOnWindows")]
+	[TestClass, TestCategory ("NotOnWindows")]
 	public class UnixEndPointTest {
 
 		// Regression test for https://bugzilla.xamarin.com/show_bug.cgi?id=35004
-		[Test]
+		[TestMethod]
 		public void TestCreate ()
 		{
 			const string socketFile = "test";

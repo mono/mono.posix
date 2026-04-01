@@ -16,13 +16,13 @@ using System.Runtime.InteropServices;
 using Mono.Unix;
 using Mono.Unix.Native;
 
-using NUnit.Framework;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace MonoTests.Mono.Unix.Native
 {
-	[TestFixture, Category ("NotDotNet"), Category ("NotOnWindows"), Category ("NotOnMac")]
+	[TestClass, TestCategory ("NotDotNet"), TestCategory ("NotOnWindows"), TestCategory ("NotOnMac")]
 	public class MemfdTest {
-		[Test]
+		[TestMethod]
 		public unsafe void TestMemfd ()
 		{
 			int fd;

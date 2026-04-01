@@ -16,16 +16,16 @@ using System.Runtime.InteropServices;
 using Mono.Unix;
 using Mono.Unix.Native;
 
-using NUnit.Framework;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace MonoTests.Mono.Unix.Native
 {
-	[TestFixture, Category ("NotDotNet"), Category ("NotOnWindows"), Category ("NotOnMac")]
+	[TestClass, TestCategory ("NotDotNet"), TestCategory ("NotOnWindows"), TestCategory ("NotOnMac")]
 	public class OFDLockTest {
 
 		string TempFolder;
 
-		[SetUp]
+		[TestInitialize]
 		public void SetUp ()
 		{
 			TempFolder = Path.Combine (Path.GetTempPath (), this.GetType ().FullName);
@@ -36,14 +36,14 @@ namespace MonoTests.Mono.Unix.Native
 			Directory.CreateDirectory (TempFolder);
 		}
 
-		[TearDown]
+		[TestCleanup]
 		public void TearDown()
 		{
 			if (Directory.Exists (TempFolder))
 				Directory.Delete (TempFolder, true);
 		}
 
-		[Test]
+		[TestMethod]
 		public void TestOFDLock ()
 		{
 			int fd1 = Syscall.open (TempFolder + "/testfile", OpenFlags.O_RDWR | OpenFlags.O_CREAT | OpenFlags.O_EXCL, FilePermissions.DEFFILEMODE);

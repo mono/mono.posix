@@ -7,7 +7,7 @@
 // (C) 2008 Realtime Worlds Ltd
 //
 
-using NUnit.Framework;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using System;
 using System.Text;
@@ -18,11 +18,11 @@ using Mono.Unix.Native;
 
 namespace MonoTests.Mono.Unix.Native {
 
-	[TestFixture]
-	[Category ("NotOnMac"), Category ("NotOnWindows")]
+	[TestClass]
+	[TestCategory ("NotOnMac"), TestCategory ("NotOnWindows")]
 	public class RealTimeSignumTest 
 	{
-		[Test]
+		[TestMethod]
 		public void TestRealTimeOutOfRange ()
 		{
 			if (!TestHelper.CanUseRealTimeSignals ())
@@ -33,7 +33,7 @@ namespace MonoTests.Mono.Unix.Native {
 			});
 		}
 
-		[Test]
+		[TestMethod]
 		public void TestRealTimeSignumNegativeOffset ()
 		{
 			if (!TestHelper.CanUseRealTimeSignals ())
@@ -44,7 +44,7 @@ namespace MonoTests.Mono.Unix.Native {
 			});
 		}
 
-		[Test]
+		[TestMethod]
 		public void TestRTSignalEquality ()
 		{
 			if (!TestHelper.CanUseRealTimeSignals ())
@@ -55,7 +55,7 @@ namespace MonoTests.Mono.Unix.Native {
 			Assert.That (rts1 != rts2, Is.False);
 		}
 
-		[Test]
+		[TestMethod]
 		public void TestRTSignalInequality ()
 		{
 			if (!TestHelper.CanUseRealTimeSignals ())
@@ -66,7 +66,7 @@ namespace MonoTests.Mono.Unix.Native {
 			Assert.That (rts1 != rts2, Is.True);
 		}
 
-		[Test]
+		[TestMethod]
 		public void TestRTSignalGetHashCodeEquality ()
 		{
 			if (!TestHelper.CanUseRealTimeSignals ())
@@ -76,7 +76,7 @@ namespace MonoTests.Mono.Unix.Native {
 			Assert.That (rts1.GetHashCode (), Is.EqualTo(rts2.GetHashCode ()));
 		}
 
-		[Test]
+		[TestMethod]
 		public void TestRTSignalGetHashCodeInequality ()
 		{
 			if (!TestHelper.CanUseRealTimeSignals ())
@@ -86,7 +86,7 @@ namespace MonoTests.Mono.Unix.Native {
 			Assert.That (rts1.GetHashCode (), Is.Not.EqualTo(rts2.GetHashCode ()));
 		}
 
-		[Test]
+		[TestMethod]
 		public void TestIsRTSignalPropertyForRTSignum ()
 		{
 			if (!TestHelper.CanUseRealTimeSignals ())
@@ -99,7 +99,7 @@ namespace MonoTests.Mono.Unix.Native {
 			Assert.That (signal1.IsRealTimeSignal, Is.True);
 		}
 
-		[Test]
+		[TestMethod]
 		public void TestIsRTSignalPropertyForSignum ()
 		{
 			if (!TestHelper.CanUseRealTimeSignals ())

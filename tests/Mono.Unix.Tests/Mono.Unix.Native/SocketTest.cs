@@ -16,16 +16,16 @@ using System.Runtime.InteropServices;
 using Mono.Unix;
 using Mono.Unix.Native;
 
-using NUnit.Framework;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace MonoTests.Mono.Unix.Native
 {
-	[TestFixture, Category ("NotDotNet"), Category ("NotOnWindows")]
+	[TestClass, TestCategory ("NotDotNet"), TestCategory ("NotOnWindows")]
 	public class SocketTest {
 
 		string TempFolder;
 
-		[SetUp]
+		[TestInitialize]
 		public void SetUp ()
 		{
 			TempFolder = Path.Combine (Path.GetTempPath (), this.GetType ().FullName);
@@ -36,7 +36,7 @@ namespace MonoTests.Mono.Unix.Native
 			Directory.CreateDirectory (TempFolder);
 		}
 
-		[TearDown]
+		[TestCleanup]
 		public void TearDown()
 		{
 			if (Directory.Exists (TempFolder))
@@ -97,7 +97,7 @@ namespace MonoTests.Mono.Unix.Native
 			}
 		}
 
-		[Test]
+		[TestMethod]
 		public void TestSocket ()
 		{
 			int socket;
@@ -108,7 +108,7 @@ namespace MonoTests.Mono.Unix.Native
 				UnixMarshal.ThrowExceptionForLastError ();
 		}
 
-		[Test]
+		[TestMethod]
 		public void SocketPair ()
 		{
 			int socket1, socket2;
@@ -121,7 +121,7 @@ namespace MonoTests.Mono.Unix.Native
 				UnixMarshal.ThrowExceptionForLastError ();
 		}
 
-		[Test]
+		[TestMethod]
 		public void SendRecv ()
 		{
 			WithSocketPair ((so1, so2) => {
@@ -142,7 +142,7 @@ namespace MonoTests.Mono.Unix.Native
 			});
 		}
 
-		[Test]
+		[TestMethod]
 		public void SockOpt ()
 		{
 			WithSockets (UnixAddressFamily.AF_UNIX, UnixSocketType.SOCK_STREAM, 0, (so1, so2) => {
@@ -175,7 +175,7 @@ namespace MonoTests.Mono.Unix.Native
 			});
 		}
 
-		[Test]
+		[TestMethod]
 #if MONODROID
 		[ExpectedException (typeof (ArgumentOutOfRangeException))] // IPPROTO_TCP not supported
 #endif
@@ -200,7 +200,7 @@ namespace MonoTests.Mono.Unix.Native
 			});
 		}
 
-		[Test]
+		[TestMethod]
 		public void Shutdown ()
 		{
 			WithSocketPair ((so1, so2) => {
@@ -216,7 +216,7 @@ namespace MonoTests.Mono.Unix.Native
 			});
 		}
 
-		[Test]
+		[TestMethod]
 		public unsafe void ByteOrder ()
 		{
 			ushort val1 = Syscall.htons (0x1234);
@@ -242,7 +242,7 @@ namespace MonoTests.Mono.Unix.Native
 			Assert.AreEqual (Syscall.ntohl (val2), 0x76543210);
 		}
 
-		[Test]
+		[TestMethod]
 		public void InAddr ()
 		{
 			var ip = IPAddress.Loopback;
@@ -253,7 +253,7 @@ namespace MonoTests.Mono.Unix.Native
 			Assert.AreEqual ("127.0.0.1", inAddr.ToString ());
 		}
 
-		[Test]
+		[TestMethod]
 		public void In6Addr ()
 		{
 			if (!Socket.OSSupportsIPv6)
@@ -267,7 +267,7 @@ namespace MonoTests.Mono.Unix.Native
 			Assert.AreEqual ("::1", in6Addr.ToString ());
 		}
 
-		[Test]
+		[TestMethod]
 		public void SockaddrUnTest ()
 		{
 			var address1 = new SockaddrUn ("/tmp/foo");
@@ -299,7 +299,7 @@ namespace MonoTests.Mono.Unix.Native
 			Assert.AreEqual ("{sa_family=AF_UNIX, sun_path=\"\\0/tmp/bar\"}", address3.ToString ());
 		}
 
-		[Test]
+		[TestMethod]
 		public void SockaddrInTest ()
 		{
 			var address1 = new SockaddrIn {
@@ -325,7 +325,7 @@ namespace MonoTests.Mono.Unix.Native
 			Assert.AreEqual ("{sin_family=AF_INET, sin_port=htons(5678), sin_addr=127.0.0.1}", address1.ToString ());
 		}
 
-		[Test]
+		[TestMethod]
 		public void SockaddrIn6Test ()
 		{
 			if (!Socket.OSSupportsIPv6)
@@ -349,7 +349,7 @@ namespace MonoTests.Mono.Unix.Native
 			Assert.AreEqual ("{sin6_family=AF_INET6, sin6_port=htons(1234), sin6_flowinfo=2, sin6_addr=::1, sin6_scope_id=3}", address1.ToString ());
 		}
 
-		[Test]
+		[TestMethod]
 #if MONODROID
 		[ExpectedException (typeof (ArgumentOutOfRangeException))] // IPPROTO_UDP not supported
 #endif
@@ -409,7 +409,7 @@ namespace MonoTests.Mono.Unix.Native
 			});
 		}
 
-		[Test]
+		[TestMethod]
 		public void IPv6 ()
 		{
 			if (!Socket.OSSupportsIPv6)
@@ -462,7 +462,7 @@ namespace MonoTests.Mono.Unix.Native
 			});
 		}
 
-		[Test]
+		[TestMethod]
 		public void UnixAccept ()
 		{
 			var address = new SockaddrUn (TempFolder + "/socket1");
@@ -526,8 +526,8 @@ namespace MonoTests.Mono.Unix.Native
 			});
 		}
 
-		[Test]
-		[Category ("NotOnMac")]
+		[TestMethod]
+		[TestCategory ("NotOnMac")]
 #if MONODROID
 		[ExpectedException (typeof (ArgumentOutOfRangeException))] // SOCK_NONBLOCK, SOCK_CLOEXEC not supported
 #endif
@@ -567,7 +567,7 @@ namespace MonoTests.Mono.Unix.Native
 			});
 		}
 
-		[Test]
+		[TestMethod]
 #if MONODROID
 		[ExpectedException (typeof (ArgumentOutOfRangeException))] // IPPROTO_UDP not supported
 #endif
@@ -615,7 +615,7 @@ namespace MonoTests.Mono.Unix.Native
 			});
 		}
 
-		[Test]
+		[TestMethod]
 		public unsafe void SendMsgRecvMsg ()
 		{
 			WithSocketPair ((so1, so2) => {
@@ -660,7 +660,7 @@ namespace MonoTests.Mono.Unix.Native
 			});
 		}
 
-		[Test]
+		[TestMethod]
 #if MONODROID
 		[ExpectedException (typeof (ArgumentOutOfRangeException))] // IPPROTO_UDP not supported
 #endif
@@ -928,14 +928,14 @@ namespace MonoTests.Mono.Unix.Native
 			});
 		}
 
-		[Test]
+		[TestMethod]
 		public unsafe void ControlMsgOneCmsg ()
 		{
 			ControlMsg (useMultipleControlMessages: false);
 		}
 
-		[Test]
-		[Category ("NotOnMac")]
+		[TestMethod]
+		[TestCategory ("NotOnMac")]
 		public unsafe void ControlMsgMultipleCMsgs ()
 		{
 			ControlMsg (useMultipleControlMessages: true);

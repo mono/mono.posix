@@ -11,25 +11,25 @@
 // (C) 2005 Jonathan Pryor
 //
 
-using NUnit.Framework;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Text;
 using Mono.Unix;
 
 namespace MonoTests.Mono.Unix {
 
-	[TestFixture]
+	[TestClass]
 	public class UnixEncodingTest {
 
 		private UnixEncoding unix;
 
-		[SetUp]
+		[TestInitialize]
 		public void Create () 
 		{
 			unix = new UnixEncoding ();
 		}
 
-		[Test]
+		[TestMethod]
 		public void TestEncodingGetBytes1()
 		{
 			UnixEncoding unixEnc = new UnixEncoding ();
@@ -48,7 +48,7 @@ namespace MonoTests.Mono.Unix {
 			Assert.AreEqual (0x2E, unixBytes [6], "UTF #7");
 		}
 
-		[Test]
+		[TestMethod]
 		public void TestEncodingGetBytes2()
 		{
 			UnixEncoding unixEnc = new UnixEncoding ();
@@ -74,7 +74,7 @@ namespace MonoTests.Mono.Unix {
 			Assert.AreEqual (0x21, unixBytes [10], "UTF #12");
 		}
 
-		[Test]
+		[TestMethod]
 		public void TestDecodingGetChars1()
 		{
 			UnixEncoding unixEnc = new UnixEncoding ();
@@ -89,14 +89,14 @@ namespace MonoTests.Mono.Unix {
 			Assert.AreEqual (0x002E, UniCodeChars [3], "UTF #4");
 		}
 
-		[Test]
+		[TestMethod]
 		public void TestMaxCharCount()
 		{
 			UnixEncoding unixenc = new UnixEncoding ();
 			Assert.AreEqual (50, unixenc.GetMaxCharCount(50), "UTF #1");
 		}
 
-		[Test]
+		[TestMethod]
 		public void TestMaxByteCount()
 		{
 			UnixEncoding unixenc = new UnixEncoding ();
@@ -104,7 +104,7 @@ namespace MonoTests.Mono.Unix {
 		}
 
 		// regression for bug #59648
-		[Test]
+		[TestMethod]
 		public void TestThrowOnInvalid ()
 		{
 			UnixEncoding u = new UnixEncoding ();
@@ -137,7 +137,7 @@ namespace MonoTests.Mono.Unix {
 
 		// unix decoding tests from http://www.cl.cam.ac.uk/~mgk25/
 
-		[Test]
+		[TestMethod]
 		public void T1_Correct_GreekWord_kosme () 
 		{
 			byte[] data = { 0xCE, 0xBA, 0xE1, 0xBD, 0xB9, 0xCF, 0x83, 0xCE, 0xBC, 0xCE, 0xB5 };
@@ -147,7 +147,7 @@ namespace MonoTests.Mono.Unix {
 			Assert.AreEqual (BitConverter.ToString (data), BitConverter.ToString (unix.GetBytes (s)), "Reconverted");
 		}
 
-		[Test]
+		[TestMethod]
 		public void T2_Boundary_1_FirstPossibleSequence_Pass () 
 		{
 			byte[] data211 = { 0x00 };
@@ -172,7 +172,7 @@ namespace MonoTests.Mono.Unix {
 			Assert.AreEqual (BitConverter.ToString (data214), BitConverter.ToString (unix.GetBytes (s)), "Reconverted-4");
 		}
 
-		[Test]
+		[TestMethod]
 		public void T2_Boundary_1_FirstPossibleSequence_Fail_5 () 
 		{
 			byte[] data215 = { 0xF8, 0x88, 0x80, 0x80, 0x80 };
@@ -181,7 +181,7 @@ namespace MonoTests.Mono.Unix {
 			Assert.AreEqual (BitConverter.ToString (data215), BitConverter.ToString (unix.GetBytes (s)), "Reconverted-5");
 		}
 
-		[Test]
+		[TestMethod]
 		public void T2_Boundary_1_FirstPossibleSequence_Fail_6 () 
 		{
 			byte[] data216 = { 0xFC, 0x84, 0x80, 0x80, 0x80, 0x80 };
@@ -190,7 +190,7 @@ namespace MonoTests.Mono.Unix {
 			Assert.AreEqual (BitConverter.ToString (data216), BitConverter.ToString (unix.GetBytes (s)), "Reconverted-6");
 		}
 
-		[Test]
+		[TestMethod]
 		public void T2_Boundary_2_LastPossibleSequence_Pass () 
 		{
 			byte[] data221 = { 0x7F };
@@ -210,7 +210,7 @@ namespace MonoTests.Mono.Unix {
 
 		}
 
-		[Test]
+		[TestMethod]
 		public void T2_Boundary_2_LastPossibleSequence_Fail_4 () 
 		{
 			byte[] data224 = { 0x7F, 0xBF, 0xBF, 0xBF };
@@ -219,7 +219,7 @@ namespace MonoTests.Mono.Unix {
 			Assert.AreEqual (BitConverter.ToString (data224), BitConverter.ToString (unix.GetBytes (s)), "Reconverted-4");
 		}
 
-		[Test]
+		[TestMethod]
 		public void T2_Boundary_2_LastPossibleSequence_Fail_5 () 
 		{
 			byte[] data225 = { 0xFB, 0xBF, 0xBF, 0xBF, 0xBF };
@@ -228,7 +228,7 @@ namespace MonoTests.Mono.Unix {
 			Assert.AreEqual (BitConverter.ToString (data225), BitConverter.ToString (unix.GetBytes (s)), "Reconverted-5");
 		}
 
-		[Test]
+		[TestMethod]
 		public void T2_Boundary_2_LastPossibleSequence_Fail_6 () 
 		{
 			byte[] data226 = { 0xFD, 0xBF, 0xBF, 0xBF, 0xBF, 0xBF };
@@ -237,7 +237,7 @@ namespace MonoTests.Mono.Unix {
 			Assert.AreEqual (BitConverter.ToString (data226), BitConverter.ToString (unix.GetBytes (s)), "Reconverted-6");
 		}
 
-		[Test]
+		[TestMethod]
 		public void T2_Boundary_3_Other_Pass () 
 		{
 			byte[] data231 = { 0xED, 0x9F, 0xBF };
@@ -262,7 +262,7 @@ namespace MonoTests.Mono.Unix {
 			Assert.AreEqual (BitConverter.ToString (data234), BitConverter.ToString (unix.GetBytes (s)), "Reconverted-4");
 		}
 
-		[Test]
+		[TestMethod]
 		public void T2_Boundary_3_Other_Fail_5 () 
 		{
 			byte[] data235 = { 0xF4, 0x90, 0x80, 0x80 };
@@ -271,7 +271,7 @@ namespace MonoTests.Mono.Unix {
 			Assert.AreEqual (BitConverter.ToString (data235), BitConverter.ToString (unix.GetBytes (s)), "Reconverted-5");
 		}
 
-		[Test]
+		[TestMethod]
 		public void T3_Malformed_1_UnexpectedContinuation_311 () 
 		{
 			byte[] data = { 0x80 };
@@ -280,7 +280,7 @@ namespace MonoTests.Mono.Unix {
 			Assert.AreEqual (BitConverter.ToString (data), BitConverter.ToString (unix.GetBytes (s)), "Reconverted-311");
 		}
 
-		[Test]
+		[TestMethod]
 		public void T3_Malformed_1_UnexpectedContinuation_312 () 
 		{
 			byte[] data = { 0xBF };
@@ -289,7 +289,7 @@ namespace MonoTests.Mono.Unix {
 			Assert.AreEqual (BitConverter.ToString (data), BitConverter.ToString (unix.GetBytes (s)), "Reconverted-313");
 		}
 
-		[Test]
+		[TestMethod]
 		public void T3_Malformed_1_UnexpectedContinuation_313 () 
 		{
 			byte[] data = { 0x80, 0xBF };
@@ -298,7 +298,7 @@ namespace MonoTests.Mono.Unix {
 			Assert.AreEqual (BitConverter.ToString (data), BitConverter.ToString (unix.GetBytes (s)), "Reconverted-313");
 		}
 
-		[Test]
+		[TestMethod]
 		public void T3_Malformed_1_UnexpectedContinuation_314 () 
 		{
 			byte[] data = { 0x80, 0xBF, 0x80 };
@@ -307,7 +307,7 @@ namespace MonoTests.Mono.Unix {
 			Assert.AreEqual (BitConverter.ToString (data), BitConverter.ToString (unix.GetBytes (s)), "Reconverted-314");
 		}
 
-		[Test]
+		[TestMethod]
 		public void T3_Malformed_1_UnexpectedContinuation_315 () 
 		{
 			byte[] data = { 0x80, 0xBF, 0x80, 0xBF };
@@ -316,7 +316,7 @@ namespace MonoTests.Mono.Unix {
 			Assert.AreEqual (BitConverter.ToString (data), BitConverter.ToString (unix.GetBytes (s)), "Reconverted-315");
 		}
 
-		[Test]
+		[TestMethod]
 		public void T3_Malformed_1_UnexpectedContinuation_316 () 
 		{
 			byte[] data = { 0x80, 0xBF, 0x80, 0xBF, 0x80 };
@@ -325,7 +325,7 @@ namespace MonoTests.Mono.Unix {
 			Assert.AreEqual (BitConverter.ToString (data), BitConverter.ToString (unix.GetBytes (s)), "Reconverted-316");
 		}
 
-		[Test]
+		[TestMethod]
 		public void T3_Malformed_1_UnexpectedContinuation_317 () 
 		{
 			byte[] data = { 0x80, 0xBF, 0x80, 0xBF, 0x80, 0xBF };
@@ -334,7 +334,7 @@ namespace MonoTests.Mono.Unix {
 			Assert.AreEqual (BitConverter.ToString (data), BitConverter.ToString (unix.GetBytes (s)), "Reconverted-317");
 		}
 
-		[Test]
+		[TestMethod]
 		public void T3_Malformed_1_UnexpectedContinuation_318 () 
 		{
 			byte[] data = { 0x80, 0xBF, 0x80, 0xBF, 0x80, 0xBF, 0x80 };
@@ -343,7 +343,7 @@ namespace MonoTests.Mono.Unix {
 			Assert.AreEqual (BitConverter.ToString (data), BitConverter.ToString (unix.GetBytes (s)), "Reconverted-318");
 		}
 
-		[Test]
+		[TestMethod]
 		public void T3_Malformed_1_UnexpectedContinuation_319 () 
 		{
 			// 64 different continuation characters
@@ -365,7 +365,7 @@ namespace MonoTests.Mono.Unix {
 			Assert.AreEqual (BitConverter.ToString (data), BitConverter.ToString (unix.GetBytes (s)), "Reconverted-319");
 		}
 
-		[Test]
+		[TestMethod]
 		public void T3_Malformed_2_LonelyStart_321 ()
 		{
 			byte[] data = { 
@@ -383,7 +383,7 @@ namespace MonoTests.Mono.Unix {
 			Assert.AreEqual (BitConverter.ToString (data), BitConverter.ToString (unix.GetBytes (s)), "Reconverted-T3_Malformed_2_LonelyStart_321");
 		}
 
-		[Test]
+		[TestMethod]
 		public void T3_Malformed_2_LonelyStart_322 () 
 		{
 			byte[] data = { 
@@ -397,7 +397,7 @@ namespace MonoTests.Mono.Unix {
 			Assert.AreEqual (BitConverter.ToString (data), BitConverter.ToString (unix.GetBytes (s)), "Reconverted-T3_Malformed_2_LonelyStart_322");
 		}
 
-		[Test]
+		[TestMethod]
 		public void T3_Malformed_2_LonelyStart_323 () 
 		{
 			byte[] data = { 0xF0, 0x20, 0xF1, 0x20, 0xF2, 0x20, 0xF3, 0x20, 0xF4, 0x20, 0xF5, 0x20, 0xF6, 0x20, 0xF7, 0x20 };
@@ -408,7 +408,7 @@ namespace MonoTests.Mono.Unix {
 			Assert.AreEqual (BitConverter.ToString (data), BitConverter.ToString (unix.GetBytes (s)), "Reconverted-T3_Malformed_2_LonelyStart_323");
 		}
 
-		[Test]
+		[TestMethod]
 		public void T3_Malformed_2_LonelyStart_324 () 
 		{
 			byte[] data = { 0xF0, 0x20, 0xF1, 0x20, 0xF2, 0x20, 0xF3, 0x20, 0xF4, 0x20, 0xF5, 0x20, 0xF6, 0x20, 0xF7, 0x20 };
@@ -419,7 +419,7 @@ namespace MonoTests.Mono.Unix {
 			Assert.AreEqual (BitConverter.ToString (data), BitConverter.ToString (unix.GetBytes (s)), "Reconverted-T3_Malformed_2_LonelyStart_324");
 		}
 
-		[Test]
+		[TestMethod]
 		public void T3_Malformed_2_LonelyStart_325 () 
 		{
 			byte[] data = { 0xFC, 0x20, 0xFD, 0x20 };
@@ -428,7 +428,7 @@ namespace MonoTests.Mono.Unix {
 			Assert.AreEqual (BitConverter.ToString (data), BitConverter.ToString (unix.GetBytes (s)), "Reconverted-T3_Malformed_2_LonelyStart_324");
 		}
 
-		[Test]
+		[TestMethod]
 		public void T3_Malformed_3_LastContinuationMissing_331 () 
 		{
 			byte[] data = { 0xC0 };
@@ -437,14 +437,14 @@ namespace MonoTests.Mono.Unix {
 			Assert.AreEqual (BitConverter.ToString (data), BitConverter.ToString (unix.GetBytes (s)), "Reconverted-T3_Malformed_3_LastContinuationMissing_331");
 		}
 
-		[Test]
+		[TestMethod]
 		public void T3_Malformed_3_LastContinuationMissing_332 () 
 		{
 			byte[] data = { 0xE0, 0x80 };
 			string s = unix.GetString (data);
 		}
 
-		[Test]
+		[TestMethod]
 		public void T3_Malformed_3_LastContinuationMissing_333 () 
 		{
 			byte[] data = { 0xF0, 0x80, 0x80 };
@@ -453,7 +453,7 @@ namespace MonoTests.Mono.Unix {
 			Assert.AreEqual (BitConverter.ToString (data), BitConverter.ToString (unix.GetBytes (s)), "Reconverted-T3_Malformed_3_LastContinuationMissing_333");
 		}
 
-		[Test]
+		[TestMethod]
 		public void T3_Malformed_3_LastContinuationMissing_334 () 
 		{
 			byte[] data = { 0xF8, 0x80, 0x80, 0x80 };
@@ -462,7 +462,7 @@ namespace MonoTests.Mono.Unix {
 			Assert.AreEqual (BitConverter.ToString (data), BitConverter.ToString (unix.GetBytes (s)), "Reconverted-T3_Malformed_3_LastContinuationMissing_334");
 		}
 
-		[Test]
+		[TestMethod]
 		public void T3_Malformed_3_LastContinuationMissing_335 () 
 		{
 			byte[] data = { 0xFC, 0x80, 0x80, 0x80, 0x80 };
@@ -471,7 +471,7 @@ namespace MonoTests.Mono.Unix {
 			Assert.AreEqual (BitConverter.ToString (data), BitConverter.ToString (unix.GetBytes (s)), "Reconverted-T3_Malformed_3_LastContinuationMissing_335");
 		}
 
-		[Test]
+		[TestMethod]
 		public void T3_Malformed_3_LastContinuationMissing_336 () 
 		{
 			byte[] data = { 0xDF };
@@ -480,7 +480,7 @@ namespace MonoTests.Mono.Unix {
 			Assert.AreEqual (BitConverter.ToString (data), BitConverter.ToString (unix.GetBytes (s)), "Reconverted-T3_Malformed_3_LastContinuationMissing_336");
 		}
 
-		[Test]
+		[TestMethod]
 		public void T3_Malformed_3_LastContinuationMissing_337 () 
 		{
 			byte[] data = { 0xEF, 0xBF };
@@ -489,7 +489,7 @@ namespace MonoTests.Mono.Unix {
 			Assert.AreEqual (BitConverter.ToString (data), BitConverter.ToString (unix.GetBytes (s)), "Reconverted-T3_Malformed_3_LastContinuationMissing_337");
 		}
 
-		[Test]
+		[TestMethod]
 		public void T3_Malformed_3_LastContinuationMissing_338 () 
 		{
 			byte[] data = { 0xF7, 0xBF, 0xBF };
@@ -498,7 +498,7 @@ namespace MonoTests.Mono.Unix {
 			Assert.AreEqual (BitConverter.ToString (data), BitConverter.ToString (unix.GetBytes (s)), "Reconverted-T3_Malformed_3_LastContinuationMissing_338");
 		}
 
-		[Test]
+		[TestMethod]
 		public void T3_Malformed_3_LastContinuationMissing_339 () 
 		{
 			byte[] data = { 0xF, 0xBF, 0xBF, 0xBF };
@@ -507,7 +507,7 @@ namespace MonoTests.Mono.Unix {
 			Assert.AreEqual (BitConverter.ToString (data), BitConverter.ToString (unix.GetBytes (s)), "Reconverted-339");
 		}
 
-		[Test]
+		[TestMethod]
 		public void T3_Malformed_3_LastContinuationMissing_3310 () 
 		{
 			byte[] data = { 0xFD, 0xBF, 0xBF, 0xBF, 0xBF };
@@ -516,7 +516,7 @@ namespace MonoTests.Mono.Unix {
 			Assert.AreEqual (BitConverter.ToString (data), BitConverter.ToString (unix.GetBytes (s)), "Reconverted-3310");
 		}
 
-		[Test]
+		[TestMethod]
 		public void T3_Malformed_4_ConcatenationImcomplete () 
 		{
 			byte[] data = {
@@ -531,7 +531,7 @@ namespace MonoTests.Mono.Unix {
 			Assert.AreEqual (BitConverter.ToString (data), BitConverter.ToString (unix.GetBytes (s)), "Reconverted-T3_Malformed_4_ConcatenationImcomplete");
 		}
 
-		[Test]
+		[TestMethod]
 		public void T3_Malformed_5_ImpossibleBytes_351 () 
 		{
 			byte[] data = { 0xFE };
@@ -540,7 +540,7 @@ namespace MonoTests.Mono.Unix {
 			Assert.AreEqual (BitConverter.ToString (data), BitConverter.ToString (unix.GetBytes (s)), "Reconverted-351");
 		}
 
-		[Test]
+		[TestMethod]
 		public void T3_Malformed_5_ImpossibleBytes_352 () 
 		{
 			byte[] data = { 0xFF };
@@ -549,7 +549,7 @@ namespace MonoTests.Mono.Unix {
 			Assert.AreEqual (BitConverter.ToString (data), BitConverter.ToString (unix.GetBytes (s)), "Reconverted-352");
 		}
 
-		[Test]
+		[TestMethod]
 		public void T3_Malformed_5_ImpossibleBytes_353 () 
 		{
 			byte[] data = { 0xFE, 0xFE, 0xFF, 0xFF };
@@ -560,7 +560,7 @@ namespace MonoTests.Mono.Unix {
 
 		// Overlong == dangereous -> "safe" decoder should reject them
 
-		[Test]
+		[TestMethod]
 		public void T4_Overlong_1_ASCII_Slash_411 () 
 		{
 			byte[] data = { 0xC0, 0xAF };
@@ -569,7 +569,7 @@ namespace MonoTests.Mono.Unix {
 			Assert.AreEqual (BitConverter.ToString (data), BitConverter.ToString (unix.GetBytes (s)), "Reconverted-T4_Overlong_1_ASCII_Slash_411");
 		}
 
-		[Test]
+		[TestMethod]
 		public void T4_Overlong_1_ASCII_Slash_412 () 
 		{
 			byte[] data = { 0xE0, 0x80, 0xAF };
@@ -578,7 +578,7 @@ namespace MonoTests.Mono.Unix {
 			Assert.AreEqual (BitConverter.ToString (data), BitConverter.ToString (unix.GetBytes (s)), "Reconverted-T4_Overlong_1_ASCII_Slash_413");
 		}
 
-		[Test]
+		[TestMethod]
 		public void T4_Overlong_1_ASCII_Slash_413 () 
 		{
 			byte[] data = { 0xF0, 0x80, 0x80, 0xAF };
@@ -587,7 +587,7 @@ namespace MonoTests.Mono.Unix {
 			Assert.AreEqual (BitConverter.ToString (data), BitConverter.ToString (unix.GetBytes (s)), "Reconverted-T4_Overlong_1_ASCII_Slash_412");
 		}
 
-		[Test]
+		[TestMethod]
 		public void T4_Overlong_1_ASCII_Slash_414 () 
 		{
 			byte[] data = { 0xF8, 0x80, 0x80, 0x80, 0xAF };
@@ -596,7 +596,7 @@ namespace MonoTests.Mono.Unix {
 			Assert.AreEqual (BitConverter.ToString (data), BitConverter.ToString (unix.GetBytes (s)), "Reconverted-T4_Overlong_1_ASCII_Slash_414");
 		}
 
-		[Test]
+		[TestMethod]
 		public void T4_Overlong_1_ASCII_Slash_415 () 
 		{
 			byte[] data = { 0xFC, 0x80, 0x80, 0x80, 0x80, 0xAF };
@@ -605,7 +605,7 @@ namespace MonoTests.Mono.Unix {
 			Assert.AreEqual (BitConverter.ToString (data), BitConverter.ToString (unix.GetBytes (s)), "Reconverted-T4_Overlong_1_ASCII_Slash_415");
 		}
 
-		[Test]
+		[TestMethod]
 		public void T4_Overlong_2_MaximumBoundary_421 () 
 		{
 			byte[] data = { 0xC1, 0xBF };
@@ -614,7 +614,7 @@ namespace MonoTests.Mono.Unix {
 			Assert.AreEqual (BitConverter.ToString (data), BitConverter.ToString (unix.GetBytes (s)), "Reconverted-T4_Overlong_2_MaximumBoundary_421");
 		}
 
-		[Test]
+		[TestMethod]
 		public void T4_Overlong_2_MaximumBoundary_422 () 
 		{
 			byte[] data = { 0xE0, 0x9F, 0xBF };
@@ -623,7 +623,7 @@ namespace MonoTests.Mono.Unix {
 			Assert.AreEqual (BitConverter.ToString (data), BitConverter.ToString (unix.GetBytes (s)), "Reconverted-T4_Overlong_2_MaximumBoundary_422");
 		}
 
-		[Test]
+		[TestMethod]
 		public void T4_Overlong_2_MaximumBoundary_423 () 
 		{
 			byte[] data = { 0xF0, 0x8F, 0xBF, 0xBF };
@@ -632,7 +632,7 @@ namespace MonoTests.Mono.Unix {
 			Assert.AreEqual (BitConverter.ToString (data), BitConverter.ToString (unix.GetBytes (s)), "Reconverted-T4_Overlong_2_MaximumBoundary_423");
 		}
 
-		[Test]
+		[TestMethod]
 		public void T4_Overlong_2_MaximumBoundary_424 () 
 		{
 			byte[] data = { 0xF8, 0x87, 0xBF, 0xBF, 0xBF };
@@ -641,7 +641,7 @@ namespace MonoTests.Mono.Unix {
 			Assert.AreEqual (BitConverter.ToString (data), BitConverter.ToString (unix.GetBytes (s)), "Reconverted-T4_Overlong_2_MaximumBoundary_424");
 		}
 
-		[Test]
+		[TestMethod]
 		public void T4_Overlong_2_MaximumBoundary_425 () 
 		{
 			byte[] data = { 0xFC, 0x83, 0xBF, 0xBF, 0xBF, 0xBF };
@@ -650,7 +650,7 @@ namespace MonoTests.Mono.Unix {
 			Assert.AreEqual (BitConverter.ToString (data), BitConverter.ToString (unix.GetBytes (s)), "Reconverted-T4_Overlong_2_MaximumBoundary_425");
 		}
 
-		[Test]
+		[TestMethod]
 		public void T4_Overlong_3_NUL_431 () 
 		{
 			byte[] data = { 0xC0, 0x80 };
@@ -659,7 +659,7 @@ namespace MonoTests.Mono.Unix {
 			Assert.AreEqual (BitConverter.ToString (data), BitConverter.ToString (unix.GetBytes (s)), "Reconverted-T4_Overlong_3_NUL_431");
 		}
 
-		[Test]
+		[TestMethod]
 		public void T4_Overlong_3_NUL_432 () 
 		{
 			byte[] data = { 0xE0, 0x80, 0x80 };
@@ -668,7 +668,7 @@ namespace MonoTests.Mono.Unix {
 			Assert.AreEqual (BitConverter.ToString (data), BitConverter.ToString (unix.GetBytes (s)), "Reconverted-T4_Overlong_3_NUL_432");
 		}
 
-		[Test]
+		[TestMethod]
 		public void T4_Overlong_3_NUL_433 () 
 		{
 			byte[] data = { 0xF0, 0x80, 0x80, 0x80 };
@@ -677,7 +677,7 @@ namespace MonoTests.Mono.Unix {
 			Assert.AreEqual (BitConverter.ToString (data), BitConverter.ToString (unix.GetBytes (s)), "Reconverted-T4_Overlong_3_NUL_433");
 		}
 
-		[Test]
+		[TestMethod]
 		public void T4_Overlong_3_NUL_434 () 
 		{
 			byte[] data = { 0xF8, 0x80, 0x80, 0x80, 0x80 };
@@ -686,7 +686,7 @@ namespace MonoTests.Mono.Unix {
 			Assert.AreEqual (BitConverter.ToString (data), BitConverter.ToString (unix.GetBytes (s)), "Reconverted-T4_Overlong_3_NUL_434");
 		}
 
-		[Test]
+		[TestMethod]
 		public void T4_Overlong_3_NUL_435 () 
 		{
 			byte[] data = { 0xFC, 0x80, 0x80, 0x80, 0x80, 0x80 };
@@ -695,7 +695,7 @@ namespace MonoTests.Mono.Unix {
 			Assert.AreEqual (BitConverter.ToString (data), BitConverter.ToString (unix.GetBytes (s)), "Reconverted-T4_Overlong_3_NUL_434");
 		}
 
-		[Test]
+		[TestMethod]
 // MS Fx 1.1 accept this
 //		[ExpectedException (typeof (ArgumentException))]
 		public void T5_IllegalCodePosition_1_UTF16Surrogates_511 () 
@@ -706,7 +706,7 @@ namespace MonoTests.Mono.Unix {
 			Assert.AreEqual (55296, s [0], "MS FX 1.1 behaviour");
 		}
 
-		[Test]
+		[TestMethod]
 // MS Fx 1.1 accept this
 //		[ExpectedException (typeof (ArgumentException))]
 		public void T5_IllegalCodePosition_1_UTF16Surrogates_512 () 
@@ -717,7 +717,7 @@ namespace MonoTests.Mono.Unix {
 			Assert.AreEqual (56191, s [0], "MS FX 1.1 behaviour");
 		}
 
-		[Test]
+		[TestMethod]
 // MS Fx 1.1 accept this
 //		[ExpectedException (typeof (ArgumentException))]
 		public void T5_IllegalCodePosition_1_UTF16Surrogates_513 ()
@@ -728,7 +728,7 @@ namespace MonoTests.Mono.Unix {
 			Assert.AreEqual (56192, s [0], "MS FX 1.1 behaviour");
 		}
 
-		[Test]
+		[TestMethod]
 // MS Fx 1.1 accept this
 //		[ExpectedException (typeof (ArgumentException))]
 		public void T5_IllegalCodePosition_1_UTF16Surrogates_514 () 
@@ -739,7 +739,7 @@ namespace MonoTests.Mono.Unix {
 			Assert.AreEqual (56319, s [0], "MS FX 1.1 behaviour");
 		}
 
-		[Test]
+		[TestMethod]
 // MS Fx 1.1 accept this
 //		[ExpectedException (typeof (ArgumentException))]
 		public void T5_IllegalCodePosition_1_UTF16Surrogates_515 ()
@@ -750,7 +750,7 @@ namespace MonoTests.Mono.Unix {
 			Assert.AreEqual (56320, s [0], "MS FX 1.1 behaviour");
 		}
 
-		[Test]
+		[TestMethod]
 // MS Fx 1.1 accept this
 //		[ExpectedException (typeof (ArgumentException))]
 		public void T5_IllegalCodePosition_1_UTF16Surrogates_516 () 
@@ -761,7 +761,7 @@ namespace MonoTests.Mono.Unix {
 			Assert.AreEqual (57216, s [0], "MS FX 1.1 behaviour");
 		}
 
-		[Test]
+		[TestMethod]
 // MS Fx 1.1 accept this
 //		[ExpectedException (typeof (ArgumentException))]
 		public void T5_IllegalCodePosition_1_UTF16Surrogates_517 () 
@@ -772,7 +772,7 @@ namespace MonoTests.Mono.Unix {
 			Assert.AreEqual (57343, s [0], "MS FX 1.1 behaviour");
 		}
 
-		[Test]
+		[TestMethod]
 // MS Fx 1.1 accept this
 //		[ExpectedException (typeof (ArgumentException))]
 		public void T5_IllegalCodePosition_2_PairedUTF16Surrogates_521 () 
@@ -784,7 +784,7 @@ namespace MonoTests.Mono.Unix {
 			Assert.AreEqual (56320, s [1], "MS FX 1.1 behaviour");
 		}
 
-		[Test]
+		[TestMethod]
 // MS Fx 1.1 accept this
 //		[ExpectedException (typeof (ArgumentException))]
 		public void T5_IllegalCodePosition_2_PairedUTF16Surrogates_522 () 
@@ -796,7 +796,7 @@ namespace MonoTests.Mono.Unix {
 			Assert.AreEqual (57343, s [1], "MS FX 1.1 behaviour");
 		}
 
-		[Test]
+		[TestMethod]
 // MS Fx 1.1 accept this
 //		[ExpectedException (typeof (ArgumentException))]
 		public void T5_IllegalCodePosition_2_PairedUTF16Surrogates_523 () 
@@ -808,7 +808,7 @@ namespace MonoTests.Mono.Unix {
 			Assert.AreEqual (56320, s [1], "MS FX 1.1 behaviour");
 		}
 
-		[Test]
+		[TestMethod]
 // MS Fx 1.1 accept this
 //		[ExpectedException (typeof (ArgumentException))]
 		public void T5_IllegalCodePosition_2_PairedUTF16Surrogates_524 () 
@@ -820,7 +820,7 @@ namespace MonoTests.Mono.Unix {
 			Assert.AreEqual (57343, s [1], "MS FX 1.1 behaviour");
 		}
 
-		[Test]
+		[TestMethod]
 // MS Fx 1.1 accept this
 //		[ExpectedException (typeof (ArgumentException))]
 		public void T5_IllegalCodePosition_2_PairedUTF16Surrogates_525 () 
@@ -832,7 +832,7 @@ namespace MonoTests.Mono.Unix {
 			Assert.AreEqual (56320, s [1], "MS FX 1.1 behaviour");
 		}
 
-		[Test]
+		[TestMethod]
 // MS Fx 1.1 accept this
 //		[ExpectedException (typeof (ArgumentException))]
 		public void T5_IllegalCodePosition_2_PairedUTF16Surrogates_526 () 
@@ -844,7 +844,7 @@ namespace MonoTests.Mono.Unix {
 			Assert.AreEqual (57295, s [1], "MS FX 1.1 behaviour");
 		}
 
-		[Test]
+		[TestMethod]
 // MS Fx 1.1 accept this
 //		[ExpectedException (typeof (ArgumentException))]
 		public void T5_IllegalCodePosition_2_PairedUTF16Surrogates_527 () 
@@ -856,7 +856,7 @@ namespace MonoTests.Mono.Unix {
 			Assert.AreEqual (56320, s [1], "MS FX 1.1 behaviour");
 		}
 
-		[Test]
+		[TestMethod]
 // MS Fx 1.1 accept this
 //		[ExpectedException (typeof (ArgumentException))]
 		public void T5_IllegalCodePosition_2_PairedUTF16Surrogates_528 () 
@@ -868,7 +868,7 @@ namespace MonoTests.Mono.Unix {
 			Assert.AreEqual (57343, s [1], "MS FX 1.1 behaviour");
 		}
 
-		[Test]
+		[TestMethod]
 // MS Fx 1.1 accept this
 //		[ExpectedException (typeof (ArgumentException))]
 		public void T5_IllegalCodePosition_3_Other_531 () 
@@ -879,7 +879,7 @@ namespace MonoTests.Mono.Unix {
 			Assert.AreEqual (65534, s [0], "MS FX 1.1 behaviour");
 		}
 
-		[Test]
+		[TestMethod]
 // MS Fx 1.1 accept this
 //		[ExpectedException (typeof (ArgumentException))]
 		public void T5_IllegalCodePosition_3_Other_532 () 
@@ -890,7 +890,7 @@ namespace MonoTests.Mono.Unix {
 			Assert.AreEqual (65535, s [0], "MS FX 1.1 behaviour");
 		}
 
-		[Test]
+		[TestMethod]
 		// bug #75065 and #73086.
 		public void GetCharsFEFF ()
 		{
@@ -908,7 +908,7 @@ namespace MonoTests.Mono.Unix {
 			Assert.AreEqual ('A', chars [1], "#2");
 		}
 
-		[Test]
+		[TestMethod]
 		public void BinaryFilename ()
 		{
 			Compare ("BinaryFilename",
@@ -927,7 +927,7 @@ namespace MonoTests.Mono.Unix {
 			);
 		}
 
-		[Test]
+		[TestMethod]
 		public void SjisFilename ()
 		{
 			string fn = 
@@ -953,7 +953,7 @@ namespace MonoTests.Mono.Unix {
 			);
 		}
 
-		[Test]
+		[TestMethod]
 		public void SjisFilename2 ()
 		{
 			string fn = 
@@ -995,7 +995,7 @@ namespace MonoTests.Mono.Unix {
 			);
 		}
 
-		[Test]
+		[TestMethod]
 		public void TestEmptyString ()
 		{
 			byte[] data = new byte [] {};

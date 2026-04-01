@@ -1,7 +1,7 @@
 using System;
 using System.Reflection;
 
-using NUnit.Framework;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Mono.Unix.Android
 {

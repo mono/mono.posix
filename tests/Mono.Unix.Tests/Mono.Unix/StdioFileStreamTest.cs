@@ -10,7 +10,7 @@
 // 
 
 
-using NUnit.Framework;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.IO;
 using System.Text;
@@ -18,7 +18,7 @@ using Mono.Unix;
 
 namespace MonoTests.System.IO
 {
-	[TestFixture]
+	[TestClass]
 	public class StdioFileStreamTest {
 
 		static string BaseTempFolder = Path.Combine (Path.GetTempPath (),
@@ -26,8 +26,8 @@ namespace MonoTests.System.IO
 		static string TempFolder;
 		static readonly char DSC = Path.DirectorySeparatorChar;
 
-		[OneTimeSetUp]
-		public void FixtureSetUp ()
+		[ClassInitialize]
+		public static void FixtureSetUp (TestContext context)
 		{
 			try {
 				// Try to cleanup from any previous NUnit run.
@@ -36,7 +36,7 @@ namespace MonoTests.System.IO
 			}
 		}
 
-		[SetUp]
+		[TestInitialize]
 		public void SetUp ()
 		{
 			int i = 0;
@@ -46,7 +46,7 @@ namespace MonoTests.System.IO
 			Directory.CreateDirectory (TempFolder);
 		}
 
-		[TearDown]
+		[TestCleanup]
 		public void TearDown ()
 		{
 			try {
@@ -73,7 +73,7 @@ namespace MonoTests.System.IO
 			}
 		}
 
-		[Test]
+		[TestMethod]
 		public void CtorArgumentException1 ()
 		{
 			Assert.Throws<ArgumentException> (() => {
@@ -83,7 +83,7 @@ namespace MonoTests.System.IO
 			});
 		}
 
-		[Test]
+		[TestMethod]
 		public void CtorArgumentNullException ()
 		{
 			Assert.Throws<ArgumentNullException> (() => {
@@ -92,7 +92,7 @@ namespace MonoTests.System.IO
 			});
 		}
 
-		[Test]
+		[TestMethod]
 		public void CtorFileNotFoundException1 ()
 		{
 			Assert.Throws<FileNotFoundException> (() => {
@@ -109,7 +109,7 @@ namespace MonoTests.System.IO
 			});
 		}
 
-		[Test]
+		[TestMethod]
 		public void CtorFileNotFoundException2 ()
 		{
 			Assert.Throws<FileNotFoundException> (() => {
@@ -128,7 +128,7 @@ namespace MonoTests.System.IO
 			});
 		} 
 
-		[Test]
+		[TestMethod]
 		public void CtorIOException1 ()
 		{
 			Assert.Throws<IOException> (() => {
@@ -149,7 +149,7 @@ namespace MonoTests.System.IO
 			});
 		}
 
-		[Test]
+		[TestMethod]
 		public void CtorArgumentOutOfRangeException1 ()
 		{
 			Assert.Throws<ArgumentOutOfRangeException> (() => {
@@ -166,7 +166,7 @@ namespace MonoTests.System.IO
 			});
 		}
 
-		[Test]
+		[TestMethod]
 		public void CtorArgumentOutOfRangeException2 ()
 		{
 			Assert.Throws<ArgumentOutOfRangeException> (() => {
@@ -183,7 +183,7 @@ namespace MonoTests.System.IO
 			});
 		}
 
-		[Test]
+		[TestMethod]
 		public void CtorDirectoryNotFoundException ()
 		{
 			Assert.Throws<DirectoryNotFoundException> (() => {
@@ -205,7 +205,7 @@ namespace MonoTests.System.IO
 			});
 		}
 
-		[Test]
+		[TestMethod]
 		public void CtorArgumentException3 ()
 		{
 			Assert.Throws<ArgumentException> (() => {
@@ -226,7 +226,7 @@ namespace MonoTests.System.IO
 		}
 
 		// StdioFileStream doesn't mimic the "no writing by another object" rule
-		/* [Test] */
+		/* [TestMethod] */
 		public void CtorIOException ()
 		{
 			Assert.Throws<IOException> (() => {
@@ -250,7 +250,7 @@ namespace MonoTests.System.IO
 			});
 		}
 
-		[Test]
+		[TestMethod]
 		public void CtorAccess1Read2Read ()
 		{
 			StdioFileStream fs = null;
@@ -272,7 +272,7 @@ namespace MonoTests.System.IO
 			}
 		}
 
-		[Test]
+		[TestMethod]
 		public void Write ()
 		{
 			string path = TempFolder + DSC + "StdioFileStreamTest.Write";
@@ -308,7 +308,7 @@ namespace MonoTests.System.IO
 			stream.Close ();
 		}
 
-		[Test]
+		[TestMethod]
 		public void Length ()
 		{
 			// Test that the Length property takes into account the data
@@ -326,7 +326,7 @@ namespace MonoTests.System.IO
 			stream.Close ();
 		}
 
-		[Test]
+		[TestMethod]
 		public void Flush ()
 		{
 #if XXX
@@ -370,7 +370,7 @@ namespace MonoTests.System.IO
 #endif
 		}
 
-		[Test]
+		[TestMethod]
 		public void TestDefaultProperties ()
 		{
 #if XXX
@@ -408,7 +408,7 @@ namespace MonoTests.System.IO
 
 		// HACK: the values for `fp.ToString()' assume glibc, and may change under
 		// a different C library (due to structure of fpos_t).
-		[Test]
+		[TestMethod]
 		public void PositionAfterWrite ()
 		{
 #if XXX
@@ -440,7 +440,7 @@ namespace MonoTests.System.IO
 #endif
 		}
 
-		[Test]
+		[TestMethod]
 		public void Seek ()
 		{
 			string path = TempFolder + DSC + "FST.Seek.Test";
@@ -471,7 +471,7 @@ namespace MonoTests.System.IO
 			DeleteFile (path);
 		}
 
-		[Test]
+		[TestMethod]
 		public void TestSeek ()
 		{
 			string path = TempFolder + Path.DirectorySeparatorChar + "TestSeek";
@@ -526,7 +526,7 @@ namespace MonoTests.System.IO
 			DeleteFile (path);
 		}
 
-		[Test]
+		[TestMethod]
 		public void TestClose ()
 		{
 #if FALSE
@@ -596,7 +596,7 @@ namespace MonoTests.System.IO
 		/// when the stream is opened with access mode <see cref="FileAccess.Read" /> and the
 		/// <see cref="StdioFileStream.Write(byte[], int, int)" /> method is called.
 		/// </summary>
-		[Test]
+		[TestMethod]
 		public void TestWriteVerifyAccessMode ()
 		{
 			Assert.Throws<NotSupportedException> (() => {
@@ -623,7 +623,7 @@ namespace MonoTests.System.IO
 		/// when the stream is opened with access mode <see cref="FileAccess.Read" /> and the
 		/// <see cref="StdioFileStream.WriteByte(byte)" /> method is called.
 		/// </summary>
-		[Test]
+		[TestMethod]
 		public void TestWriteByteVerifyAccessMode ()
 		{
 			Assert.Throws<NotSupportedException> (() => {
@@ -648,7 +648,7 @@ namespace MonoTests.System.IO
 		/// when the stream is opened with access mode <see cref="FileAccess.Write" /> and the
 		/// <see cref="StdioFileStream.Read(byte[], int, int)" /> method is called.
 		/// </summary>
-		[Test]
+		[TestMethod]
 		public void TestReadVerifyAccessMode ()
 		{
 			Assert.Throws<NotSupportedException> (() => {
@@ -673,7 +673,7 @@ namespace MonoTests.System.IO
 		/// when the stream is opened with access mode <see cref="FileAccess.Write" /> and the
 		/// <see cref="StdioFileStream.ReadByte()" /> method is called.
 		/// </summary>
-		[Test]
+		[TestMethod]
 		public void TestReadByteVerifyAccessMode ()
 		{
 			Assert.Throws<NotSupportedException> (() => {
@@ -695,7 +695,7 @@ namespace MonoTests.System.IO
 
 		// Check that the stream is flushed even when it doesn't own the
 		// handle
-		[Test]
+		[TestMethod]
 		public void TestFlushNotOwningHandle ()
 		{
 			string path = Path.Combine (TempFolder, "TestFlushNotOwningHandle");
@@ -719,7 +719,7 @@ namespace MonoTests.System.IO
 				File.Delete (path);
 		}
 
-		[Test]
+		[TestMethod]
 		public void Read_OffsetNegative ()
 		{
 			Assert.Throws<ArgumentOutOfRangeException> (() => {
@@ -732,7 +732,7 @@ namespace MonoTests.System.IO
 			});
 		}
 
-		[Test]
+		[TestMethod]
 		public void Read_OffsetOverflow ()
 		{
 			Assert.Throws<ArgumentException> (() => {
@@ -745,7 +745,7 @@ namespace MonoTests.System.IO
 			});
 		}
 
-		[Test]
+		[TestMethod]
 		public void Read_CountNegative ()
 		{
 			Assert.Throws<ArgumentOutOfRangeException> (() => {
@@ -758,7 +758,7 @@ namespace MonoTests.System.IO
 			});
 		}
 
-		[Test]
+		[TestMethod]
 		public void Read_CountOverflow ()
 		{
 			Assert.Throws<ArgumentException> (() => {
@@ -771,7 +771,7 @@ namespace MonoTests.System.IO
 			});
 		}
 
-		[Test]
+		[TestMethod]
 		public void Write_OffsetNegative ()
 		{
 			Assert.Throws<ArgumentOutOfRangeException> (() => {
@@ -784,7 +784,7 @@ namespace MonoTests.System.IO
 			});
 		}
 
-		[Test]
+		[TestMethod]
 		public void Write_OffsetOverflow ()
 		{
 			Assert.Throws<ArgumentException> (() => {
@@ -797,7 +797,7 @@ namespace MonoTests.System.IO
 			});
 		}
 
-		[Test]
+		[TestMethod]
 		public void Write_CountNegative ()
 		{
 			Assert.Throws<ArgumentOutOfRangeException> (() => {
@@ -810,7 +810,7 @@ namespace MonoTests.System.IO
 			});
 		}
 
-		[Test]
+		[TestMethod]
 		public void Write_CountOverflow ()
 		{
 			Assert.Throws<ArgumentException> (() => {
@@ -823,7 +823,7 @@ namespace MonoTests.System.IO
 			});
 		}
 
-		[Test]
+		[TestMethod]
 		public void Seek_InvalidSeekOrigin () 
 		{
 			Assert.Throws<ArgumentException> (() => {
@@ -842,14 +842,14 @@ namespace MonoTests.System.IO
 		// only.
 		// See bug: 76506
 		//
-		//[Test]
+		//[TestMethod]
 		//[ExpectedException (typeof (ArgumentException))]
 		//public void Constructor_InvalidFileHandle () 
 		//{
 		//		new StdioFileStream ((IntPtr)(-1), FileAccess.Read);
 		//}
 
-		[Test]
+		[TestMethod]
 		public void Position_Disposed () 
 		{
 			Assert.Throws<ObjectDisposedException> (() => {
@@ -861,7 +861,7 @@ namespace MonoTests.System.IO
 			});
 		}
 
-		[Test]
+		[TestMethod]
 		public void Flush_Disposed () 
 		{
 			Assert.Throws<ObjectDisposedException> (() => {
@@ -873,7 +873,7 @@ namespace MonoTests.System.IO
 			});
 		}
 
-		[Test]
+		[TestMethod]
 		public void Seek_Disposed () 
 		{
 			Assert.Throws<ObjectDisposedException> (() => {
@@ -885,7 +885,7 @@ namespace MonoTests.System.IO
 			});
 		}
 
-		[Test]
+		[TestMethod]
 		public void ReadBytePastEndOfStream () 
 		{
 			string path = TempFolder + Path.DirectorySeparatorChar + "temp";
@@ -897,7 +897,7 @@ namespace MonoTests.System.IO
 			}
 		}
 
-		[Test]
+		[TestMethod]
 		public void SetLengthWithClosedBaseStream ()
 		{
 			Assert.Throws<NotSupportedException> (() => {

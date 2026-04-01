@@ -11,13 +11,13 @@
 using System;
 using System.Text;
 
-using NUnit.Framework;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using Mono.Unix.Native;
 
 namespace MonoTests.Mono.Unix.Native {
 
-	[TestFixture, Category ("NotOnWindows")]
+	[TestClass, TestCategory ("NotOnWindows")]
 	public class StdlibTest
 	{
 		private class SignalTest {
@@ -30,14 +30,14 @@ namespace MonoTests.Mono.Unix.Native {
 		}
 
 
-		[Test]
+		[TestMethod]
 		public void GetPid ()
 		{
 			var currentPID = Syscall.getpid();
 			Assert.AreNotEqual (0, currentPID);
 		}
 
-		// [Test]
+		// [TestMethod]
 		public void Signal ()
 		{
 			SignalTest st = new SignalTest ();
@@ -69,10 +69,10 @@ namespace MonoTests.Mono.Unix.Native {
 					"#IH: Signal Handler invoked when it should have been removed!");
 		}
 #if !NETCOREAPP2_0_OR_GREATER && !NET6_0_OR_GREATER
-		[Test]
+		[TestMethod]
 		// MSVCRT.DLL doesn't export snprintf(3).
-		[Category ("NotDotNet")]
-		[Category ("NotWorking")]
+		[TestCategory ("NotDotNet")]
+		[TestCategory ("NotWorking")]
 		public void Snprintf ()
 		{
 			StringBuilder s = new StringBuilder (1000);
