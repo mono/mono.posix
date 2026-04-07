@@ -239,7 +239,7 @@ namespace MonoTests.Mono.Unix.Native
 			ptr2[1] = 0x54;
 			ptr2[2] = 0x32;
 			ptr2[3] = 0x10;
-			Assert.AreEqual<object> (Syscall.ntohl (val2), 0x76543210);
+			Assert.AreEqual (Syscall.ntohl (val2), (uint) 0x76543210);
 		}
 
 		[TestMethod]
@@ -248,7 +248,7 @@ namespace MonoTests.Mono.Unix.Native
 			var ip = IPAddress.Loopback;
 			var inAddr = NativeConvert.ToInAddr (ip);
 			Assert.AreEqual (ip, NativeConvert.ToIPAddress (inAddr));
-			Assert.AreEqual ((uint)0x7f000001, Syscall.ntohl (inAddr.s_addr));
+			Assert.AreEqual ((uint) 0x7f000001, Syscall.ntohl (inAddr.s_addr));
 
 			Assert.AreEqual ("127.0.0.1", inAddr.ToString ());
 		}
