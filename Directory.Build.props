@@ -1,5 +1,7 @@
 <Project>
   <Import Project="Sdk.props" Sdk="Microsoft.DotNet.Arcade.Sdk" />
 
-  <TestCaptureOutput>false</TestCaptureOutput>
+  <PropertyGroup>
+    <TestCaptureOutput>false</TestCaptureOutput>
+  </PropertyGroup>
 </Project>
