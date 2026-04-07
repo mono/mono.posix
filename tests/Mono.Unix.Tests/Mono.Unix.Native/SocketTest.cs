@@ -248,7 +248,7 @@ namespace MonoTests.Mono.Unix.Native
 			var ip = IPAddress.Loopback;
 			var inAddr = NativeConvert.ToInAddr (ip);
 			Assert.AreEqual (ip, NativeConvert.ToIPAddress (inAddr));
-			Assert.AreEqual<object> (0x7f000001, Syscall.ntohl (inAddr.s_addr));
+			Assert.AreEqual ((uint)0x7f000001, Syscall.ntohl (inAddr.s_addr));
 
 			Assert.AreEqual ("127.0.0.1", inAddr.ToString ());
 		}
