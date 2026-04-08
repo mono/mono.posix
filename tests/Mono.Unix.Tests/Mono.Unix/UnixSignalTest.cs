@@ -7,7 +7,7 @@
 // (C) 2008 Jonathan Pryor
 //
 
-using NUnit.Framework;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using System;
 using System.Diagnostics;
@@ -19,7 +19,7 @@ using Mono.Unix.Native;
 
 namespace MonoTests.Mono.Unix {
 
-	[TestFixture, Category ("NotOnWindows")]
+	[TestClass, TestCategory ("NotOnWindows")]
 	public class UnixSignalTest {
 
 		// helper method to create a thread waiting on a UnixSignal
@@ -48,7 +48,7 @@ namespace MonoTests.Mono.Unix {
 			t2.Join ();
 		}
 
-		[Test]
+		[TestMethod]
 		public void TestNestedInvocation()
 		{
 			UnixSignal s = new UnixSignal(Signum.SIGINT);
@@ -64,7 +64,7 @@ namespace MonoTests.Mono.Unix {
 			b.Join();
 		}
 
-		[Test]
+		[TestMethod]
 		public void TestWaitAnyFailsWithMore64Signals()
 		{
 			UnixSignal s1 = new UnixSignal(Signum.SIGINT);
@@ -72,10 +72,10 @@ namespace MonoTests.Mono.Unix {
 			for (int i=0; i<65; ++i)
 				signals[i] = s1;
 			
-			Assert.That(UnixSignal.WaitAny(signals, new TimeSpan(0,0,1)), Is.EqualTo(-1));
+			Assert.AreEqual(-1, UnixSignal.WaitAny(signals, new TimeSpan(0,0,1)));
 		}
 
-		[Test]
+		[TestMethod]
 		public void TestConcurrentWaitOne()
 		{
 			UnixSignal s1 = new UnixSignal(Signum.SIGINT);
@@ -92,11 +92,11 @@ namespace MonoTests.Mono.Unix {
 			a.Join();
 			b.Join();
 			c.Join();
-			Assert.That(s1.Count, Is.EqualTo(1), "Expected 1 signal raised");
-			Assert.That(s2.Count, Is.EqualTo(1), "Expected 1 signal raised");
+			Assert.AreEqual(1, s1.Count, "Expected 1 signal raised");
+			Assert.AreEqual(1, s2.Count, "Expected 1 signal raised");
 		}
 
-		[Test]
+		[TestMethod]
 		public void TestConcurrentWaitOneSameInstance()
 		{
 			UnixSignal s1 = new UnixSignal(Signum.SIGINT);
@@ -114,41 +114,41 @@ namespace MonoTests.Mono.Unix {
 			c.Join();
 		}
 
-		[Test]
-		[Category ("AndroidNotWorking")] // Crashes (silently) the runtime in similar fashion to real-time signals
+		[TestMethod]
+		[TestCategory ("AndroidNotWorking")] // Crashes (silently) the runtime in similar fashion to real-time signals
 		public void TestSignumProperty ()
 		{
 			UnixSignal signal1 = new UnixSignal (Signum.SIGSEGV);
-			Assert.That (signal1.Signum, Is.EqualTo (Signum.SIGSEGV));
+			Assert.AreEqual (Signum.SIGSEGV, signal1.Signum);
 		}
 	
-		[Test]
-		[Category ("NotOnMac")]
+		[TestMethod]
+		[TestCategory ("NotOnMac")]
 		public void TestRealTimeCstor ()
 		{
 			if (!TestHelper.CanUseRealTimeSignals ())
 				return;
 
 			int rtsigOffset = Utilities.FindFirstFreeRTSignal ();
-			Assert.That (rtsigOffset, Is.GreaterThan (-1), "No available RT signals");
+			Assert.IsGreaterThan (-1, rtsigOffset, "No available RT signals");
 
 			RealTimeSignum rts = new RealTimeSignum (rtsigOffset);
 			using (UnixSignal s = new UnixSignal (rts))
 			{
-				Assert.That(s.IsRealTimeSignal);
-				Assert.That(s.RealTimeSignum, Is.EqualTo (rts));
+				Assert.IsTrue(s.IsRealTimeSignal);
+				Assert.AreEqual(rts, s.RealTimeSignum);
 			}
 		}
 
-		[Test]
-		[Category ("NotOnMac")]
+		[TestMethod]
+		[TestCategory ("NotOnMac")]
 		public void TestSignumPropertyThrows ()
 		{
 			if (!TestHelper.CanUseRealTimeSignals ())
 				return;
 
 			int rtsigOffset = Utilities.FindFirstFreeRTSignal ();
-			Assert.That (rtsigOffset, Is.GreaterThan (-1), "No available RT signals");
+			Assert.IsGreaterThan (-1, rtsigOffset, "No available RT signals");
 
 			Assert.Throws<InvalidOperationException> (() => {
 				UnixSignal signal1 = new UnixSignal (new RealTimeSignum (rtsigOffset));
@@ -156,23 +156,23 @@ namespace MonoTests.Mono.Unix {
 			});
 		}
 
-		[Test]
-		[Category ("NotOnMac")]
+		[TestMethod]
+		[TestCategory ("NotOnMac")]
 		public void TestRealTimeSignumProperty ()
 		{
 			if (!TestHelper.CanUseRealTimeSignals ())
 				return;
 
 			int rtsigOffset = Utilities.FindFirstFreeRTSignal ();
-			Assert.That (rtsigOffset, Is.GreaterThan (-1), "No available RT signals");
+			Assert.IsGreaterThan (-1, rtsigOffset, "No available RT signals");
 
 			RealTimeSignum rts = new RealTimeSignum (rtsigOffset);
 			UnixSignal signal1 = new UnixSignal (rts);
-			Assert.That (signal1.RealTimeSignum, Is.EqualTo (rts));
+			Assert.AreEqual (rts, signal1.RealTimeSignum);
 		}
 	
-		[Test]
-		[Category ("NotOnMac")]
+		[TestMethod]
+		[TestCategory ("NotOnMac")]
 		public void TestRealTimePropertyThrows ()
 		{
 			if (!TestHelper.CanUseRealTimeSignals ())
@@ -184,15 +184,15 @@ namespace MonoTests.Mono.Unix {
 			});
 		}
 
-		[Test]
-		[Category ("NotOnMac")]
+		[TestMethod]
+		[TestCategory ("NotOnMac")]
 		public void TestRaiseRTMINSignal ()
 		{
 			if (!TestHelper.CanUseRealTimeSignals ())
 				return;
 
 			int rtsigOffset = Utilities.FindFirstFreeRTSignal ();
-			Assert.That (rtsigOffset, Is.GreaterThan (-1), "No available RT signals");
+			Assert.IsGreaterThan (-1, rtsigOffset, "No available RT signals");
 
 			RealTimeSignum rts = new RealTimeSignum (rtsigOffset);
 			using (UnixSignal signal = new UnixSignal (rts))
@@ -204,8 +204,8 @@ namespace MonoTests.Mono.Unix {
 			}
 		}
 
-		[Test]
-		[Category ("NotOnMac")]
+		[TestMethod]
+		[TestCategory ("NotOnMac")]
 		public void TestRaiseRTMINPlusOneSignal ()
 		{
 			if (!TestHelper.CanUseRealTimeSignals ())
@@ -228,11 +228,11 @@ namespace MonoTests.Mono.Unix {
 				}
 				return;
 			}
-			Assert.IsTrue (false, "#1 No available RT signal");
+			Assert.Fail ("#1 No available RT signal");
 		}
 
-		[Test]
-		[Category ("NotOnMac")]
+		[TestMethod]
+		[TestCategory ("NotOnMac")]
 		public void TestCanRegisterRTSignalMultipleTimes ()
 		{
 			if (!TestHelper.CanUseRealTimeSignals ())
@@ -253,13 +253,13 @@ namespace MonoTests.Mono.Unix {
 						return;
 					}
 				} catch (ArgumentException) { /*skip the ones that are unavailable*/
-						Assert.IsTrue (false, "#1 Could not register second signal handler");
+						Assert.Fail ("#1 Could not register second signal handler");
 				}
 			}
-			Assert.IsTrue (false, "#2 No available RT signal");
+			Assert.Fail ("#2 No available RT signal");
 		}
 
-		[Test]
+		[TestMethod]
 		public void TestRaise ()
 		{
 			Thread t1 = new Thread (delegate () {
@@ -283,7 +283,7 @@ namespace MonoTests.Mono.Unix {
 			t2.Join ();
 		}
 
-		[Test]
+		[TestMethod]
 		public void TestRaiseAny ()
 		{
 			Thread t1 = new Thread (delegate () {
@@ -307,7 +307,7 @@ namespace MonoTests.Mono.Unix {
 			t2.Join ();
 		}
 
-		[Test]
+		[TestMethod]
 		public void TestSeparation ()
 		{
 			Thread t1 = new Thread (delegate () {
@@ -333,7 +333,7 @@ namespace MonoTests.Mono.Unix {
 			t2.Join ();
 		}
 
-		[Test]
+		[TestMethod]
 		public void TestNoEmit ()
 		{
 			using (UnixSignal u = new UnixSignal (Signum.SIGINT)) {
@@ -346,7 +346,7 @@ namespace MonoTests.Mono.Unix {
 			}
 		}
 
-		[Test]
+		[TestMethod]
 		public void TestNoEmitAny ()
 		{
 			using (UnixSignal u = new UnixSignal (Signum.SIGINT)) {
@@ -355,7 +355,7 @@ namespace MonoTests.Mono.Unix {
 			}
 		}
 
-		[Test]
+		[TestMethod]
 		public void TestDispose1 ()
 		{
 			UnixSignal a = new UnixSignal (Signum.SIGINT);
@@ -386,7 +386,7 @@ namespace MonoTests.Mono.Unix {
 			}
 		}
 
-		[Test]
+		[TestMethod]
 		public void TestDispose2 ()
 		{
 			UnixSignal a = new UnixSignal (Signum.SIGINT);
@@ -408,8 +408,8 @@ namespace MonoTests.Mono.Unix {
 			a.Close ();
 		}
 
-		[Test]
-		[Category ("AndroidNotWorking")] // Android 4.4.4 doesn't have signal(2)
+		[TestMethod]
+		[TestCategory ("AndroidNotWorking")] // Android 4.4.4 doesn't have signal(2)
 		public void TestSignalActionInteraction ()
 		{
 			using (UnixSignal a = new UnixSignal (Signum.SIGINT)) {
@@ -425,7 +425,7 @@ namespace MonoTests.Mono.Unix {
 
 		const int StormCount = 100000;
 
-		[Test]
+		[TestMethod]
 		public void TestRaiseStorm ()
 		{
 			UnixSignal[] usignals = CreateSignals (signals);
@@ -488,7 +488,7 @@ namespace MonoTests.Mono.Unix {
 			});
 		}
 
-		[Test]
+		[TestMethod]
 		public void TestAddRemove ()
 		{
 			UnixSignal[] usignals = CreateSignals (signals);
@@ -523,7 +523,7 @@ namespace MonoTests.Mono.Unix {
 			});
 		}
 
-		[Test]
+		[TestMethod]
 		public void TestWaitAny ()
 		{
 			UnixSignal[] usignals = CreateSignals (signals);

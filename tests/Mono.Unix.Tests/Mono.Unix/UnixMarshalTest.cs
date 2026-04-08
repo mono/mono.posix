@@ -6,7 +6,7 @@
 // (c) 2005 Jonathan Pryor
 //
 
-using NUnit.Framework;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -28,7 +28,7 @@ namespace MonoTests.Mono.Unix {
 		}
 	}
 
-	[TestFixture, Category ("NotOnWindows")]
+	[TestClass, TestCategory ("NotOnWindows")]
 	public class UnixMarshalTest {
 #if false
 		public static void Main ()
@@ -40,14 +40,14 @@ namespace MonoTests.Mono.Unix {
 		}
 #endif
 
-		[Test]
+		[TestMethod]
 		public void BXC10074 ()
 		{
 			var result = UnixMarshal.StringToHeap (null, Encoding.ASCII);
 			Assert.AreEqual (IntPtr.Zero, result, "This used to crash due to a NullReferenceException");
 		}
 
-		[Test]
+		[TestMethod]
 		public void TestStringToHeap ()
 		{
 			object[] data = {
@@ -89,7 +89,7 @@ namespace MonoTests.Mono.Unix {
 			}
 		}
 		
-		[Test]
+		[TestMethod]
 		public void TestPtrToString ()
 		{
 			IntPtr p = UnixMarshal.AllocHeap (1);
@@ -98,7 +98,7 @@ namespace MonoTests.Mono.Unix {
 			UnixMarshal.FreeHeap (p);
 		}
 
-		[Test]
+		[TestMethod]
 		public void TestUtf32PtrToString ()
 		{
 			var utf32NativeEndianNoBom = new UTF32Encoding(

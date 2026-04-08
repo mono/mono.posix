@@ -8,7 +8,7 @@
 // (C) 2004 Jonathan Pryor
 // 
 
-using NUnit.Framework;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Configuration;
 using System.Diagnostics;
@@ -22,11 +22,11 @@ using Syscall = Mono.Unix.Native.Syscall;
 
 namespace MonoTests.Mono.Unix {
 
-	[TestFixture, Category ("NotDotNet"), Category ("NotOnWindows")]
+	[TestClass, TestCategory ("NotDotNet"), TestCategory ("NotOnWindows")]
 	public class UnixUserTest
 	{
-		[Test]
-		[Category ("AndroidNotWorking")] // setpwent is missing from bionic
+		[TestMethod]
+		[TestCategory ("AndroidNotWorking")] // setpwent is missing from bionic
 		public void ListAllUsers_ToString ()
 		{
 			try {
@@ -42,14 +42,14 @@ namespace MonoTests.Mono.Unix {
 			}
 		}
 
-		[Test]
+		[TestMethod]
 		// According to bug 72293, this may not work:
 		// On systems with NIS, it is possible to have multiple users in the passwd
 		// file with the same name, so the assertion above no longer holds.
 		//
 		// The test works on Linux but fails on macOS where it sees a different shell name (`/bin/sh` vs `/bin/bash`)
 		// for `root`.
-		[Category ("NotOnMac")]
+		[TestCategory ("NotOnMac")]
 		public void ReentrantConstructors ()
 		{
 			var user_ids = new List<long> (4);
@@ -83,9 +83,9 @@ namespace MonoTests.Mono.Unix {
 			}
 		}
 
-		[Test]
-		[Category ("NotOnMac")]
-		[Category ("AndroidNotWorking")] // setpwent is missing from bionic
+		[TestMethod]
+		[TestCategory ("NotOnMac")]
+		[TestCategory ("AndroidNotWorking")] // setpwent is missing from bionic
 		[Ignore("Fails on Ubuntu 20.04 on Azure Pipelines")]
 		public void NonReentrantSyscalls ()
 		{
@@ -125,8 +125,8 @@ namespace MonoTests.Mono.Unix {
 			}
 		}
 
-		[Test]
-		[Category ("AndroidNotWorking")] // API 21 has getpwnam_r in the NDK headers, but bionic doesn't export it
+		[TestMethod]
+		[TestCategory ("AndroidNotWorking")] // API 21 has getpwnam_r in the NDK headers, but bionic doesn't export it
 		public void InvalidUsers_Constructor_Name ()
 		{
 			string[] badUsers = new string[]{"i'm bad", "so am i", "does-not-exist"};
@@ -146,7 +146,7 @@ namespace MonoTests.Mono.Unix {
 			}
 		}
 
-		[Test]
+		[TestMethod]
 		public void InvalidUsers_Syscall_Name ()
 		{
 			string[] badUsers = new string[]{"i'm bad", "so am i", "does-not-exist"};
@@ -163,7 +163,7 @@ namespace MonoTests.Mono.Unix {
 			}
 		}
 
-		[Test]
+		[TestMethod]
 		public void Equality ()
 		{
 			Passwd orig = new Passwd ();

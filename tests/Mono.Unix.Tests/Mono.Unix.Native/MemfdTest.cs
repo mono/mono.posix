@@ -16,25 +16,25 @@ using System.Runtime.InteropServices;
 using Mono.Unix;
 using Mono.Unix.Native;
 
-using NUnit.Framework;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace MonoTests.Mono.Unix.Native
 {
-	[TestFixture, Category ("NotDotNet"), Category ("NotOnWindows"), Category ("NotOnMac")]
+	[TestClass, TestCategory ("NotDotNet"), TestCategory ("NotOnWindows"), TestCategory ("NotOnMac")]
 	public class MemfdTest {
-		[Test]
+		[TestMethod]
 		public unsafe void TestMemfd ()
 		{
 			int fd;
 			try {
 				fd = Syscall.memfd_create ("mono-test", 0);
 			} catch (EntryPointNotFoundException) {
-				Assert.Ignore ("memfd_create() not available");
+				Assert.Inconclusive ("memfd_create() not available");
 				return;
 			}
 			if (fd < 0 && Stdlib.GetLastError () == Errno.ENOSYS)
 				// Might happen on a new libc + old kernel
-				Assert.Ignore ("memfd_create() returns ENOSYS");
+				Assert.Inconclusive ("memfd_create() returns ENOSYS");
 			if (fd < 0)
 				UnixMarshal.ThrowExceptionForLastError ();
 

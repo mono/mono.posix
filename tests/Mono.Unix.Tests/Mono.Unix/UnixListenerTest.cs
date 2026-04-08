@@ -9,16 +9,16 @@
 using System;
 using System.IO;
 
-using NUnit.Framework;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Mono.Unix;
 
 namespace MonoTests.Mono.Unix {
 
-	[TestFixture, Category ("NotOnWindows")]
+	[TestClass, TestCategory ("NotOnWindows")]
 	public class UnixListenerTest {
 
 		// test that a socket file is created and deleted by the UnixListener
-		[Test]
+		[TestMethod]
 		public void TestSocketFileCreateDelete ()
 		{
 			var socketFile = Path.GetTempFileName ();

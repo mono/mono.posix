@@ -7,7 +7,7 @@
 // (C) 2008 Realtime Worlds Ltd
 //
 
-using NUnit.Framework;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using System;
 using System.Text;
@@ -18,11 +18,11 @@ using Mono.Unix.Native;
 
 namespace MonoTests.Mono.Unix.Native {
 
-	[TestFixture]
-	[Category ("NotOnMac"), Category ("NotOnWindows")]
+	[TestClass]
+	[TestCategory ("NotOnMac"), TestCategory ("NotOnWindows")]
 	public class RealTimeSignumTest 
 	{
-		[Test]
+		[TestMethod]
 		public void TestRealTimeOutOfRange ()
 		{
 			if (!TestHelper.CanUseRealTimeSignals ())
@@ -33,7 +33,7 @@ namespace MonoTests.Mono.Unix.Native {
 			});
 		}
 
-		[Test]
+		[TestMethod]
 		public void TestRealTimeSignumNegativeOffset ()
 		{
 			if (!TestHelper.CanUseRealTimeSignals ())
@@ -44,68 +44,68 @@ namespace MonoTests.Mono.Unix.Native {
 			});
 		}
 
-		[Test]
+		[TestMethod]
 		public void TestRTSignalEquality ()
 		{
 			if (!TestHelper.CanUseRealTimeSignals ())
 				return;
 			RealTimeSignum rts1 = new RealTimeSignum (0);
 			RealTimeSignum rts2 = new RealTimeSignum (0);
-			Assert.That (rts1 == rts2, Is.True);
-			Assert.That (rts1 != rts2, Is.False);
+			Assert.IsTrue (rts1 == rts2);
+			Assert.IsFalse (rts1 != rts2);
 		}
 
-		[Test]
+		[TestMethod]
 		public void TestRTSignalInequality ()
 		{
 			if (!TestHelper.CanUseRealTimeSignals ())
 				return;
 			RealTimeSignum rts1 = new RealTimeSignum (0);
 			RealTimeSignum rts2 = new RealTimeSignum (1);
-			Assert.That (rts1 == rts2, Is.False);
-			Assert.That (rts1 != rts2, Is.True);
+			Assert.IsFalse (rts1 == rts2);
+			Assert.IsTrue (rts1 != rts2);
 		}
 
-		[Test]
+		[TestMethod]
 		public void TestRTSignalGetHashCodeEquality ()
 		{
 			if (!TestHelper.CanUseRealTimeSignals ())
 				return;
 			RealTimeSignum rts1 = new RealTimeSignum (0);
 			RealTimeSignum rts2 = new RealTimeSignum (0);
-			Assert.That (rts1.GetHashCode (), Is.EqualTo(rts2.GetHashCode ()));
+			Assert.AreEqual (rts2.GetHashCode (), rts1.GetHashCode ());
 		}
 
-		[Test]
+		[TestMethod]
 		public void TestRTSignalGetHashCodeInequality ()
 		{
 			if (!TestHelper.CanUseRealTimeSignals ())
 				return;
 			RealTimeSignum rts1 = new RealTimeSignum (0);
 			RealTimeSignum rts2 = new RealTimeSignum (1);
-			Assert.That (rts1.GetHashCode (), Is.Not.EqualTo(rts2.GetHashCode ()));
+			Assert.AreNotEqual (rts2.GetHashCode (), rts1.GetHashCode ());
 		}
 
-		[Test]
+		[TestMethod]
 		public void TestIsRTSignalPropertyForRTSignum ()
 		{
 			if (!TestHelper.CanUseRealTimeSignals ())
 				return;
 
 			int rtsigOffset = Utilities.FindFirstFreeRTSignal ();
-			Assert.That (rtsigOffset, Is.GreaterThan (-1), "No available RT signals");
+			Assert.IsGreaterThan (-1, rtsigOffset, "No available RT signals");
 
 			UnixSignal signal1 = new UnixSignal(new RealTimeSignum (rtsigOffset));
-			Assert.That (signal1.IsRealTimeSignal, Is.True);
+			Assert.IsTrue (signal1.IsRealTimeSignal);
 		}
 
-		[Test]
+		[TestMethod]
 		public void TestIsRTSignalPropertyForSignum ()
 		{
 			if (!TestHelper.CanUseRealTimeSignals ())
 				return;
 			UnixSignal signal1 = new UnixSignal (Signum.SIGSEGV);
-			Assert.That (signal1.IsRealTimeSignal, Is.False);
+			Assert.IsFalse (signal1.IsRealTimeSignal);
 		}
 
 	}

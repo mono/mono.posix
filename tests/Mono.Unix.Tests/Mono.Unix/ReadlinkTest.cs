@@ -14,11 +14,11 @@ using System.Text;
 using Mono.Unix;
 using Mono.Unix.Native;
 
-using NUnit.Framework;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace MonoTests.Mono.Unix
 {
-	[TestFixture, Category ("NotDotNet"), Category ("NotOnWindows")]
+	[TestClass, TestCategory ("NotDotNet"), TestCategory ("NotOnWindows")]
 	public class ReadlinkTest {
 
 		static string[] Targets = {
@@ -58,7 +58,7 @@ namespace MonoTests.Mono.Unix
 		string TempFolder;
 		int TempFD;
 
-		[SetUp]
+		[TestInitialize]
 		public void SetUp ()
 		{
 			HaveReadlinkAt = false;
@@ -82,7 +82,7 @@ namespace MonoTests.Mono.Unix
 				UnixMarshal.ThrowExceptionForLastError ();
 		}
 
-		[TearDown]
+		[TestCleanup]
 		public void TearDown()
 		{
 			if (Syscall.close (TempFD) < 0)
@@ -105,7 +105,7 @@ namespace MonoTests.Mono.Unix
 					UnixMarshal.ThrowExceptionForLastError ();
 		}
 
-		[Test]
+		[TestMethod]
 		public void ReadLink ()
 		{
 			foreach (string s in Targets) {
@@ -118,11 +118,11 @@ namespace MonoTests.Mono.Unix
 			}
 		}
 
-		[Test]
+		[TestMethod]
 		public void ReadLinkAt ()
 		{
 			if (!HaveReadlinkAt)
-				Assert.Ignore ("No ReadlinkAt.");
+				Assert.Inconclusive ("No ReadlinkAt.");
 
 			foreach (string s in Targets) {
 				CreateLink (s);
@@ -132,7 +132,7 @@ namespace MonoTests.Mono.Unix
 			}
 		}
 
-		[Test]
+		[TestMethod]
 		public void TryReadLink ()
 		{
 			foreach (string s in Targets) {
@@ -145,11 +145,11 @@ namespace MonoTests.Mono.Unix
 			}
 		}
 
-		[Test]
+		[TestMethod]
 		public void TryReadLinkAt ()
 		{
 			if (!HaveReadlinkAt)
-				Assert.Ignore ("No ReadlinkAt.");
+				Assert.Inconclusive ("No ReadlinkAt.");
 
 			foreach (string s in Targets) {
 				CreateLink (s);
@@ -159,7 +159,7 @@ namespace MonoTests.Mono.Unix
 			}
 		}
 
-		[Test]
+		[TestMethod]
 		public void readlink_byte ()
 		{
 			foreach (string s in Targets) {
@@ -173,7 +173,7 @@ namespace MonoTests.Mono.Unix
 					long r = Syscall.readlink (link, buf);
 					if (r < 0)
 						UnixMarshal.ThrowExceptionForLastError ();
-					Assert.That(buf.Length, Is.GreaterThanOrEqualTo(r));
+					Assert.IsGreaterThanOrEqualTo(r, buf.Length);
 					if (r == buf.Length)
 						buf = new byte[checked (buf.Length * 2)];
 					else
@@ -184,11 +184,11 @@ namespace MonoTests.Mono.Unix
 			}
 		}
 
-		[Test]
+		[TestMethod]
 		public void readlinkat_byte ()
 		{
 			if (!HaveReadlinkAt)
-				Assert.Ignore ("No ReadlinkAt.");
+				Assert.Inconclusive ("No ReadlinkAt.");
 
 			foreach (string s in Targets) {
 				CreateLink (s);
@@ -199,7 +199,7 @@ namespace MonoTests.Mono.Unix
 					long r = Syscall.readlinkat (TempFD, "link", buf);
 					if (r < 0)
 						UnixMarshal.ThrowExceptionForLastError ();
-					Assert.That(buf.Length, Is.GreaterThanOrEqualTo(r));
+					Assert.IsGreaterThanOrEqualTo(r, buf.Length);
 					if (r == buf.Length)
 						buf = new byte[checked (buf.Length * 2)];
 					else
@@ -210,7 +210,7 @@ namespace MonoTests.Mono.Unix
 			}
 		}
 
-		[Test]
+		[TestMethod]
 		public void readlink_char ()
 		{
 			foreach (string s in Targets) {
@@ -226,7 +226,7 @@ namespace MonoTests.Mono.Unix
 					if (r < 0)
 						UnixMarshal.ThrowExceptionForLastError ();
 					Assert.AreEqual (r, sb.Length);
-					Assert.That(sb.Capacity, Is.GreaterThanOrEqualTo(r));
+					Assert.IsGreaterThanOrEqualTo(r, sb.Capacity);
 					if (r == sb.Capacity)
 						checked { sb.Capacity *= 2; }
 					else
@@ -238,11 +238,11 @@ namespace MonoTests.Mono.Unix
 			}
 		}
 
-		[Test]
+		[TestMethod]
 		public void readlinkat_char ()
 		{
 			if (!HaveReadlinkAt)
-				Assert.Ignore ("No ReadlinkAt.");
+				Assert.Inconclusive ("No ReadlinkAt.");
 
 			foreach (string s in Targets) {
 				CreateLink (s);
@@ -255,7 +255,7 @@ namespace MonoTests.Mono.Unix
 					if (r < 0)
 						UnixMarshal.ThrowExceptionForLastError ();
 					Assert.AreEqual (r, sb.Length);
-					Assert.That(sb.Capacity, Is.GreaterThanOrEqualTo(r));
+					Assert.IsGreaterThanOrEqualTo(r, sb.Capacity);
 					if (r == sb.Capacity)
 						checked { sb.Capacity *= 2; }
 					else
@@ -267,7 +267,7 @@ namespace MonoTests.Mono.Unix
 			}
 		}
 
-		[Test]
+		[TestMethod]
 		public void ReadlinkMultiByteChar ()
 		{
 			string link = UnixPath.Combine (TempFolder, "link");
