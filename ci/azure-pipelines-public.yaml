@@ -233,7 +233,7 @@ stages:
         destinationFolder: '$(ManagedBuildDir)'
 
     - bash: |
-        ./build.sh $(BuildScriptCommonOptions) --no-build test
+        ./build.sh $(BuildScriptCommonOptions) --no-build --bl test
       displayName: Run tests
       continueOnError: true
 
@@ -242,6 +242,13 @@ stages:
         testResultsFormat: 'VSTest'
         testResultsFiles: '$(ManagedTestResultsDir)/**/*.trx'
         testRunTitle: 'Linux tests'
+
+    - task: PublishPipelineArtifact@1
+      displayName: Upload test logs
+      condition: always()
+      inputs:
+        targetPath: '$(ManagedLogsDir)'
+        artifactName: 'TestLogs_Linux'
 
     - template: templates\fail-on-issue.yaml
 
@@ -286,7 +293,7 @@ stages:
         destinationFolder: '$(ManagedBuildDir)'
 
     - bash: |
-        ./build.sh $(BuildScriptCommonOptions) --no-build test
+        ./build.sh $(BuildScriptCommonOptions) --no-build --bl test
       displayName: Run tests
       continueOnError: true
 
@@ -295,6 +302,13 @@ stages:
         testResultsFormat: 'VSTest'
         testResultsFiles: '$(ManagedTestResultsDir)/**/*.trx'
         testRunTitle: 'macOS tests'
+
+    - task: PublishPipelineArtifact@1
+      displayName: Upload test logs
+      condition: always()
+      inputs:
+        targetPath: '$(ManagedLogsDir)'
+        artifactName: 'TestLogs_macOS'
 
     - template: templates\fail-on-issue.yaml
 

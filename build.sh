@@ -17,6 +17,7 @@ MANAGED_VERBOSITY_VERBOSE="detailed"
 CONFIGURATION="Release"
 USE_COLOR="ON"
 NO_BUILD="no"
+BINARY_LOG="no"
 CMAKE="cmake"
 NINJA="ninja"
 NDK_ROOT="${ANDROID_NDK_HOME:-${ANDROID_NDK_ROOT}}"
@@ -88,6 +89,7 @@ Where OPTIONS is one or more of:
                                iOS default: ${IOS_ABIS}
                                tvOS default: ${TVOS_ABIS}
                                catalyst default: ${CATALYST_ABIS}
+      --bl                  generate MSBuild binary log
   -x, --no-build            do not build native runtime (for the 'test' target) or the managed code
                             (for the 'package' target). The necessary native and managed libraries must
                             be present in their correct location.  This optin is mostly useful for CI.
@@ -344,11 +346,17 @@ function __build_test()
 		cp "${host_build_dir}/lib"/libMono.Unix.* "${managed_build_dir}"
 	done
 
+	local bl=""
+	if [ "${BINARY_LOG}" == "yes" ]; then
+		bl="-bl"
+	fi
+
 	${MY_DIR}/eng/common/build.sh \
 			--restore \
 			--test \
 			--configuration "${CONFIGURATION}" \
-			--projects ${MY_DIR}/Mono.Unix.Tests.sln || something_failed=yes
+			--projects ${MY_DIR}/Mono.Unix.Tests.sln \
+			${bl} || something_failed=yes
 	set +x
 
 	if [ "${something_failed}" == "yes" ]; then
@@ -454,6 +462,8 @@ while (( "$#" )); do
 				missing_argument "$1"
 			fi
 			;;
+
+		--bl) BINARY_LOG="yes"; shift ;;
 
 		-x|--no-build) NO_BUILD="yes"; shift ;;
 
