@@ -1,0 +1,11 @@
+name: open_source_security_pr_policy
+description: 'Pull request policy to block introduction of new vulnerable packages.'
+resource: repository
+configuration:
+  componentGovernance:
+    securityPRSettings:
+      enabled: true
+      isBlocking: true
+      branches:
+      - ~default
+      minSeverity: 'High'
