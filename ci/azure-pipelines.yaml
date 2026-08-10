@@ -36,9 +36,6 @@ extends:
       jobs:
       - job: linux_build_host
         displayName: Build for Linux
-        variables:
-        - name: Codeql.Language
-          value: cpp
         pool:
           name: $(DncEngInternalBuildPool)
           image: '$(LinuxPool)'
@@ -206,8 +203,6 @@ extends:
           value: true
         - name: Codeql.Language
           value: csharp
-        - name: Codeql.Cadence
-          value: 0
         - name: Codeql.TSAEnabled
           value: True
         - name: Codeql.BuildIdentifier

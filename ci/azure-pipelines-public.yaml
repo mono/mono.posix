@@ -18,8 +18,6 @@ stages:
   jobs:
   - job: linux_build_host
     displayName: Build for Linux
-    variables:
-      Codeql.Language: cpp,powershell,python
     pool:
       vmImage: '$(LinuxPool)'
     steps:
@@ -174,7 +172,6 @@ stages:
       Codeql.Enabled: True
       Codeql.SkipTaskAutoInjection: true
       Codeql.Language: csharp
-      Codeql.Cadence: 0
       Codeql.BuildIdentifier: $(System.JobDisplayName)
     pool:
       vmImage: '$(MacPool)'
