@@ -36,6 +36,9 @@ extends:
       jobs:
       - job: linux_build_host
         displayName: Build for Linux
+        variables:
+        - name: Codeql.Language
+          value: cpp
         pool:
           name: $(DncEngInternalBuildPool)
           image: '$(LinuxPool)'
@@ -198,6 +201,17 @@ extends:
 
       - job: mac_build_managed
         displayName: Build managed
+        variables:
+        - name: Codeql.SkipTaskAutoInjection
+          value: true
+        - name: Codeql.Language
+          value: csharp
+        - name: Codeql.Cadence
+          value: 0
+        - name: Codeql.TSAEnabled
+          value: True
+        - name: Codeql.BuildIdentifier
+          value: $(System.JobDisplayName)
         pool:
           name: Azure Pipelines
           vmImage: '$(MacPool)'
@@ -205,9 +219,15 @@ extends:
         steps:
         - template: /ci/templates/mac-common.yaml@self
 
+        - task: CodeQL3000Init@0
+          displayName: Initialize CodeQL (manually-injected)
+
         - bash: |
             ./build.sh $(BuildScriptCommonOptions) managed
           displayName: Build
+
+        - task: CodeQL3000Finalize@0
+          displayName: Finalize CodeQL (manually-injected)
 
         - template: /ci/templates/pack-artifact.yaml@self
           parameters:

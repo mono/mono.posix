@@ -18,6 +18,8 @@ stages:
   jobs:
   - job: linux_build_host
     displayName: Build for Linux
+    variables:
+      Codeql.Language: cpp,powershell,python
     pool:
       vmImage: '$(LinuxPool)'
     steps:
@@ -168,14 +170,26 @@ stages:
 
   - job: mac_build_managed
     displayName: Build managed
+    variables:
+      Codeql.Enabled: True
+      Codeql.SkipTaskAutoInjection: true
+      Codeql.Language: csharp
+      Codeql.Cadence: 0
+      Codeql.BuildIdentifier: $(System.JobDisplayName)
     pool:
       vmImage: '$(MacPool)'
     steps:
     - template: templates/mac-common.yaml
 
+    - task: CodeQL3000Init@0
+      displayName: Initialize CodeQL (manually-injected)
+
     - bash: |
         ./build.sh $(BuildScriptCommonOptions) managed
       displayName: Build
+
+    - task: CodeQL3000Finalize@0
+      displayName: Finalize CodeQL (manually-injected)
 
     - template: templates/pack-artifact.yaml
       parameters:
