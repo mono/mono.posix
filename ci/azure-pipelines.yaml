@@ -9,6 +9,13 @@ pr: none
 variables:
   - template: /ci/common-variables.yml@self
   - template: /eng/common/templates-official/variables/pool-providers.yml@self
+  - ${{ if and(eq(variables['System.TeamProject'], 'internal'), eq(variables['Build.Repository.Name'], 'mono-mono.posix')) }}:
+    - name: Codeql.ADO.Build.Repository.Provider
+      value: GitHub
+    - name: Codeql.ADO.Build.Repository.Uri
+      value: https://github.com/mono/mono.posix
+    - name: Codeql.ADO.Build.SourceBranchName
+      value: $[replace(variables['Build.SourceBranch'], 'refs/heads/', '')]
 
 resources:
   repositories:
