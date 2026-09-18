@@ -248,7 +248,7 @@ stages:
       condition: always()
       inputs:
         targetPath: '$(ManagedLogsDir)'
-        artifactName: 'TestLogs_Linux'
+        artifactName: 'TestLogs_Linux_Attempt$(System.JobAttempt)'
 
     - template: templates\fail-on-issue.yaml
 
@@ -308,7 +308,7 @@ stages:
       condition: always()
       inputs:
         targetPath: '$(ManagedLogsDir)'
-        artifactName: 'TestLogs_macOS'
+        artifactName: 'TestLogs_macOS_Attempt$(System.JobAttempt)'
 
     - template: templates\fail-on-issue.yaml
 

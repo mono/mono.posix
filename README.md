@@ -10,6 +10,7 @@
     - [Supported operating systems](#supported-operating-systems)
     - [Supported managed target frameworks](#supported-managed-target-frameworks)
     - [Build requirements](#build-requirements)
+    - [Running tests](#running-tests)
     - [Source imports](#source-imports)
     - [Source changes relative to Mono sources](#source-changes-relative-to-mono-sources)
         - [Native code](#native-code)
@@ -71,8 +72,8 @@ specific to these systems etc.
 	* `netstandard2.0`
 	* `net45`
   * `Mono.Unix.Tests` supports
-    * `net6.0`
-    * `netcoreapp3.1`
+    * `net8.0`
+    * `net10.0`
 
 ## Build requirements
 
@@ -87,6 +88,18 @@ specific to these systems etc.
     * Xcode 12 (with support for Apple silicon)
   * Linux
     * `gcc` or `clang` compilers
+
+## Running tests
+
+Run `./build.sh test` to build the native and managed libraries and run the
+tests on the host OS. Use `./build.sh --no-build test` when those artifacts
+are already built.
+
+Tests use Arcade's MSTest integration and default test package versions.
+Arcade runs target frameworks in parallel, so tests must use isolated
+temporary directories. On macOS, tests marked `NotOnMac` are excluded.
+Results are written to `artifacts/TestResults/Release`, with captured test
+output in `artifacts/log/Release` (or `Debug` when selected).
 
 ## Source imports
 

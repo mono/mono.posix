@@ -22,29 +22,13 @@ namespace MonoTests.System.IO
 	[TestClass]
 	public class StdioFileStreamTest {
 
-		static string BaseTempFolder = Path.Combine (Path.GetTempPath (),
-			"MonoTests.Mono.Unix.Tests");
-		static string TempFolder;
+		string TempFolder;
 		static readonly char DSC = Path.DirectorySeparatorChar;
-
-		[ClassInitialize]
-		public static void FixtureSetUp (TestContext context)
-		{
-			try {
-				// Try to cleanup from any previous NUnit run.
-				Directory.Delete (BaseTempFolder, true);
-			} catch (Exception) {
-			}
-		}
 
 		[TestInitialize]
 		public void SetUp ()
 		{
-			int i = 0;
-			do {
-				TempFolder = Path.Combine (BaseTempFolder, (++i).ToString());
-			} while (Directory.Exists (TempFolder));
-			Directory.CreateDirectory (TempFolder);
+			TempFolder = Directory.CreateTempSubdirectory ("StdioFileStreamTest-").FullName;
 		}
 
 		[TestCleanup]

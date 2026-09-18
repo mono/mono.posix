@@ -18,8 +18,4 @@
   <ItemGroup>
     <Compile Include="./Mono.Unix*/*.cs" />
   </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Update="Microsoft.NET.Test.Sdk" Version="17.4.0" />
-  </ItemGroup>
 </Project>

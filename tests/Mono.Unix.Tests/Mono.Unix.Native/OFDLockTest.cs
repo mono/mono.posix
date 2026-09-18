@@ -28,12 +28,7 @@ namespace MonoTests.Mono.Unix.Native
 		[TestInitialize]
 		public void SetUp ()
 		{
-			TempFolder = Path.Combine (Path.GetTempPath (), this.GetType ().FullName);
-
-			if (Directory.Exists (TempFolder))
-				Directory.Delete (TempFolder, true);
-
-			Directory.CreateDirectory (TempFolder);
+			TempFolder = Directory.CreateTempSubdirectory ("OFDLockTest-").FullName;
 		}
 
 		[TestCleanup]
