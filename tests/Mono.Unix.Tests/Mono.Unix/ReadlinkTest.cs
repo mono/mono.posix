@@ -69,13 +69,7 @@ namespace MonoTests.Mono.Unix
 			}
 
 
-			TempFolder = Path.Combine (Path.GetTempPath (), this.GetType ().FullName);
-
-			if (Directory.Exists (TempFolder))
-				//Directory.Delete (TempFolder, true); // Fails for long link target paths
-				new UnixDirectoryInfo (TempFolder).Delete (true);
-
-			Directory.CreateDirectory (TempFolder);
+			TempFolder = Directory.CreateTempSubdirectory ("ReadlinkTest-").FullName;
 
 			TempFD = Syscall.open (TempFolder, OpenFlags.O_RDONLY | OpenFlags.O_DIRECTORY);
 			if (TempFD < 0)
